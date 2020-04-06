@@ -136,6 +136,7 @@ static rmtBool g_SettingsInitialized = RMT_FALSE;
     #endif
 
     #ifdef RMT_PLATFORM_LINUX
+        #include <time.h>
         #if defined(__FreeBSD__) || defined(__OpenBSD__)
             #include <pthread_np.h>
         #else
@@ -335,12 +336,12 @@ static rmtU32 msTimer_Get()
 
     clock_t time = clock();
 
-// CLOCKS_PER_SEC is 128 on FreeBSD, causing div/0
-#if defined(__FreeBSD__) || defined(__OpenBSD__)
-    rmtU32 msTime = (rmtU32)(time * 1000 / CLOCKS_PER_SEC);
-#else
-    rmtU32 msTime = (rmtU32)(time / (CLOCKS_PER_SEC / 1000));
-#endif
+        // CLOCKS_PER_SEC is 128 on FreeBSD, causing div/0
+        #if defined(__FreeBSD__) || defined(__OpenBSD__)
+            rmtU32 msTime = (rmtU32) (time * 1000 / CLOCKS_PER_SEC);
+        #else
+            rmtU32 msTime = (rmtU32) (time / (CLOCKS_PER_SEC / 1000));
+        #endif
 
     return msTime;
 
@@ -1161,11 +1162,11 @@ static rmtError VirtualMirrorBuffer_Constructor(VirtualMirrorBuffer* buffer, rmt
     RMT_UNREFERENCED_PARAMETER(nb_attempts);
 
 #ifdef RMT_PLATFORM_LINUX
-#if defined(__FreeBSD__) || defined(__OpenBSD__)
-    char path[] = "/tmp/ring-buffer-XXXXXX";
-#else
-    char path[] = "/dev/shm/ring-buffer-XXXXXX";
-#endif
+    #if defined(__FreeBSD__) || defined(__OpenBSD__)
+        char path[] = "/tmp/ring-buffer-XXXXXX";
+    #else
+        char path[] = "/dev/shm/ring-buffer-XXXXXX";
+    #endif
     int file_descriptor;
 #endif
 
@@ -5206,9 +5207,17 @@ static rmtError ThreadProfiler_Constructor(rmtMessageQueue* mq_to_rmt, ThreadPro
     thread_profiler->threadId = thread_id;
     memset(thread_profiler->sampleTrees, 0, sizeof(thread_profiler->sampleTrees));
 
-#if RMT_USE_D3D11
-    thread_profiler->d3d11 = NULL;
-#endif
+    // Set the initial name to Thread0 etc. or use the existing Linux name.
+    thread_sampler->name[0] = 0;
+    #if defined(RMT_PLATFORM_LINUX) && RMT_USE_POSIX_THREADNAMES && !defined(__FreeBSD__) && !defined(__OpenBSD__)
+    prctl(PR_GET_NAME,thread_sampler->name,0,0,0);
+    #else
+    {
+        static rmtS32 countThreads = 0;
+        strncat_s(thread_sampler->name, sizeof(thread_sampler->name), "Thread", 6);
+        itoahex_s(thread_sampler->name + 6, sizeof(thread_sampler->name) - 6, AtomicAdd(&countThreads, 1));
+    }
+    #endif
 
 #if RMT_USE_D3D12
     thread_profiler->d3d12ThreadData = NULL;
@@ -7249,35 +7258,17 @@ static void SetDebuggerThreadName(const char* name)
         }
     }
 
-    info.dwType = 0x1000;
-    info.szName = name;
-    info.dwThreadID = (DWORD)-1;
-    info.dwFlags = 0;
-
-#ifndef __MINGW32__
-    __try
-    {
-        RaiseException(0x406D1388, 0, sizeof(info) / sizeof(ULONG_PTR), (ULONG_PTR*)&info);
-    }
-    __except (1 /* EXCEPTION_EXECUTE_HANDLER */)
-    {
-    }
-#endif
-#else
-    RMT_UNREFERENCED_PARAMETER(name);
-#endif
-
-#ifdef RMT_PLATFORM_LINUX
-    // pthread_setname_np is a non-standard GNU extension.
-    char name_clamp[16];
-    name_clamp[0] = 0;
-    strncat_s(name_clamp, sizeof(name_clamp), name, 15);
-#if defined(__FreeBSD__) || defined(__OpenBSD__)
-    pthread_set_name_np(pthread_self(), name_clamp);
-#else
-    prctl(PR_SET_NAME, name_clamp, 0, 0, 0);
-#endif
-#endif
+    #ifdef RMT_PLATFORM_LINUX
+        // pthread_setname_np is a non-standard GNU extension.
+        char name_clamp[16];
+        name_clamp[0] = 0;
+        strncat_s(name_clamp, sizeof(name_clamp), name, 15);
+        #if defined(__FreeBSD__) || defined(__OpenBSD__)
+            pthread_set_name_np(pthread_self(), name_clamp);
+        #else
+            prctl(PR_SET_NAME,name_clamp,0,0,0);
+        #endif
+    #endif
 }
 
 RMT_API void _rmt_SetCurrentThreadName(rmtPStr thread_name)
