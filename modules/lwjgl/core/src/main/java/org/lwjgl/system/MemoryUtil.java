@@ -354,6 +354,13 @@ public final class MemoryUtil {
         }
     }
 
+    /** {@code PointerBuffer} version of {@link #memFree}. */
+    public static void memFree(@Nullable PointerBuffer ptr) {
+        if (ptr != null) {
+            nmemFree(ptr.address);
+        }
+    }
+
     /** {@code CustomBuffer} version of {@link #memFree}. */
     public static void memFree(@Nullable CustomBuffer<?> ptr) {
         if (ptr != null) {
