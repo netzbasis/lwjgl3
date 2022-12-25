@@ -1228,6 +1228,7 @@
                 </natives-jar>
                 <natives-jar name="@{name}" title="@{title}" platform="macos-arm64" path="macos/arm64" type="dylib">
                     <macos-arm64-content/>
+                </natives-jar>
                 <natives-jar name="@{name}" title="@{title}" platform="openbsd" path="openbsd/x64" type="so">
                     <openbsd-content/>
                 </natives-jar>
