@@ -8,7 +8,7 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val AMD_shader_core_properties2 = "AMDShaderCoreProperties2".nativeClassVK("AMD_shader_core_properties2", type = "device", postfix = AMD) {
+val AMD_shader_core_properties2 = "AMDShaderCoreProperties2".nativeClassVK("AMD_shader_core_properties2", type = "device", postfix = "AMD") {
     documentation =
         """
         This extension exposes additional shader core properties for a target physical device through the {@link KHRGetPhysicalDeviceProperties2 VK_KHR_get_physical_device_properties2} extension.
@@ -16,6 +16,7 @@ val AMD_shader_core_properties2 = "AMDShaderCoreProperties2".nativeClassVK("AMD_
         <h5>Examples</h5>
         None.
 
+        <h5>VK_AMD_shader_core_properties2</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_AMD_shader_core_properties2}</dd>
@@ -37,9 +38,12 @@ val AMD_shader_core_properties2 = "AMDShaderCoreProperties2".nativeClassVK("AMD_
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Matthaeus G. Chajdas <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_AMD_shader_core_properties2:%20&amp;body=@anteru%20">anteru</a></li>
+                <li>Matthaeus G. Chajdas <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_AMD_shader_core_properties2]%20@anteru%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_AMD_shader_core_properties2%20extension%3E%3E">anteru</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2019-07-26</dd>
 

@@ -223,6 +223,7 @@ static float* paro_write_geodesic(float* dst, const float point_a[3], const floa
     const float dtheta = angle_between_endpoints / num_segments;
     float rotation_axis[3], quat[4];
     paro_cross(rotation_axis, point_a, point_b);
+    paro_normalize(rotation_axis);
     for (int point_index = 1; point_index < num_segments; point_index++, dst += 3) {
         paro_quat_from_rotation(quat, rotation_axis, dtheta * point_index);
         paro_quat_rotate_vector(dst, quat, point_a);
@@ -437,8 +438,8 @@ void par_octasphere_populate(const par_octasphere_config* config, par_octasphere
     float* write_ptr = mesh->positions;
     for (int i = 0; i < n; i++) {
         const float theta = PARO_PI * 0.5 * i / (n - 1);
-        const float point_a[] = {0, sin(theta), cos(theta)};
-        const float point_b[] = {cos(theta), sin(theta), 0};
+        const float point_a[] = {0, sinf(theta), cosf(theta)};
+        const float point_b[] = {cosf(theta), sinf(theta), 0};
         const int num_segments = n - 1 - i;
         write_ptr = paro_write_geodesic(write_ptr, point_a, point_b, num_segments);
     }

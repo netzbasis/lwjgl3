@@ -83,17 +83,27 @@ class AutoSizeIndirect(
     }
 }
 
-/** Marks a member as a callback member's "user data". */
-class UserDataMember(
-    override val reference: String = ""
-) : StructMemberModifier, ReferenceModifier {
-    override val isSpecial = true
-    override fun validate(member: StructMember) {
-        require(member.nativeType is PointerType<*> && member.nativeType.elementType is OpaqueType) {
-            "The UserData modifier can only be applied to opaque pointer parameters."
+/** Adds a capacity check to a buffer parameter. */
+class Check(
+    /** An integer expression to validate against the buffer capacity. */
+    val expression: String,
+    /** If true, the check will only be performed in debug mode. Useful for expensive checks. */
+    val debug: Boolean = false
+) : MemberParamModifier {
+    override val isSpecial = expression != "0"
+    override fun validate(param: Parameter) {
+        require(param.nativeType is PointerType<*>) {
+            "The Check modifier can only be applied to pointer types."
+        }
+
+        require(param.nativeType.mapping !== PointerMapping.OPAQUE_POINTER) {
+            "The Check modifier cannot be applied to opaque pointer types."
         }
     }
 }
+
+/** Factory method for Check modifiers with integer expressions. */
+fun Check(value: Int) = Check(value.toString())
 
 /** Marks an array member as terminated by the specified value. */
 class TerminatedMember(val value: String) : StructMemberModifier {
@@ -105,3 +115,20 @@ class TerminatedMember(val value: String) : StructMemberModifier {
     }
 }
 val NullTerminatedMember = TerminatedMember("")
+
+/** Assigns pointer wrapper types to an opaque pointer member. A setter for each type will be generated that will write wrapper.address() to the member. */
+class PointerSetter(
+    /** An array of types that implement the Pointer interface */
+    vararg val types: String,
+    /** If true, treat as a Vulkan pNext-style member and prepend the pointer to the current pointer chain. */
+    val prepend: Boolean = false,
+    /** Overrides the target type's setter method. If null, defaults to the same name as the modified member. */
+    val targetSetter: String? = null
+): StructMemberModifier {
+    override val isSpecial = true
+    override fun validate(member: StructMember) {
+        require(member.nativeType is PointerType<*> && member.nativeType.mapping === PointerMapping.OPAQUE_POINTER) {
+            "The PointerSetter modifier can only be applied to opaque pointer members."
+        }
+    }
+}

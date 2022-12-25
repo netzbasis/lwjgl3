@@ -8,7 +8,7 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val KHR_imageless_framebuffer = "KHRImagelessFramebuffer".nativeClassVK("KHR_imageless_framebuffer", type = "device", postfix = KHR) {
+val KHR_imageless_framebuffer = "KHRImagelessFramebuffer".nativeClassVK("KHR_imageless_framebuffer", type = "device", postfix = "KHR") {
     documentation =
         """
         This extension allows framebuffers to be created without the need for creating images first, allowing more flexibility in how they are used, and avoiding the need for many of the confusing compatibility rules.
@@ -18,6 +18,7 @@ val KHR_imageless_framebuffer = "KHRImagelessFramebuffer".nativeClassVK("KHR_ima
         <h5>Promotion to Vulkan 1.2</h5>
         All functionality in this extension is included in core Vulkan 1.2, with the KHR suffix omitted. The original type, enum and command names are still available as aliases of the core functionality.
 
+        <h5>VK_KHR_imageless_framebuffer</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_KHR_imageless_framebuffer}</dd>
@@ -40,15 +41,18 @@ val KHR_imageless_framebuffer = "KHRImagelessFramebuffer".nativeClassVK("KHR_ima
 
             <dt><b>Deprecation state</b></dt>
             <dd><ul>
-                <li><em>Promoted</em> to <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#versions-1.2-promotions">Vulkan 1.2</a></li>
+                <li><em>Promoted</em> to <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#versions-1.2-promotions">Vulkan 1.2</a></li>
             </ul></dd>
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Tobias Hector <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_KHR_imageless_framebuffer:%20&amp;body=@tobias%20">tobias</a></li>
+                <li>Tobias Hector <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_KHR_imageless_framebuffer]%20@tobias%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_KHR_imageless_framebuffer%20extension%3E%3E">tobias</a></li>
             </ul></dd>
+        </dl>
 
-            <dt>Last Modified Date</dt>
+        <h5>Other Extension Metadata</h5>
+        <dl>
+            <dt><b>Last Modified Date</b></dt>
             <dd>2018-12-14</dd>
 
             <dt><b>Interactions and External Dependencies</b></dt>
@@ -56,7 +60,7 @@ val KHR_imageless_framebuffer = "KHRImagelessFramebuffer".nativeClassVK("KHR_ima
                 <li>Promoted to Vulkan 1.2 Core</li>
             </ul></dd>
 
-            <dt>Contributors</dt>
+            <dt><b>Contributors</b></dt>
             <dd><ul>
                 <li>Tobias Hector</li>
                 <li>Graham Wihlidal</li>

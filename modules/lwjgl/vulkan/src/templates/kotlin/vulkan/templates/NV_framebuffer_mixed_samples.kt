@@ -8,10 +8,10 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val NV_framebuffer_mixed_samples = "NVFramebufferMixedSamples".nativeClassVK("NV_framebuffer_mixed_samples", type = "device", postfix = NV) {
+val NV_framebuffer_mixed_samples = "NVFramebufferMixedSamples".nativeClassVK("NV_framebuffer_mixed_samples", type = "device", postfix = "NV") {
     documentation =
         """
-        This extension allows multisample rendering with a raster and depth/stencil sample count that is larger than the color sample count. Rasterization and the results of the depth and stencil tests together determine the portion of a pixel that is "{@code covered}". It can be useful to evaluate coverage at a higher frequency than color samples are stored. This coverage is then "{@code reduced}" to a collection of covered color samples, each having an opacity value corresponding to the fraction of the color sample covered. The opacity can optionally be blended into individual color samples.
+        This extension allows multisample rendering with a raster and depth/stencil sample count that is larger than the color sample count. Rasterization and the results of the depth and stencil tests together determine the portion of a pixel that is “{@code covered}”. It can be useful to evaluate coverage at a higher frequency than color samples are stored. This coverage is then “{@code reduced}” to a collection of covered color samples, each having an opacity value corresponding to the fraction of the color sample covered. The opacity can optionally be blended into individual color samples.
 
         Rendering with fewer color samples than depth/stencil samples greatly reduces the amount of memory and bandwidth consumed by the color buffer. However, converting the coverage values into opacity introduces artifacts where triangles share edges and <b>may</b> not be suitable for normal triangle mesh rendering.
 
@@ -24,6 +24,7 @@ val NV_framebuffer_mixed_samples = "NVFramebufferMixedSamples".nativeClassVK("NV
             <li>A coverage reduction step is added to Fragment Operations which converts a set of covered raster/depth/stencil samples to a set of color samples that perform blending and color writes. The coverage reduction step also includes an optional coverage modulation step, multiplying color values by a fractional opacity corresponding to the number of associated raster/depth/stencil samples covered.</li>
         </ul>
 
+        <h5>VK_NV_framebuffer_mixed_samples</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_NV_framebuffer_mixed_samples}</dd>
@@ -44,9 +45,12 @@ val NV_framebuffer_mixed_samples = "NVFramebufferMixedSamples".nativeClassVK("NV
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Jeff Bolz <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_NV_framebuffer_mixed_samples:%20&amp;body=@jeffbolznv%20">jeffbolznv</a></li>
+                <li>Jeff Bolz <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_NV_framebuffer_mixed_samples]%20@jeffbolznv%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_NV_framebuffer_mixed_samples%20extension%3E%3E">jeffbolznv</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2017-06-04</dd>
 

@@ -52,15 +52,9 @@ public class YogaNodeTest {
     }
 
     private static YGMeasureFunc getTestMeasureFunc(float testWidth, float testHeight) {
-        return YGMeasureFunc.create((node, width, widthMode, height, heightMode) -> {
-            try (MemoryStack stack = stackPush()) {
-                return YGMeasureFunc.toLong(
-                    YGSize.mallocStack(stack)
-                        .width(testWidth)
-                        .height(testHeight)
-                );
-            }
-        });
+        return YGMeasureFunc.create((node, width, widthMode, height, heightMode, __result) -> __result
+            .width(testWidth)
+            .height(testHeight));
     }
 
     @Test
@@ -113,7 +107,7 @@ public class YogaNodeTest {
     @Test
     public void testCopyStyle() {
         try (MemoryStack stack = stackPush()) {
-            YGValue v = YGValue.mallocStack(stack);
+            YGValue v = YGValue.malloc(stack);
 
             YogaNode node0 = createNode();
             assertTrue(YogaConstants.isUndefined(node0.getMaxHeight(v)));
@@ -202,7 +196,7 @@ public class YogaNodeTest {
         YogaNode node = createNode();
 
         try (MemoryStack stack = stackPush()) {
-            YGValue v = YGValue.mallocStack(stack);
+            YGValue v = YGValue.malloc(stack);
 
             for (YogaEdge edge : YogaEdge.values()) {
                 assertEquals(YogaUnit.UNDEFINED, node.getMargin(edge, v).unit());
@@ -285,7 +279,7 @@ public class YogaNodeTest {
         YogaNode clonedNode = root2.getChildAt(0);
         assertNotSame(child0, clonedNode);
         try (MemoryStack stack = stackPush()) {
-            YGValue v = YGValue.mallocStack(stack);
+            YGValue v = YGValue.malloc(stack);
 
             assertEquals(child0.getWidth(v).value(), clonedNode.getWidth(v).value());
             assertEquals(50f, clonedNode.getWidth(v).value(), 0.01f);
@@ -414,15 +408,9 @@ public class YogaNodeTest {
         node.setBorder(YogaEdge.BOTTOM, 4);
         node.setDirection(YogaDirection.RTL);
         node.markLayoutSeen();
-        node.setMeasureFunction((n, width, widthMode, height, heightMode) -> {
-            try (MemoryStack stack = stackPush()) {
-                return YGMeasureFunc.toLong(
-                    YGSize.mallocStack(stack)
-                        .width(100)
-                        .height(100)
-                );
-            }
-        });
+        node.setMeasureFunction((n, width, widthMode, height, heightMode, __result) -> __result
+            .width(100)
+            .height(100));
         node.setBaselineFunction((n, width, height) -> height);
 
         node.calculateLayout(YogaConstants.UNDEFINED, YogaConstants.UNDEFINED);

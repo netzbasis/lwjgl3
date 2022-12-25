@@ -15,27 +15,6 @@ enum class Module(
     internal val arrayOverloads: Boolean = true
 ) {
     CORE("core", "org.lwjgl.system", ""),
-    CORE_DYNCALL(
-        "core.dyncall",
-        "org.lwjgl.system.dyncall",
-        """
-        Contains bindings to the ${url("http://www.dyncall.org/", "dyncall")} library.
-
-        The dyncall library encapsulates architecture-, OS- and compiler-specific function call semantics in a virtual bind argument parameters from left to
-        right and then call interface allowing programmers to call C functions in a completely dynamic manner. In other words, instead of calling a function
-        directly, the dyncall library provides a mechanism to push the function parameters manually and to issue the call afterwards.
-
-        This means, that a program can determine at runtime what function to call, and what parameters to pass to it. The library is written in C and assembly
-        and provides a very simple C interface to program against.
-
-        The library comes in very handy to power flexible message systems, dynamic function call dispatch mechanisms, closure implementations, to bridge
-        different programming languages, or to simply wrap a "vararg" function.
-
-        When it comes to language bindings, the dyncall library provides a clean and portable C interface to dynamically issue calls to foreign code using
-        small call kernels written in assembly. Instead of providing code for every bridged function call, which unnecessarily results in code bloat, only a
-        couple of instructions are used to invoke every possible call.
-        """
-    ),
     CORE_JNI(
         "core.jni",
         "org.lwjgl.system.jni",
@@ -46,10 +25,23 @@ enum class Module(
         "org.lwjgl.system.libc",
         "Contains bindings to standard C library APIs."
     ),
+    CORE_LIBFFI(
+        "core.libffi",
+        "org.lwjgl.system.libffi",
+        """
+        Contains bindings to the ${url("https://sourceware.org/libffi/", "libffi")}, a portable, high level programming interface to various calling
+        conventions. This allows a programmer to call any function specified by a call interface description at run-time.
+        """
+    ),
     CORE_LINUX(
         "core.linux",
         "org.lwjgl.system.linux",
         "Contains bindings to native APIs specific to the Linux operating system."
+    ),
+    CORE_LINUX_LIBURING(
+        "core.linux.liburing",
+        "org.lwjgl.system.linux.liburing",
+        "Contains bindings to liburing." // TODO:
     ),
     CORE_MACOS(
         "core.macos",
@@ -109,19 +101,6 @@ enum class Module(
         shaderc can be found under {@code nightly/windows/x64/bgfx-tools/}.
         """
     ),
-    BULLET(
-        "bullet",
-        "org.lwjgl.bullet",
-        """
-		Contains bindings to the ${url("http://bulletphysics.org/", "Bullet")} library.
-
-		<h3>UNSTABLE API</h3>
-
-        Until these bindings are sufficiently tested, this API should be considered unstable.
-		""",
-        library = JNILibrary.create("LibBullet"),
-        arrayOverloads = false
-    ),
     CUDA(
         "cuda",
         "org.lwjgl.cuda",
@@ -134,18 +113,6 @@ enum class Module(
         libraries will be added in the near future.
         """,
         CallingConvention.STDCALL,
-        arrayOverloads = false
-    ),
-    DRIFTFX(
-        "driftfx",
-        "org.lwjgl.driftfx",
-        """
-        Contains bindings to <a href="https://github.com/eclipse-efx/efxclipse-drift">DriftFX</a>.
-
-        DriftFX allows you to render any OpenGL content directly into JavaFX nodes. Direct means that there is no transfer between GPU and main memory. The
-        textures never leave the GPU.
-        """,
-        library = JNILibrary.create("LibDriftFX"),
         arrayOverloads = false
     ),
     EGL(
@@ -170,10 +137,15 @@ enum class Module(
         GLFW comes with extensive documentation, which you can read online ${url("http://www.glfw.org/docs/latest/", "here")}. The
         ${url("http://www.glfw.org/faq.html", "Frequently Asked Questions")} are also useful.
 
+        <h3>Using GLFW on macOS</h3> 
+
         On macOS the JVM must be started with the {@code -XstartOnFirstThread} argument for GLFW to work. This is necessary because most GLFW functions must be
-        called on the main thread and the Cocoa API on macOS requires that thread to be the first thread in the process. For this reason, on-screen GLFW
-        windows and the GLFW event loop are incompatible with other window toolkits (such as AWT/Swing or JavaFX) on macOS. Off-screen GLFW windows can be used
-        with other window toolkits, but only if the window toolkit is initialized before GLFW.
+        called on the main thread and the Cocoa API requires that thread to be the first thread in the process. GLFW windows and the GLFW event loop are
+        incompatible with other window toolkits (such as AWT/Swing or JavaFX).
+
+        Applications that cannot function with the above limitation may set {@link org.lwjgl.system.Configuration\#GLFW_LIBRARY_NAME GLFW_LIBRARY_NAME} to the
+        value {@code "glfw_async"}. This will instruct LWJGL to load an alternative GLFW build that dispatches Cocoa calls to the main thread in blocking mode.
+        The other window toolkit must be initialized (e.g. with AWT's {@code Toolkit.getDefaultToolkit()}) before #Init() is called.
         """
     ),
     JAWT(
@@ -513,6 +485,18 @@ enum class Module(
         library = JNILibrary.create("OpenVR", custom = true),
         arrayOverloads = false
     ),
+    OPENXR(
+        "openxr",
+        "org.lwjgl.openxr",
+        """
+        Contains bindings to ${url("https://www.khronos.org/openxr/", "OpenXR")}.
+
+        OpenXR is a royalty-free, open standard that provides high-performance access to Augmented Reality (AR) and Virtual Reality (VR)—collectively known as
+        XR—platforms and devices.
+        """,
+        CallingConvention.STDCALL,
+        arrayOverloads = false
+    ),
     OPUS(
         "opus",
         "org.lwjgl.util.opus",
@@ -626,7 +610,9 @@ enum class Module(
         "Contains bindings to ${url("https://sourceforge.net/projects/tinyfiledialogs/", "tiny file dialogs")}.",
         library = JNILibrary.simple(
             """Library.loadSystem(System::load, System::loadLibrary, TinyFileDialogs.class, "org.lwjgl.tinyfd", Platform.mapLibraryNameBundled("lwjgl_tinyfd"));
-        tinyfd_winUtf8().put(0, 1);"""
+        if (Platform.get() == Platform.WINDOWS) {
+            tinyfd_setGlobalInt("tinyfd_winUtf8", 1);
+        }"""
         )
     ),
     TOOTLE(
@@ -732,7 +718,7 @@ enum class Module(
         "xxhash",
         "org.lwjgl.util.xxhash",
         """
-        Contains bindings to ${url("https://github.com/Cyan4973/xxHash", "xxHash")}, an extremely fash non-cryptographic hash algorithm.
+        Contains bindings to ${url("https://github.com/Cyan4973/xxHash", "xxHash")}, an extremely fast non-cryptographic hash algorithm.
 
         xxHash successfully completes the ${url("https://github.com/aappleby/smhasher", "SMHasher")} test suite which evaluates collision, dispersion and
         randomness qualities of hash functions.
@@ -788,7 +774,7 @@ float h = layout.dimensions(YGDimensionHeight);""")}
         being backed by a very fast decoder. It also offers a special mode for small data, called dictionary compression, and can create dictionaries from any
         sample set.
         """,
-        library = JNILibrary.create("LibZstd"),
+        library = JNILibrary.create("LibZstd", setupAllocator = true),
         arrayOverloads = false
     );
 
@@ -809,15 +795,15 @@ float h = layout.dimensions(YGDimensionHeight);""")}
     val enabled
         get() = key.startsWith("core") || System.getProperty("binding.$key", "false")!!.toBoolean()
 
-    internal val path = if (name.startsWith("CORE_")) "core" else name.toLowerCase()
-    internal val java = if (name.startsWith("CORE_")) "org.lwjgl" else "org.lwjgl.${name.toLowerCase()}"
+    internal val path = if (name.startsWith("CORE_")) "core" else name.lowercase()
+    internal val java = if (name.startsWith("CORE_")) "org.lwjgl" else "org.lwjgl.${name.lowercase()}"
 
     internal val packageKotlin
         get() = name.let {
             if (it.startsWith("CORE_")) {
                 this.key
             } else {
-                it.toLowerCase()
+                it.lowercase()
             }
         }
 

@@ -231,7 +231,7 @@ const uint32_t VRCompositor_ThrottleMask = 0xC0;	// Number of frames the composi
         "Fading the Grid in or out in {@code fSeconds}.",
 
         float("fSeconds", ""),
-        bool("bFadeIn", "")
+        bool("bFadeGridIn", "")
     )
 
     float(
@@ -271,8 +271,8 @@ const uint32_t VRCompositor_ThrottleMask = 0xC0;	// Number of frames the composi
     void(
         "CompositorQuit",
         """
-        Tells the compositor process to clean up and exit. You do not need to call this function at shutdown. Under normal circumstances the compositor will
-        manage its own life cycle based on what applications are running.
+        DEPRECATED: Tells the compositor process to clean up and exit. You do not need to call this function at shutdown. Under normal circumstances the
+        compositor will manage its own life cycle based on what applications are running.
         """
     )
 
@@ -522,5 +522,34 @@ const uint32_t VRCompositor_ThrottleMask = 0xC0;	// Number of frames the composi
         "Resets the stage to its default user specified setting.",
 
         void()
+    )
+
+    bool(
+        "GetCompositorBenchmarkResults",
+        "Returns true if {@code pBenchmarkResults} is filled it. Sets {@code pBenchmarkResults} with the result of the compositor benchmark.",
+
+        Compositor_BenchmarkResults.p("pBenchmarkResults", ""),
+        AutoSize("pBenchmarkResults")..uint32_t("nSizeOfBenchmarkResults", "should be set to {@code sizeof(Compositor_BenchmarkResults)}")
+    )
+
+    EVRCompositorError(
+        "GetLastPosePredictionIDs",
+        """
+        Returns the frame id associated with the poses last returned by #WaitGetPoses().
+
+        Deltas between IDs correspond to number of headset vsync intervals.
+        """,
+
+        Check(1)..uint32_t.p("pRenderPosePredictionID", ""),
+        Check(1)..uint32_t.p("pGamePosePredictionID", "")
+    )
+
+    EVRCompositorError(
+        "GetPosesForFrame",
+        "Get the most up-to-date predicted (or recorded - up to 100ms old) set of poses for a given frame id.",
+
+        uint32_t("unPosePredictionID", ""),
+        TrackedDevicePose_t.p("pPoseArray", ""),
+        AutoSize("pPoseArray")..uint32_t("unPoseArrayCount", "")
     )
 }

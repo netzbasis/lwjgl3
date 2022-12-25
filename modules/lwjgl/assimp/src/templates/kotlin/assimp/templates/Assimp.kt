@@ -515,6 +515,16 @@ val Assimp = "Assimp".nativeClass(Module.ASSIMP, prefix = "ai", prefixConstant =
 
     StringConstant(
         """
+        Importers which parse JSON may use this to obtain a pointer to a {@code rapidjson::IRemoteSchemaDocumentProvider}.
+
+        Property type: void*. The default value is {@code nullptr}
+        """,
+
+        "AI_CONFIG_IMPORT_SCHEMA_DOCUMENT_PROVIDER".."IMPORT_SCHEMA_DOCUMENT_PROVIDER"
+    ).noPrefix()
+
+    StringConstant(
+        """
         Set whether the fbx importer will merge all geometry layers present in the source file or take only the first.
 
         Property type: bool. The default value is true (1)
@@ -584,6 +594,16 @@ val Assimp = "Assimp".nativeClass(Module.ASSIMP, prefix = "ai", prefixConstant =
         """,
 
         "AI_CONFIG_IMPORT_FBX_READ_ANIMATIONS".."IMPORT_FBX_READ_ANIMATIONS"
+    ).noPrefix()
+
+    StringConstant(
+        """
+        Set whether the fbx importer will read weights.
+
+        Property type: bool. The default value is true (1)
+        """,
+
+        "AI_CONFIG_IMPORT_FBX_READ_WEIGHTS".."IMPORT_FBX_READ_WEIGHTS"
     ).noPrefix()
 
     StringConstant(
@@ -898,6 +918,18 @@ val Assimp = "Assimp".nativeClass(Module.ASSIMP, prefix = "ai", prefixConstant =
 
     StringConstant(
         """
+        Specify if to try load Quake 3 shader files.
+        
+        This also controls  original surface name handling: when disabled it will be used unchanged.
+
+        Property type: bool. Default value: true.
+        """,
+
+        "AI_CONFIG_IMPORT_MD3_LOAD_SHADERS".."IMPORT_MD3_LOAD_SHADERS"
+    ).noPrefix()
+
+    StringConstant(
+        """
         Specify the Quake 3 shader file to be used for a particular MD3 file. This can also be a search path.
 
         By default Assimp's behaviour is as follows: If a MD3 file {@code any_path/models/any_q3_subdir/model_name/file_name.md3} is loaded, the library tries
@@ -1099,10 +1131,10 @@ val Assimp = "Assimp".nativeClass(Module.ASSIMP, prefix = "ai", prefixConstant =
 
     StringConstant(
         """
-        Specifies whether the Collada loader should use Collada names as node names.
+        Specifies whether the Collada loader should use Collada names.
 
-        If this property is set to true, the Collada names will be used as the node name. The default is to use the id tag (resp. sid tag, if no id tag is
-        present) instead.
+        If this property is set to true, the Collada names will be used as the node and mesh names. The default is to use the id tag (resp. sid tag, if no id
+        tag is present) instead.
 
         Property type: Bool. Default value: false.
         """,
@@ -1134,6 +1166,23 @@ val Assimp = "Assimp".nativeClass(Module.ASSIMP, prefix = "ai", prefixConstant =
         """,
 
         "AI_CONFIG_EXPORT_POINT_CLOUDS".."EXPORT_POINT_CLOUDS"
+    ).noPrefix()
+
+    StringConstant(
+        """
+        Specifies the blob name, assimp uses for exporting.
+
+        Some formats require auxiliary files to be written, that need to be linked back into the original file. For example, OBJ files export materials to a
+        separate MTL file and use the {@code mtllib} keyword to reference this file.
+
+        When exporting blobs using {@code \#ExportToBlob}, assimp does not know the name of the blob file and thus outputs {@code mtllib ${"$"}blobfile.mtl}, which
+        might not be desired, since the MTL file might be called differently. 
+
+        This property can be used to give the exporter a hint on how to use the magic {@code ${"$"}blobfile} keyword. If the exporter detects the keyword and is
+        provided with a name for the blob, it instead uses this name.
+        """,
+
+        "AI_CONFIG_EXPORT_BLOB_NAME".."EXPORT_BLOB_NAME"
     ).noPrefix()
 
     StringConstant(
@@ -1289,7 +1338,7 @@ val Assimp = "Assimp".nativeClass(Module.ASSIMP, prefix = "ai", prefixConstant =
     ).noPrefix()
 
     EnumConstant(
-        "Standard return type for some library functions. Rarely used.",
+        "Standard return type for some library functions, rarely used. (@code aiReturn}",
 
         "Return_SUCCESS".enum("Indicates that a function was successful.", 0x0),
         "Return_FAILURE".enum("Indicates that a function failed.", -0x1),
@@ -1419,7 +1468,7 @@ val Assimp = "Assimp".nativeClass(Module.ASSIMP, prefix = "ai", prefixConstant =
             enforce it by specifying the #Process_Triangulate flag, most export formats support only triangulate data so they would run the step anyway.
 
             If assimp detects that the input scene was directly taken from the importer side of the library (i.e. not copied using #CopyScene() and potentially
-            modified afterwards), any postprocessing steps already applied to the scene will not be applied again, unless they show non-idempotent behaviour
+            modified afterwards), any post-processing steps already applied to the scene will not be applied again, unless they show non-idempotent behavior
             (#Process_MakeLeftHanded, #Process_FlipUVs and #Process_FlipWindingOrder).
             """,
             "Process(Preset)?_\\w+", LinkMode.BITFIELD
@@ -1601,14 +1650,14 @@ val Assimp = "Assimp".nativeClass(Module.ASSIMP, prefix = "ai", prefixConstant =
         """
     )
 
-    /*aiLogStream(
+    aiLogStream(
         "GetPredefinedLogStream",
         """
-        Get one of the predefine log streams. This is the quick'n'easy solution to access Assimp's log system. Attaching a log stream can slightly reduce
-        Assimp's overall import performance.
+        Get one of the predefine log streams.
+
+        This is the quick'n'easy solution to access Assimp's log system. Attaching a log stream can slightly reduce Assimp's overall import performance.
 
         Usage is rather simple (this will stream the log to a file, named log.txt, and the stdout stream of the process:
-
         ${codeBlock("""
 struct aiLogStream c;
 c = aiGetPredefinedLogStream(aiDefaultLogStream_FILE, "log.txt");
@@ -1620,88 +1669,8 @@ aiAttachLogStream(&c);""")}
         aiDefaultLogStream("pStreams", "One of the {@code aiDefaultLogStream} enumerated values.", "DefaultLogStream_\\w+"),
         nullable..charUTF8.const.p("file", "Solely for the #DefaultLogStream_FILE flag: specifies the file to write to. Pass #NULL for all other flags."),
 
-        returnDoc = "The log stream. callback is set to #NULL if something went wrong."
-    )*/
-
-    /*javaImport("static org.lwjgl.system.dyncall.DynCall.*")
-
-    customMethod("""
-    private static final long GetPredefinedLogStream = ASSIMP.getFunctionAddress("aiGetPredefinedLogStream");
-
-    /** Unsafe version of: {@link #aiGetPredefinedLogStream GetPredefinedLogStream} */
-    public static void naiGetPredefinedLogStream(int pStreams, long file, long __result) {
-        long s = dcNewStruct(2, 0);
-        dcStructField(s, DC_SIGCHAR_POINTER, 0, 1);
-        dcStructField(s, DC_SIGCHAR_POINTER, 0, 1);
-        dcCloseStruct(s);
-
-        long vm = dcNewCallVM(8192);
-        dcMode(vm, DC_CALL_C_DEFAULT);
-        {
-            dcReset(vm);
-            dcArgInt(vm, pStreams);
-            dcArgPointer(vm, file);
-            dcCallStruct(vm, GetPredefinedLogStream, s, __result);
-        }
-        dcFree(vm);
-        dcFreeStruct(s);
-    }
-
-    /**
-     * Get one of the predefine log streams. This is the quick'n'easy solution to access Assimp's log system. Attaching a log stream can slightly reduce
-     * Assimp's overall import performance.
-     *
-     * <p>Usage is rather simple (this will stream the log to a file, named log.txt, and the stdout stream of the process:</p>
-     *
-     * <code><pre>
-     * struct aiLogStream c;
-     * c = aiGetPredefinedLogStream(aiDefaultLogStream_FILE, "log.txt");
-     * aiAttachLogStream(&c);
-     * c = aiGetPredefinedLogStream(aiDefaultLogStream_STDOUT, NULL);
-     * aiAttachLogStream(&c);</pre></code>
-     *
-     * @param pStreams One of the {@code aiDefaultLogStream} enumerated values. One of:<br><table><tr><td>{@link #aiDefaultLogStream_FILE DefaultLogStream_FILE}</td><td>{@link #aiDefaultLogStream_STDOUT DefaultLogStream_STDOUT}</td><td>{@link #aiDefaultLogStream_STDERR DefaultLogStream_STDERR}</td></tr><tr><td>{@link #aiDefaultLogStream_DEBUGGER DefaultLogStream_DEBUGGER}</td></tr></table>
-     * @param file     Solely for the {@link #aiDefaultLogStream_FILE DefaultLogStream_FILE} flag: specifies the file to write to. Pass {@code NULL} for all other flags.
-     * @param __result The log stream. callback is set to {@code NULL} if something went wrong.
-     */
-    @NativeType("struct aiLogStream")
-    public static AILogStream aiGetPredefinedLogStream(@NativeType("aiDefaultLogStream") int pStreams, @Nullable @NativeType("char const *") ByteBuffer file, AILogStream __result) {
-        if (CHECKS) {
-            checkNT1Safe(file);
-        }
-        naiGetPredefinedLogStream(pStreams, memAddressSafe(file), __result.address());
-        return __result;
-    }
-
-    /**
-     * Get one of the predefine log streams. This is the quick'n'easy solution to access Assimp's log system. Attaching a log stream can slightly reduce
-     * Assimp's overall import performance.
-     *
-     * <p>Usage is rather simple (this will stream the log to a file, named log.txt, and the stdout stream of the process:</p>
-     *
-     * <code><pre>
-     * struct aiLogStream c;
-     * c = aiGetPredefinedLogStream(aiDefaultLogStream_FILE, "log.txt");
-     * aiAttachLogStream(&c);
-     * c = aiGetPredefinedLogStream(aiDefaultLogStream_STDOUT, NULL);
-     * aiAttachLogStream(&c);</pre></code>
-     *
-     * @param pStreams One of the {@code aiDefaultLogStream} enumerated values. One of:<br><table><tr><td>{@link #aiDefaultLogStream_FILE DefaultLogStream_FILE}</td><td>{@link #aiDefaultLogStream_STDOUT DefaultLogStream_STDOUT}</td><td>{@link #aiDefaultLogStream_STDERR DefaultLogStream_STDERR}</td></tr><tr><td>{@link #aiDefaultLogStream_DEBUGGER DefaultLogStream_DEBUGGER}</td></tr></table>
-     * @param file     Solely for the {@link #aiDefaultLogStream_FILE DefaultLogStream_FILE} flag: specifies the file to write to. Pass {@code NULL} for all other flags.
-     * @param __result The log stream. callback is set to {@code NULL} if something went wrong.
-     */
-    @NativeType("struct aiLogStream")
-    public static AILogStream aiGetPredefinedLogStream(@NativeType("aiDefaultLogStream") int pStreams, @Nullable @NativeType("char const *") CharSequence file, AILogStream __result) {
-        MemoryStack stack        = stackGet();
-        int         stackPointer = stack.getPointer();
-        try {
-            ByteBuffer fileEncoded = stack.UTF8Safe(file);
-            naiGetPredefinedLogStream(pStreams, memAddressSafe(fileEncoded), __result.address());
-            return __result;
-        } finally {
-            stack.setPointer(stackPointer);
-        }
-    }""")*/
+        returnDoc = "The log stream. {@code callback} is set to #NULL if something went wrong."
+    )
 
     void(
         "AttachLogStream",
@@ -1972,6 +1941,561 @@ aiAttachLogStream(&c);""")}
         returnDoc = "A description of that specific import format. #NULL if {@code pIndex} is out of range."
     )
 
+    intb(
+        "Vector2AreEqual",
+        "Check if 2D vectors are equal.",
+
+        aiVector2D.const.p("a", "first vector to compare"),
+        aiVector2D.const.p("b", "second vector to compare")
+    )
+
+    intb(
+        "Vector2AreEqualEpsilon",
+        "Check if 2D vectors are equal using epsilon.",
+
+        aiVector2D.const.p("a", "first vector to compare"),
+        aiVector2D.const.p("b", "second vector to compare"),
+        float("epsilon", "")
+    )
+
+    void(
+        "Vector2Add",
+        "Add 2D vectors.",
+
+        aiVector2D.p("dst", "first addend, receives result"),
+        aiVector2D.const.p("src", "vector to be added to {@code dst}")
+    )
+
+    void(
+        "Vector2Subtract",
+        "Subtract 2D vectors.",
+
+        aiVector2D.p("dst", "minuend, receives result"),
+        aiVector2D.const.p("src", "vector to be subtracted from {@code dst}")
+    )
+
+    void(
+        "Vector2Scale",
+        "Multiply a 2D vector by a scalar.",
+
+        aiVector2D.p("dst", "vector to be scaled by {@code s}"),
+        float("s", "scale factor")
+    )
+
+    void(
+        "Vector2SymMul",
+        "Multiply each component of a 2D vector with the components of another vector.",
+
+        aiVector2D.p("dst", "first vector, receives result"),
+        aiVector2D.const.p("other", "second vector")
+    )
+
+    void(
+        "Vector2DivideByScalar",
+        "Divide a 2D vector by a scalar.",
+
+        aiVector2D.p("dst", "vector to be divided by {@code s}"),
+        float("s", "scalar divisor")
+    )
+
+    void(
+        "Vector2DivideByVector",
+        "Divide each component of a 2D vector by the components of another vector.",
+
+        aiVector2D.p("dst", "vector as the dividend"),
+        aiVector2D.p("v", "vector as the divisor")
+    )
+
+    float(
+        "Vector2Length",
+        "Get the length of a 2D vector.",
+
+        aiVector2D.const.p("v", "vector to evaluate")
+    )
+
+    float(
+        "Vector2SquareLength",
+        "Get the squared length of a 2D vector.",
+
+        aiVector2D.const.p("v", "vector to evaluate")
+    )
+
+    void(
+        "Vector2Negate",
+        "Negate a 2D vector.",
+
+        aiVector2D.p("dst", "vector to be negated")
+    )
+
+    float(
+        "Vector2DotProduct",
+        "Get the dot product of 2D vectors.",
+
+        aiVector2D.const.p("a", "first vector"),
+        aiVector2D.const.p("b", "second vector")
+    )
+
+    void(
+        "Vector2Normalize",
+        "Normalize a 2D vector.",
+
+        aiVector2D.p("v", "vector to normalize")
+    )
+
+    intb(
+        "Vector3AreEqual",
+        "Check if 3D vectors are equal.",
+
+        aiVector3D.const.p("a", "first vector to compare"),
+        aiVector3D.const.p("b", "second vector to compare")
+    )
+
+    intb(
+        "Vector3AreEqualEpsilon",
+        "Check if 3D vectors are equal using epsilon.",
+
+        aiVector3D.const.p("a", "first vector to compare"),
+        aiVector3D.const.p("b", "second vector to compare"),
+        float.const("epsilon", "epsilon")
+    )
+
+    intb(
+        "Vector3LessThan",
+        "Check if vector {@code a} is less than vector {@code b}.",
+
+        aiVector3D.const.p("a", "first vector to compare"),
+        aiVector3D.const.p("b", "second vector to compare")
+    )
+
+    void(
+        "Vector3Add",
+        "Add 3D vectors.",
+
+        aiVector3D.p("dst", "first addend, receives result"),
+        aiVector3D.const.p("src", "vector to be added to {@code dst}")
+    )
+
+    void(
+        "Vector3Subtract",
+        "Subtract 3D vectors.",
+
+        aiVector3D.p("dst", "minuend, receives result"),
+        aiVector3D.const.p("src", "vector to be subtracted from {@code dst}")
+    )
+
+    void(
+        "Vector3Scale",
+        "Multiply a 3D vector by a scalar.",
+
+        aiVector3D.p("dst", "vector to be scaled by {@code s}"),
+        float.const("s", "scale factor")
+    )
+
+    void(
+        "Vector3SymMul",
+        "Multiply each component of a 3D vector with the components of another vector.",
+
+        aiVector3D.p("dst", "first vector, receives result"),
+        aiVector3D.const.p("other", "second vector")
+    )
+
+    void(
+        "Vector3DivideByScalar",
+        "Divide a 3D vector by a scalar.",
+
+        aiVector3D.p("dst", "vector to be divided by {@code s}"),
+        float.const("s", "scalar divisor")
+    )
+
+    void(
+        "Vector3DivideByVector",
+        "Divide each component of a 3D vector by the components of another vector.",
+
+        aiVector3D.p("dst", "vector as the dividend"),
+        aiVector3D.p("v", "vector as the divisor")
+    )
+
+    float(
+        "Vector3Length",
+        "Get the length of a 3D vector.",
+
+        aiVector3D.const.p("v", "vector to evaluate")
+    )
+
+    float(
+        "Vector3SquareLength",
+        "Get the squared length of a 3D vector.",
+
+        aiVector3D.const.p("v", "vector to evaluate")
+    )
+
+    void(
+        "Vector3Negate",
+        "Negate a 3D vector.",
+
+        aiVector3D.p("dst", "vector to be negated")
+    )
+
+    float(
+        "Vector3DotProduct",
+        "Get the dot product of 3D vectors.",
+
+        aiVector3D.const.p("a", "first vector"),
+        aiVector3D.const.p("b", "second vector")
+    )
+
+    void(
+        "Vector3CrossProduct",
+        "Get cross product of 3D vectors.",
+
+        aiVector3D.p("dst", "vector to receive the result"),
+        aiVector3D.const.p("a", "first vector"),
+        aiVector3D.const.p("b", "second vector")
+    )
+
+    void(
+        "Vector3Normalize",
+        "Normalize a 3D vector.",
+
+        aiVector3D.p("v", "vector to normalize")
+    )
+
+    void(
+        "Vector3NormalizeSafe",
+        "Check for division by zero and normalize a 3D vector.",
+
+        aiVector3D.p("v", "vector to normalize")
+    )
+
+    void(
+        "Vector3RotateByQuaternion",
+        "Rotate a 3D vector by a quaternion.",
+
+        aiVector3D.p("v", "the vector to rotate by {@code q}"),
+        aiQuaternion.const.p("q", "quaternion to use to rotate {@code v}")
+    )
+
+    void(
+        "Matrix3FromMatrix4",
+        "Construct a 3x3 matrix from a 4x4 matrix.",
+
+        aiMatrix3x3.p("dst", "receives the output matrix"),
+        aiMatrix4x4.const.p("mat", "the 4x4 matrix to use")
+    )
+
+    void(
+        "Matrix3FromQuaternion",
+        "Construct a 3x3 matrix from a quaternion.",
+
+        aiMatrix3x3.p("mat", "receives the output matrix"),
+        aiQuaternion.const.p("q", "the quaternion matrix to use")
+    )
+
+    intb(
+        "Matrix3AreEqual",
+        "Check if 3x3 matrices are equal.",
+
+        aiMatrix3x3.const.p("a", "first matrix to compare"),
+        aiMatrix3x3.const.p("b", "second matrix to compare")
+    )
+
+    intb(
+        "Matrix3AreEqualEpsilon",
+        "Check if 3x3 matrices are equal.",
+
+        aiMatrix3x3.const.p("a", "first matrix to compare"),
+        aiMatrix3x3.const.p("b", "second matrix to compare"),
+        float.const("epsilon", "epsilon")
+    )
+
+    void(
+        "Matrix3Inverse",
+        "Invert a 3x3 matrix.",
+
+        aiMatrix3x3.p("mat", "matrix to invert")
+    )
+
+    float(
+        "Matrix3Determinant",
+        "Get the determinant of a 3x3 matrix.",
+
+        aiMatrix3x3.const.p("mat", "matrix to get the determinant from")
+    )
+
+    void(
+        "Matrix3RotationZ",
+        "Get a 3x3 rotation matrix around the Z axis.",
+
+        aiMatrix3x3.p("mat", "receives the output matrix"),
+        float("angle", "rotation angle, in radians")
+    )
+
+    void(
+        "Matrix3FromRotationAroundAxis",
+        "Returns a 3x3 rotation matrix for a rotation around an arbitrary axis.",
+
+        aiMatrix3x3.p("mat", "receives the output matrix"),
+        aiVector3D.const.p("axis", "rotation axis, should be a normalized vector"),
+        float("angle", "rotation angle, in radians")
+    )
+
+    void(
+        "Matrix3Translation",
+        "Get a 3x3 translation matrix.",
+
+        aiMatrix3x3.p("mat", "receives the output matrix"),
+        aiVector2D.const.p("translation", "the translation vector")
+    )
+
+    void(
+        "Matrix3FromTo",
+        "Create a 3x3 matrix that rotates one vector to another vector.",
+
+        aiMatrix3x3.p("mat", "receives the output matrix"),
+        aiVector3D.const.p("from", "vector to rotate from"),
+        aiVector3D.const.p("to", "vector to rotate to")
+    )
+
+    void(
+        "Matrix4FromMatrix3",
+        "Construct a 4x4 matrix from a 3x3 matrix.",
+
+        aiMatrix4x4.p("dst", "receives the output matrix"),
+        aiMatrix3x3.const.p("mat", "the 3x3 matrix to use")
+    )
+
+    void(
+        "Matrix4FromScalingQuaternionPosition",
+        "Construct a 4x4 matrix from scaling, rotation and position.",
+
+        aiMatrix4x4.p("mat", "receives the output matrix"),
+        aiVector3D.const.p("scaling", "the scaling for the x,y,z axes"),
+        aiQuaternion.const.p("rotation", "the rotation as a hamilton quaternion"),
+        aiVector3D.const.p("position", "the position for the x,y,z axes")
+    )
+
+    void(
+        "Matrix4Add",
+        "Add 4x4 matrices.",
+
+        aiMatrix4x4.p("dst", "first addend, receives result"),
+        aiMatrix4x4.const.p("src", "matrix to be added to {@code dst}")
+    )
+
+    intb(
+        "Matrix4AreEqual",
+        "Check if 4x4 matrices are equal.",
+
+        aiMatrix4x4.const.p("a", "first matrix to compare"),
+        aiMatrix4x4.const.p("b", "second matrix to compare")
+    )
+
+    intb(
+        "Matrix4AreEqualEpsilon",
+        "Check if 4x4 matrices are equal.",
+
+        aiMatrix4x4.const.p("a", "first matrix to compare"),
+        aiMatrix4x4.const.p("b", "second matrix to compare"),
+        float.const("epsilon", "epsilon")
+    )
+
+    void(
+        "Matrix4Inverse",
+        "Invert a 4x4 matrix.",
+
+        aiMatrix4x4.p("mat", "matrix to invert")
+    )
+
+    float(
+        "Matrix4Determinant",
+        "Get the determinant of a 4x4 matrix.",
+
+        aiMatrix4x4.const.p("mat", "matrix to get the determinant from"),
+
+        returnDoc = "the determinant of the matrix"
+    )
+
+    intb(
+        "Matrix4IsIdentity",
+        "Returns true of the matrix is the identity matrix.",
+
+        aiMatrix4x4.const.p("mat", "matrix to get the determinant from")
+    )
+
+    void(
+        "Matrix4DecomposeIntoScalingEulerAnglesPosition",
+        "Decompose a transformation matrix into its scaling, rotational as euler angles, and translational components.",
+
+        aiMatrix4x4.const.p("mat", "matrix to decompose"),
+        aiVector3D.p("scaling", "receives the output scaling for the x,y,z axes"),
+        aiVector3D.p("rotation", "receives the output rotation as a Euler angles"),
+        aiVector3D.p("position", "receives the output position for the x,y,z axes")
+    )
+
+    void(
+        "Matrix4DecomposeIntoScalingAxisAnglePosition",
+        "Decompose a transformation matrix into its scaling, rotational split into an axis and rotational angle, and it's translational components.",
+
+        aiMatrix4x4.const.p("mat", "matrix to decompose"),
+        aiVector3D.p("scaling", "receives the rotational component"),
+        aiVector3D.p("axis", "receives the output rotation axis"),
+        Check(1)..ai_real.p("angle", "receives the output rotation angle"),
+        aiVector3D.p("position", "receives the output position for the x,y,z axes")
+    )
+
+    void(
+        "Matrix4DecomposeNoScaling",
+        "Decompose a transformation matrix into its rotational and translational components.",
+
+        aiMatrix4x4.const.p("mat", "matrix to decompose"),
+        aiQuaternion.p("rotation", "receives the rotational component"),
+        aiVector3D.p("position", "receives the translational component")
+    )
+
+    void(
+        "Matrix4FromEulerAngles",
+        "Creates a 4x4 matrix from a set of euler angles.",
+
+        aiMatrix4x4.p("mat", "receives the output matrix"),
+        float("x", "rotation angle for the x-axis, in radians"),
+        float("y", "rotation angle for the y-axis, in radians"),
+        float("z", "rotation angle for the z-axis, in radians")
+    )
+
+    void(
+        "Matrix4RotationX",
+        "Get a 4x4 rotation matrix around the X axis.",
+
+        aiMatrix4x4.p("mat", "receives the output matrix"),
+        float("angle", "rotation angle, in radians")
+    )
+
+    void(
+        "Matrix4RotationY",
+        "Get a 4x4 rotation matrix around the Y axis.",
+
+        aiMatrix4x4.p("mat", "receives the output matrix"),
+        float("angle", "rotation angle, in radians")
+    )
+
+    void(
+        "Matrix4RotationZ",
+        "Get a 4x4 rotation matrix around the Z axis.",
+
+        aiMatrix4x4.p("mat", "receives the output matrix"),
+        float("angle", "rotation angle, in radians")
+    )
+
+    void(
+        "Matrix4FromRotationAroundAxis",
+        "Returns a 4x4 rotation matrix for a rotation around an arbitrary axis.",
+
+        aiMatrix4x4.p("mat", "receives the output matrix"),
+        aiVector3D.const.p("axis", "rotation axis, should be a normalized vector"),
+        float("angle", "rotation angle, in radians")
+    )
+
+    void(
+        "Matrix4Translation",
+        "Get a 4x4 translation matrix.",
+
+        aiMatrix4x4.p("mat", "receives the output matrix"),
+        aiVector3D.const.p("translation", "the translation vector")
+    )
+
+    void(
+        "Matrix4Scaling",
+        "Get a 4x4 scaling matrix.",
+
+        aiMatrix4x4.p("mat", "receives the output matrix"),
+        aiVector3D.const.p("scaling", "the scaling vector")
+    )
+
+    void(
+        "Matrix4FromTo",
+        "Create a 4x4 matrix that rotates one vector to another vector.",
+
+        aiMatrix4x4.p("mat", "receives the output matrix"),
+        aiVector3D.const.p("from", "vector to rotate from"),
+        aiVector3D.const.p("to", "vector to rotate to")
+    )
+
+    void(
+        "QuaternionFromEulerAngles",
+        "Create a Quaternion from euler angles.",
+
+        aiQuaternion.p("q", "receives the output quaternion"),
+        float("x", "rotation angle for the x-axis, in radians"),
+        float("y", "rotation angle for the y-axis, in radians"),
+        float("z", "rotation angle for the z-axis, in radians")
+    )
+
+    void(
+        "QuaternionFromAxisAngle",
+        "Create a Quaternion from an axis angle pair.",
+
+        aiQuaternion.p("q", "receives the output quaternion"),
+        aiVector3D.const.p("axis", "the orientation axis"),
+        float("angle", "the rotation angle, in radians")
+    )
+
+    void(
+        "QuaternionFromNormalizedQuaternion",
+        "Create a Quaternion from a normalized quaternion stored in a 3D vector.",
+
+        aiQuaternion.p("q", "receives the output quaternion"),
+        aiVector3D.const.p("normalized", "the vector that stores the quaternion")
+    )
+
+    intb(
+        "QuaternionAreEqual",
+        "Check if quaternions are equal.",
+
+        aiQuaternion.const.p("a", "first quaternion to compare"),
+        aiQuaternion.const.p("b", "second quaternion to compare")
+    )
+
+    intb(
+        "QuaternionAreEqualEpsilon",
+        "Check if quaternions are equal using epsilon.",
+
+        aiQuaternion.const.p("a", "first quaternion to compare"),
+        aiQuaternion.const.p("b", "second quaternion to compare"),
+        float.const("epsilon", "epsilon")
+    )
+
+    void(
+        "QuaternionNormalize",
+        "Normalize a quaternion.",
+
+        aiQuaternion.p("q", "quaternion to normalize")
+    )
+
+    void(
+        "QuaternionConjugate",
+        "Compute quaternion conjugate.",
+
+        aiQuaternion.p("q", "quaternion to compute conjugate, receives the output quaternion")
+    )
+
+    void(
+        "QuaternionMultiply",
+        "Multiply quaternions.",
+
+        aiQuaternion.p("dst", "first quaternion, receives the output quaternion"),
+        aiQuaternion.const.p("q", "second quaternion")
+    )
+
+    void(
+        "QuaternionInterpolate",
+        "Performs a spherical interpolation between two quaternions.",
+
+        aiQuaternion.p("dst", "receives the quaternion resulting from the interpolation"),
+        aiQuaternion.const.p("start", "quaternion when {@code factor == 0}"),
+        aiQuaternion.const.p("end", "quaternion when {@code factor == 1}"),
+        float("factor", "interpolation factor between 0 and 1")
+    )
+
     // importerdesc.h
 
     EnumConstant(
@@ -2096,7 +2620,7 @@ aiAttachLogStream(&c);""")}
 
         "TextureMapping_UV".enum(
             """
-            The mapping coordinates are taken from an UV channel. The #_AI_MATKEY_UVWSRC_BASE key specifies from which UV channel the texture coordinates are
+            The mapping coordinates are taken from an UV channel. The #_AI_MATKEY_UVWSRC_BASE property specifies from which UV channel the texture coordinates are
             to be taken from (remember, meshes can have more than one UV channel).
             """,
             0x0
@@ -2128,8 +2652,8 @@ aiAttachLogStream(&c);""")}
             """,
             "0"
         ),
-        "TextureType_DIFFUSE".enum("The texture is combined with the result of the diffuse lighting equation."),
-        "TextureType_SPECULAR".enum("The texture is combined with the result of the specular lighting equation."),
+        "TextureType_DIFFUSE".enum("The texture is combined with the result of the diffuse lighting equation OR PBR Specular/Glossiness."),
+        "TextureType_SPECULAR".enum("The texture is combined with the result of the specular lighting equation OR PBR Specular/Glossiness."),
         "TextureType_AMBIENT".enum("The texture is combined with the result of the ambient lighting equation."),
         "TextureType_EMISSIVE".enum("The texture is added to the result of the lighting calculation. It isn't influenced by incoming light."),
         "TextureType_HEIGHT".enum("The texture is a height map. By convention, higher gray-scale values stand for higher elevations from the base height."),
@@ -2167,18 +2691,45 @@ aiAttachLogStream(&c);""")}
         "TextureType_METALNESS".enum("PBR material."),
         "TextureType_DIFFUSE_ROUGHNESS".enum("PBR material."),
         "TextureType_AMBIENT_OCCLUSION".enum("PBR material."),
-
+        "TextureType_SHEEN".enum(
+            """
+            Generally used to simulate textiles that are covered in a layer of microfibers eg velvet.
+            
+            ${url("https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_sheen", "KHR_materials_sheen")})
+            """,
+            "19"
+        ),
+        "TextureType_CLEARCOAT".enum(
+            """
+            Simulates a layer of 'polish' or 'laquer' layered on top of a PBR substrate.
+            
+            ${url("https://autodesk.github.io/standard-surface/\\#closures/coating", "coating")},
+            ${url("https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_clearcoat", "KHR_materials_clearcoat")}
+            """,
+            "20"
+        ),
+        "TextureType_TRANSMISSION".enum(
+            """
+            Simulates transmission through the surface.
+ 
+            May include further information such as wall thickness.
+            """,
+            "21"
+        ),
         "TextureType_UNKNOWN".enum(
             """
             Unknown texture. A texture reference that does not match any of the definitions above is considered to be 'unknown'. It is still imported, but is
             excluded from any further post-processing.
-            """
+            """,
+            "18"
         )
     ).javaDocLinks
 
     EnumConstant(
         """
-        Defines all shading models supported by the library.
+        Defines all shading models supported by the library. ({@code aiShadingMode})
+        
+        Property: #AI_MATKEY_SHADING_MODEL
 
         The list of shading modes has been taken from Blender. See Blender documentation for more information. The API does not distinguish between "specular"
         and "diffuse" shaders (thus the specular term for diffuse shading models like Oren-Nayar remains undefined).
@@ -2201,8 +2752,23 @@ aiAttachLogStream(&c);""")}
             0x7
         ),
         "ShadingMode_CookTorrance".enum("CookTorrance-Shading per pixel. Special shader for metallic surfaces.", 0x8),
-        "ShadingMode_NoShading".enum("No shading at all. Constant light influence of 1.0.", 0x9),
-        "ShadingMode_Fresnel".enum("Fresnel shading", 0xa)
+        "ShadingMode_NoShading".enum("No shading at all. Constant light influence of 1.0. Also known as \"Unlit\".", 0x9),
+        "ShadingMode_Unlit".enum("", "aiShadingMode_NoShading"),
+        "ShadingMode_Fresnel".enum("Fresnel shading", 0xa),
+        "ShadingMode_PBR_BRDF".enum(
+            """
+            Physically-Based Rendering (PBR) shading using Bidirectional scattering/reflectance distribution function (BSDF/BRDF)
+
+            There are multiple methods under this banner, and model files may provide data for more than one PBR-BRDF method. Applications should use the set
+            of provided properties to determine which of their preferred PBR rendering methods are likely to be available eg:
+            ${ul(
+                "If #AI_MATKEY_METALLIC_FACTOR is set, then a Metallic/Roughness is available",
+                "If #AI_MATKEY_GLOSSINESS_FACTOR is set, then a Specular/Glossiness is available"
+            )}
+            Note that some PBR methods allow layering of techniques.
+            """,
+            0xb
+        )
     )
 
     EnumConstant(
@@ -2283,6 +2849,27 @@ aiAttachLogStream(&c);""")}
         "AI_MATKEY_SHADER_PRIMITIVE".."?sh.ps",
         "AI_MATKEY_SHADER_COMPUTE".."?sh.cs",
 
+        "AI_MATKEY_USE_COLOR_MAP".."\$mat.useColorMap",
+        "AI_MATKEY_BASE_COLOR".."\$clr.base",
+        "AI_MATKEY_USE_METALLIC_MAP".."\$mat.useMetallicMap",
+        "AI_MATKEY_METALLIC_FACTOR".."\$mat.metallicFactor",
+        "AI_MATKEY_USE_ROUGHNESS_MAP".."\$mat.useRoughnessMap",
+        "AI_MATKEY_ROUGHNESS_FACTOR".."\$mat.roughnessFactor",
+        "AI_MATKEY_ANISOTROPY_FACTOR".."\$mat.anisotropyFactor",
+        "AI_MATKEY_SPECULAR_FACTOR".."\$mat.specularFactor",
+        "AI_MATKEY_GLOSSINESS_FACTOR".."\$mat.glossinessFactor",
+        "AI_MATKEY_SHEEN_COLOR_FACTOR".."\$clr.sheen.factor",
+        "AI_MATKEY_SHEEN_ROUGHNESS_FACTOR".."\$mat.sheen.roughnessFactor",
+        "AI_MATKEY_CLEARCOAT_FACTOR".."\$mat.clearcoat.factor",
+        "AI_MATKEY_CLEARCOAT_ROUGHNESS_FACTOR".."\$mat.clearcoat.roughnessFactor",
+        "AI_MATKEY_TRANSMISSION_FACTOR".."\$mat.transmission.factor",
+        "AI_MATKEY_VOLUME_THICKNESS_FACTOR".."\$mat.volume.thicknessFactor",
+        "AI_MATKEY_VOLUME_ATTENUATION_DISTANCE".."\$mat.volume.attenuationDistance",
+        "AI_MATKEY_VOLUME_ATTENUATION_COLOR".."\$mat.volume.attenuationColor",
+        "AI_MATKEY_USE_EMISSIVE_MAP".."\$mat.useEmissiveMap",
+        "AI_MATKEY_EMISSIVE_INTENSITY".."\$mat.emissiveIntensity",
+        "AI_MATKEY_USE_AO_MAP".."\$mat.useAOMap",
+
         "_AI_MATKEY_TEXTURE_BASE".."\$tex.file",
         "_AI_MATKEY_UVWSRC_BASE".."\$tex.uvwsrc",
         "_AI_MATKEY_TEXOP_BASE".."\$tex.op",
@@ -2292,35 +2879,37 @@ aiAttachLogStream(&c);""")}
         "_AI_MATKEY_MAPPINGMODE_V_BASE".."\$tex.mapmodev",
         "_AI_MATKEY_TEXMAP_AXIS_BASE".."\$tex.mapaxis",
         "_AI_MATKEY_UVTRANSFORM_BASE".."\$tex.uvtrafo",
-        "_AI_MATKEY_TEXFLAGS_BASE".."\$tex.flags"
+        "_AI_MATKEY_TEXFLAGS_BASE".."\$tex.flags",
+        "_AI_MATKEY_OBJ_BUMPMULT_BASE".."\$tex.bumpmult"
     ).noPrefix()
-    
+
+    IntConstant(
+        "",
+        "AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE".."aiTextureType_UNKNOWN"
+    ).noPrefix()
+
     StringConstant(
         "PBR Material keys",
-        
-        "AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_BASE_COLOR_FACTOR".."\$mat.gltf.pbrMetallicRoughness.baseColorFactor",
-        "AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLIC_FACTOR".."\$mat.gltf.pbrMetallicRoughness.metallicFactor",
-        "AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_ROUGHNESS_FACTOR".."\$mat.gltf.pbrMetallicRoughness.roughnessFactor",
+
         "AI_MATKEY_GLTF_ALPHAMODE".."\$mat.gltf.alphaMode",
         "AI_MATKEY_GLTF_ALPHACUTOFF".."\$mat.gltf.alphaCutoff",
-        "AI_MATKEY_GLTF_PBRSPECULARGLOSSINESS".."\$mat.gltf.pbrSpecularGlossiness",
-        "AI_MATKEY_GLTF_PBRSPECULARGLOSSINESS_GLOSSINESS_FACTOR".."\$mat.gltf.pbrMetallicRoughness.glossinessFactor",
-        "AI_MATKEY_GLTF_UNLIT".."\$mat.gltf.unlit",
 
-        "_AI_MATKEY_GLTF_TEXTURE_TEXCOORD_BASE".."\$tex.file.texCoord",
         "_AI_MATKEY_GLTF_MAPPINGNAME_BASE".."\$tex.mappingname",
         "_AI_MATKEY_GLTF_MAPPINGID_BASE".."\$tex.mappingid",
         "_AI_MATKEY_GLTF_MAPPINGFILTER_MAG_BASE".."\$tex.mappingfiltermag",
         "_AI_MATKEY_GLTF_MAPPINGFILTER_MIN_BASE".."\$tex.mappingfiltermin",
         "_AI_MATKEY_GLTF_SCALE_BASE".."\$tex.scale",
         "_AI_MATKEY_GLTF_STRENGTH_BASE".."\$tex.strength"
-    )
-
-    IntConstant(
-        "",
-        "AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_BASE_COLOR_TEXTURE".."aiTextureType_DIFFUSE",
-        "AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE".."aiTextureType_UNKNOWN"
     ).noPrefix()
+
+    charASCII.const.p(
+        "TextureTypeToString",
+        "Get a string for a given {@code aiTextureType}.",
+
+        aiTextureType("in", ""),
+
+        noPrefix = true
+    )
 
     val GetMaterialProperty = aiReturn(
         "GetMaterialProperty",
@@ -2524,6 +3113,19 @@ aiAttachLogStream(&c);""")}
             The "Triangulate"-Step is provided for your convenience, it splits all polygons in triangles (which are much easier to handle).
             """,
             0x8
+        ),
+        "PrimitiveType_NGONEncodingFlag".enum(
+            """
+            A flag to determine whether this triangles only mesh is NGON encoded.
+
+            NGON encoding is a special encoding that tells whether 2 or more consecutive triangles should be considered as a triangle fan. This is identified
+            by looking at the first vertex index. 2 consecutive triangles with the same 1st vertex index are part of the same NGON.
+     
+            At the moment, only quads (concave or convex) are supported, meaning that polygons are 'seen' as triangles, as usual after a triangulation pass.
+     
+            To get an NGON encoded mesh, please use the #Process_Triangulate post process.
+            """,
+            0x10
         )
     )
 
@@ -2538,7 +3140,7 @@ aiAttachLogStream(&c);""")}
     // metadata.h
 
     EnumConstant(
-        "Enum used to distinguish data types.",
+        "Enum used to distinguish data types. {@code aiMetadataType}",
 
         "AI_BOOL".enum("", "0"),
         "AI_INT32".enum,
@@ -2547,6 +3149,7 @@ aiAttachLogStream(&c);""")}
         "AI_DOUBLE".enum,
         "AI_AISTRING".enum,
         "AI_AIVECTOR3D".enum,
+        "AI_AIMETADATA".enum,
         "AI_META_MAX".enum
     ).noPrefix()
 
@@ -2712,9 +3315,12 @@ aiAttachLogStream(&c);""")}
             """
             Removes the node graph and pre-transforms all vertices with the local transformation matrices of their nodes.
 
-            The output scene still contains nodes, however there is only a root node with children, each one referencing only one mesh, and each mesh
-            referencing one material. For rendering, you can simply render all meshes in order - you don't need to pay attention to local transformations and
-            the node hierarchy. Animations are removed during this step.
+            If the resulting scene can be reduced to a single mesh, with a single material, no lights, and no cameras, then the output scene will contain only
+            a root node (with no children) that references the single mesh. Otherwise, the output scene will be reduced to a root node with a single level of
+            child nodes, each one referencing one mesh, and each mesh referencing one material. 
+    
+            In either case, for rendering, you can simply render all meshes in order - you don't need to pay attention to local transformations and the node
+            hierarchy. Animations are removed during this step.
 
             This step is intended for applications without a scenegraph. The step CAN cause some problems: if e.g. a mesh of the asset contains normals and
             another, using the same material index, does not, they will be brought together, but the first meshes's part of the normal list is zeroed. However,
@@ -2909,7 +3515,7 @@ aiAttachLogStream(&c);""")}
             applications won't support UV transformations, so you will probably want to specify this step.
 
             ${note("""
-            UV transformations are usually implemented in real-time apps by transforming texture coordinates at vertex shader stage with a 3x3 (homogenous)
+            UV transformations are usually implemented in real-time apps by transforming texture coordinates at vertex shader stage with a 3x3 (homogeneous)
             transformation matrix.""")}
             """,
             0x80000
@@ -3235,6 +3841,11 @@ x1""")}
     IntConstant(
         "Assimp was compiled with {@code ASSIMP_BUILD_SINGLETHREADED} defined",
         "ASSIMP_CFLAGS_SINGLETHREADED"..0x10
+    ).noPrefix()
+
+    IntConstant(
+        "Assimp was compiled with {@code ASSIMP_DOUBLE_PRECISION} defined",
+        "ASSIMP_CFLAGS_DOUBLE_SUPPORT"..0x10
     ).noPrefix()
 
     Nonnull..charASCII.const.p(

@@ -18,23 +18,14 @@ import static org.lwjgl.system.MemoryStack.*;
 /**
  * Provides boundary test information.
  * 
- * <h3>Member documentation</h3>
- * 
- * <ul>
- * <li>{@code IsTriggering} &ndash; True if the boundary system is being triggered. Note that due to fade in/out effects this may not exactly match visibility.</li>
- * <li>{@code ClosestDistance} &ndash; Distance to the closest play area or outer boundary surface</li>
- * <li>{@code ClosestPoint} &ndash; Closest point on the boundary surface</li>
- * <li>{@code ClosestPointNormal} &ndash; Unit surface normal of the closest boundary surface</li>
- * </ul>
- * 
  * <h3>Layout</h3>
  * 
  * <pre><code>
  * struct ovrBoundaryTestResult {
- *     ovrBool IsTriggering;
- *     float ClosestDistance;
- *     {@link OVRVector3f ovrVector3f} ClosestPoint;
- *     {@link OVRVector3f ovrVector3f} ClosestPointNormal;
+ *     ovrBool {@link #IsTriggering};
+ *     float {@link #ClosestDistance};
+ *     {@link OVRVector3f ovrVector3f} {@link #ClosestPoint};
+ *     {@link OVRVector3f ovrVector3f} {@link #ClosestPointNormal};
  * }</code></pre>
  */
 @NativeType("struct ovrBoundaryTestResult")
@@ -83,15 +74,15 @@ public class OVRBoundaryTestResult extends Struct implements NativeResource {
     @Override
     public int sizeof() { return SIZEOF; }
 
-    /** Returns the value of the {@code IsTriggering} field. */
+    /** True if the boundary system is being triggered. Note that due to fade in/out effects this may not exactly match visibility. */
     @NativeType("ovrBool")
     public boolean IsTriggering() { return nIsTriggering(address()); }
-    /** Returns the value of the {@code ClosestDistance} field. */
+    /** Distance to the closest play area or outer boundary surface */
     public float ClosestDistance() { return nClosestDistance(address()); }
-    /** Returns a {@link OVRVector3f} view of the {@code ClosestPoint} field. */
+    /** Closest point on the boundary surface */
     @NativeType("ovrVector3f")
     public OVRVector3f ClosestPoint() { return nClosestPoint(address()); }
-    /** Returns a {@link OVRVector3f} view of the {@code ClosestPointNormal} field. */
+    /** Unit surface normal of the closest boundary surface */
     @NativeType("ovrVector3f")
     public OVRVector3f ClosestPointNormal() { return nClosestPointNormal(address()); }
 
@@ -170,22 +161,29 @@ public class OVRBoundaryTestResult extends Struct implements NativeResource {
 
     // -----------------------------------
 
-    /** Returns a new {@code OVRBoundaryTestResult} instance allocated on the thread-local {@link MemoryStack}. */
-    public static OVRBoundaryTestResult mallocStack() {
-        return mallocStack(stackGet());
-    }
-
-    /** Returns a new {@code OVRBoundaryTestResult} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero. */
-    public static OVRBoundaryTestResult callocStack() {
-        return callocStack(stackGet());
-    }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRBoundaryTestResult mallocStack() { return malloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRBoundaryTestResult callocStack() { return calloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRBoundaryTestResult mallocStack(MemoryStack stack) { return malloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRBoundaryTestResult callocStack(MemoryStack stack) { return calloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRBoundaryTestResult.Buffer mallocStack(int capacity) { return malloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRBoundaryTestResult.Buffer callocStack(int capacity) { return calloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRBoundaryTestResult.Buffer mallocStack(int capacity, MemoryStack stack) { return malloc(capacity, stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRBoundaryTestResult.Buffer callocStack(int capacity, MemoryStack stack) { return calloc(capacity, stack); }
 
     /**
      * Returns a new {@code OVRBoundaryTestResult} instance allocated on the specified {@link MemoryStack}.
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRBoundaryTestResult mallocStack(MemoryStack stack) {
+    public static OVRBoundaryTestResult malloc(MemoryStack stack) {
         return wrap(OVRBoundaryTestResult.class, stack.nmalloc(ALIGNOF, SIZEOF));
     }
 
@@ -194,45 +192,27 @@ public class OVRBoundaryTestResult extends Struct implements NativeResource {
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRBoundaryTestResult callocStack(MemoryStack stack) {
+    public static OVRBoundaryTestResult calloc(MemoryStack stack) {
         return wrap(OVRBoundaryTestResult.class, stack.ncalloc(ALIGNOF, 1, SIZEOF));
-    }
-
-    /**
-     * Returns a new {@link OVRBoundaryTestResult.Buffer} instance allocated on the thread-local {@link MemoryStack}.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRBoundaryTestResult.Buffer mallocStack(int capacity) {
-        return mallocStack(capacity, stackGet());
-    }
-
-    /**
-     * Returns a new {@link OVRBoundaryTestResult.Buffer} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRBoundaryTestResult.Buffer callocStack(int capacity) {
-        return callocStack(capacity, stackGet());
     }
 
     /**
      * Returns a new {@link OVRBoundaryTestResult.Buffer} instance allocated on the specified {@link MemoryStack}.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRBoundaryTestResult.Buffer mallocStack(int capacity, MemoryStack stack) {
+    public static OVRBoundaryTestResult.Buffer malloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.nmalloc(ALIGNOF, capacity * SIZEOF), capacity);
     }
 
     /**
      * Returns a new {@link OVRBoundaryTestResult.Buffer} instance allocated on the specified {@link MemoryStack} and initializes all its bits to zero.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRBoundaryTestResult.Buffer callocStack(int capacity, MemoryStack stack) {
+    public static OVRBoundaryTestResult.Buffer calloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.ncalloc(ALIGNOF, capacity, SIZEOF), capacity);
     }
 
@@ -285,15 +265,15 @@ public class OVRBoundaryTestResult extends Struct implements NativeResource {
             return ELEMENT_FACTORY;
         }
 
-        /** Returns the value of the {@code IsTriggering} field. */
+        /** @return the value of the {@link OVRBoundaryTestResult#IsTriggering} field. */
         @NativeType("ovrBool")
         public boolean IsTriggering() { return OVRBoundaryTestResult.nIsTriggering(address()); }
-        /** Returns the value of the {@code ClosestDistance} field. */
+        /** @return the value of the {@link OVRBoundaryTestResult#ClosestDistance} field. */
         public float ClosestDistance() { return OVRBoundaryTestResult.nClosestDistance(address()); }
-        /** Returns a {@link OVRVector3f} view of the {@code ClosestPoint} field. */
+        /** @return a {@link OVRVector3f} view of the {@link OVRBoundaryTestResult#ClosestPoint} field. */
         @NativeType("ovrVector3f")
         public OVRVector3f ClosestPoint() { return OVRBoundaryTestResult.nClosestPoint(address()); }
-        /** Returns a {@link OVRVector3f} view of the {@code ClosestPointNormal} field. */
+        /** @return a {@link OVRVector3f} view of the {@link OVRBoundaryTestResult#ClosestPointNormal} field. */
         @NativeType("ovrVector3f")
         public OVRVector3f ClosestPointNormal() { return OVRBoundaryTestResult.nClosestPointNormal(address()); }
 

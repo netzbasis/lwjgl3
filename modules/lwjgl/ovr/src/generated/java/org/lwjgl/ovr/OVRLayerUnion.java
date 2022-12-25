@@ -18,17 +18,11 @@ import static org.lwjgl.system.MemoryStack.*;
 /**
  * Union that combines {@code ovrLayer} types in a way that allows them to be used in a polymorphic way.
  * 
- * <h3>Member documentation</h3>
- * 
- * <ul>
- * <li>{@code Header} &ndash; the layer header</li>
- * </ul>
- * 
  * <h3>Layout</h3>
  * 
  * <pre><code>
  * union ovrLayer_Union {
- *     {@link OVRLayerHeader ovrLayerHeader} Header;
+ *     {@link OVRLayerHeader ovrLayerHeader} {@link #Header};
  *     {@link OVRLayerEyeFov ovrLayerEyeFov} EyeFov;
  *     {@link OVRLayerEyeFovDepth ovrLayerEyeFovDepth} EyeFovDepth;
  *     {@link OVRLayerEyeMatrix ovrLayerEyeMatrix} EyeMatrix;
@@ -96,34 +90,34 @@ public class OVRLayerUnion extends Struct implements NativeResource {
     @Override
     public int sizeof() { return SIZEOF; }
 
-    /** Returns a {@link OVRLayerHeader} view of the {@code Header} field. */
+    /** the layer header */
     @NativeType("ovrLayerHeader")
     public OVRLayerHeader Header() { return nHeader(address()); }
-    /** Returns a {@link OVRLayerEyeFov} view of the {@code EyeFov} field. */
+    /** @return a {@link OVRLayerEyeFov} view of the {@code EyeFov} field. */
     @NativeType("ovrLayerEyeFov")
     public OVRLayerEyeFov EyeFov() { return nEyeFov(address()); }
-    /** Returns a {@link OVRLayerEyeFovDepth} view of the {@code EyeFovDepth} field. */
+    /** @return a {@link OVRLayerEyeFovDepth} view of the {@code EyeFovDepth} field. */
     @NativeType("ovrLayerEyeFovDepth")
     public OVRLayerEyeFovDepth EyeFovDepth() { return nEyeFovDepth(address()); }
-    /** Returns a {@link OVRLayerEyeMatrix} view of the {@code EyeMatrix} field. */
+    /** @return a {@link OVRLayerEyeMatrix} view of the {@code EyeMatrix} field. */
     @NativeType("ovrLayerEyeMatrix")
     public OVRLayerEyeMatrix EyeMatrix() { return nEyeMatrix(address()); }
-    /** Returns a {@link OVRLayerEyeFovMultires} view of the {@code Multires} field. */
+    /** @return a {@link OVRLayerEyeFovMultires} view of the {@code Multires} field. */
     @NativeType("ovrLayerEyeFovMultires")
     public OVRLayerEyeFovMultires Multires() { return nMultires(address()); }
-    /** Returns a {@link OVRLayerCylinder} view of the {@code Cylinder} field. */
+    /** @return a {@link OVRLayerCylinder} view of the {@code Cylinder} field. */
     @NativeType("ovrLayerCylinder")
     public OVRLayerCylinder Cylinder() { return nCylinder(address()); }
-    /** Returns a {@link OVRLayerCube} view of the {@code Cube} field. */
+    /** @return a {@link OVRLayerCube} view of the {@code Cube} field. */
     @NativeType("ovrLayerCube")
     public OVRLayerCube Cube() { return nCube(address()); }
-    /** Returns a {@link OVRLayerQuad} view of the {@code Quad} field. */
+    /** @return a {@link OVRLayerQuad} view of the {@code Quad} field. */
     @NativeType("ovrLayerQuad")
     public OVRLayerQuad Quad() { return nQuad(address()); }
 
-    /** Copies the specified {@link OVRLayerHeader} to the {@code Header} field. */
+    /** Copies the specified {@link OVRLayerHeader} to the {@link #Header} field. */
     public OVRLayerUnion Header(@NativeType("ovrLayerHeader") OVRLayerHeader value) { nHeader(address(), value); return this; }
-    /** Passes the {@code Header} field to the specified {@link java.util.function.Consumer Consumer}. */
+    /** Passes the {@link #Header} field to the specified {@link java.util.function.Consumer Consumer}. */
     public OVRLayerUnion Header(java.util.function.Consumer<OVRLayerHeader> consumer) { consumer.accept(Header()); return this; }
     /** Copies the specified {@link OVRLayerEyeFov} to the {@code EyeFov} field. */
     public OVRLayerUnion EyeFov(@NativeType("ovrLayerEyeFov") OVRLayerEyeFov value) { nEyeFov(address(), value); return this; }
@@ -241,22 +235,29 @@ public class OVRLayerUnion extends Struct implements NativeResource {
 
     // -----------------------------------
 
-    /** Returns a new {@code OVRLayerUnion} instance allocated on the thread-local {@link MemoryStack}. */
-    public static OVRLayerUnion mallocStack() {
-        return mallocStack(stackGet());
-    }
-
-    /** Returns a new {@code OVRLayerUnion} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero. */
-    public static OVRLayerUnion callocStack() {
-        return callocStack(stackGet());
-    }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRLayerUnion mallocStack() { return malloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRLayerUnion callocStack() { return calloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRLayerUnion mallocStack(MemoryStack stack) { return malloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRLayerUnion callocStack(MemoryStack stack) { return calloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRLayerUnion.Buffer mallocStack(int capacity) { return malloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRLayerUnion.Buffer callocStack(int capacity) { return calloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRLayerUnion.Buffer mallocStack(int capacity, MemoryStack stack) { return malloc(capacity, stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRLayerUnion.Buffer callocStack(int capacity, MemoryStack stack) { return calloc(capacity, stack); }
 
     /**
      * Returns a new {@code OVRLayerUnion} instance allocated on the specified {@link MemoryStack}.
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRLayerUnion mallocStack(MemoryStack stack) {
+    public static OVRLayerUnion malloc(MemoryStack stack) {
         return wrap(OVRLayerUnion.class, stack.nmalloc(ALIGNOF, SIZEOF));
     }
 
@@ -265,45 +266,27 @@ public class OVRLayerUnion extends Struct implements NativeResource {
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRLayerUnion callocStack(MemoryStack stack) {
+    public static OVRLayerUnion calloc(MemoryStack stack) {
         return wrap(OVRLayerUnion.class, stack.ncalloc(ALIGNOF, 1, SIZEOF));
-    }
-
-    /**
-     * Returns a new {@link OVRLayerUnion.Buffer} instance allocated on the thread-local {@link MemoryStack}.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRLayerUnion.Buffer mallocStack(int capacity) {
-        return mallocStack(capacity, stackGet());
-    }
-
-    /**
-     * Returns a new {@link OVRLayerUnion.Buffer} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRLayerUnion.Buffer callocStack(int capacity) {
-        return callocStack(capacity, stackGet());
     }
 
     /**
      * Returns a new {@link OVRLayerUnion.Buffer} instance allocated on the specified {@link MemoryStack}.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRLayerUnion.Buffer mallocStack(int capacity, MemoryStack stack) {
+    public static OVRLayerUnion.Buffer malloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.nmalloc(ALIGNOF, capacity * SIZEOF), capacity);
     }
 
     /**
      * Returns a new {@link OVRLayerUnion.Buffer} instance allocated on the specified {@link MemoryStack} and initializes all its bits to zero.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRLayerUnion.Buffer callocStack(int capacity, MemoryStack stack) {
+    public static OVRLayerUnion.Buffer calloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.ncalloc(ALIGNOF, capacity, SIZEOF), capacity);
     }
 
@@ -381,34 +364,34 @@ public class OVRLayerUnion extends Struct implements NativeResource {
             return ELEMENT_FACTORY;
         }
 
-        /** Returns a {@link OVRLayerHeader} view of the {@code Header} field. */
+        /** @return a {@link OVRLayerHeader} view of the {@link OVRLayerUnion#Header} field. */
         @NativeType("ovrLayerHeader")
         public OVRLayerHeader Header() { return OVRLayerUnion.nHeader(address()); }
-        /** Returns a {@link OVRLayerEyeFov} view of the {@code EyeFov} field. */
+        /** @return a {@link OVRLayerEyeFov} view of the {@code EyeFov} field. */
         @NativeType("ovrLayerEyeFov")
         public OVRLayerEyeFov EyeFov() { return OVRLayerUnion.nEyeFov(address()); }
-        /** Returns a {@link OVRLayerEyeFovDepth} view of the {@code EyeFovDepth} field. */
+        /** @return a {@link OVRLayerEyeFovDepth} view of the {@code EyeFovDepth} field. */
         @NativeType("ovrLayerEyeFovDepth")
         public OVRLayerEyeFovDepth EyeFovDepth() { return OVRLayerUnion.nEyeFovDepth(address()); }
-        /** Returns a {@link OVRLayerEyeMatrix} view of the {@code EyeMatrix} field. */
+        /** @return a {@link OVRLayerEyeMatrix} view of the {@code EyeMatrix} field. */
         @NativeType("ovrLayerEyeMatrix")
         public OVRLayerEyeMatrix EyeMatrix() { return OVRLayerUnion.nEyeMatrix(address()); }
-        /** Returns a {@link OVRLayerEyeFovMultires} view of the {@code Multires} field. */
+        /** @return a {@link OVRLayerEyeFovMultires} view of the {@code Multires} field. */
         @NativeType("ovrLayerEyeFovMultires")
         public OVRLayerEyeFovMultires Multires() { return OVRLayerUnion.nMultires(address()); }
-        /** Returns a {@link OVRLayerCylinder} view of the {@code Cylinder} field. */
+        /** @return a {@link OVRLayerCylinder} view of the {@code Cylinder} field. */
         @NativeType("ovrLayerCylinder")
         public OVRLayerCylinder Cylinder() { return OVRLayerUnion.nCylinder(address()); }
-        /** Returns a {@link OVRLayerCube} view of the {@code Cube} field. */
+        /** @return a {@link OVRLayerCube} view of the {@code Cube} field. */
         @NativeType("ovrLayerCube")
         public OVRLayerCube Cube() { return OVRLayerUnion.nCube(address()); }
-        /** Returns a {@link OVRLayerQuad} view of the {@code Quad} field. */
+        /** @return a {@link OVRLayerQuad} view of the {@code Quad} field. */
         @NativeType("ovrLayerQuad")
         public OVRLayerQuad Quad() { return OVRLayerUnion.nQuad(address()); }
 
-        /** Copies the specified {@link OVRLayerHeader} to the {@code Header} field. */
+        /** Copies the specified {@link OVRLayerHeader} to the {@link OVRLayerUnion#Header} field. */
         public OVRLayerUnion.Buffer Header(@NativeType("ovrLayerHeader") OVRLayerHeader value) { OVRLayerUnion.nHeader(address(), value); return this; }
-        /** Passes the {@code Header} field to the specified {@link java.util.function.Consumer Consumer}. */
+        /** Passes the {@link OVRLayerUnion#Header} field to the specified {@link java.util.function.Consumer Consumer}. */
         public OVRLayerUnion.Buffer Header(java.util.function.Consumer<OVRLayerHeader> consumer) { consumer.accept(Header()); return this; }
         /** Copies the specified {@link OVRLayerEyeFov} to the {@code EyeFov} field. */
         public OVRLayerUnion.Buffer EyeFov(@NativeType("ovrLayerEyeFov") OVRLayerEyeFov value) { OVRLayerUnion.nEyeFov(address(), value); return this; }

@@ -17,16 +17,45 @@ val GLFWVulkan = "GLFWVulkan".dependsOn(Module.VULKAN)?.nativeClass(Module.GLFW,
     customMethod("""
     static {
         if (Platform.get() == Platform.MACOSX) {
-            setPathLWJGL();
+            setPath(VK.getFunctionProvider());
         }
     }""")
+
+    void(
+        "InitVulkanLoader",
+        """
+        Sets the desired Vulkan {@code vkGetInstanceProcAddr} function.
+ 
+        This function sets the {@code vkGetInstanceProcAddr} function that GLFW will use for all Vulkan related entry point queries.
+ 
+        This feature is mostly useful on macOS, if your copy of the Vulkan loader is in a location where GLFW cannot find it through dynamic loading, or if you
+        are still using the static library version of the loader.
+ 
+        If set to #NULL, GLFW will try to load the Vulkan loader dynamically by its standard name and get this function from there. This is the default
+        behavior.
+ 
+        The standard name of the loader is {@code vulkan-1.dll} on Windows, {@code libvulkan.so.1} on Linux and other Unix-like systems and
+        {@code libvulkan.1.dylib} on macOS. If your code is also loading it via these names then you probably don't need to use this function.
+ 
+        The function address you set is never reset by GLFW, but it only takes effect during initialization. Once GLFW has been initialized, any updates will
+        be ignored until the library is terminated and initialized again.
+        
+        This function may be called before #Init().
+        
+        This function must only be called from the main thread.
+        """,
+
+        nullable.."PFN_vkGetInstanceProcAddr".handle("loader", "the address of the function to use, or #NULL"),
+
+        since = "version 3.4"
+    )
 
     intb(
         "VulkanSupported",
         """
         Returns whether the Vulkan loader has been found. This check is performed by #Init().
 
-        The availability of a Vulkan loader does not by itself guarantee that window surface creation or even device creation is possible. Call
+        The availability of a Vulkan loader and even an ICD does not by itself guarantee that surface creation or even instance creation is possible. Call
         #GetRequiredInstanceExtensions() to check whether the extensions necessary for Vulkan surface creation are available and
         #GetPhysicalDevicePresentationSupport() to check whether a queue family of a physical device supports image presentation.
 
@@ -54,8 +83,6 @@ val GLFWVulkan = "GLFWVulkan".dependsOn(Module.VULKAN)?.nativeClass(Module.GLFW,
 
         Additional extensions may be required by future versions of GLFW. You should check if any extensions you wish to enable are already in the returned
         array, as it is an error to specify an extension more than once in the {@code VkInstanceCreateInfo} struct.
-        
-        macOS: This function currently supports either the {@code VK_MVK_macos_surface} extension from MoltenVK or {@code VK_EXT_metal_surface} extension.
 
         The returned array is allocated and freed by GLFW. You should not free it yourself. It is guaranteed to be valid only until the library is terminated.
 
@@ -114,6 +141,9 @@ val GLFWVulkan = "GLFWVulkan".dependsOn(Module.VULKAN)?.nativeClass(Module.GLFW,
         available and #GetRequiredInstanceExtensions() to check what instance extensions are required.
 
         Possible errors include #NOT_INITIALIZED, #API_UNAVAILABLE and #PLATFORM_ERROR.
+        
+        macOS: This function currently always returns #TRUE, as the {@code VK_MVK_macos_surface} and {@code VK_EXT_metal_surface} extensions do not provide a
+        {@code vkGetPhysicalDevice*PresentationSupport} type function.
 
         This function may be called from any thread. For synchronization details of Vulkan objects, see the Vulkan specification.
         """,
@@ -147,9 +177,25 @@ val GLFWVulkan = "GLFWVulkan".dependsOn(Module.VULKAN)?.nativeClass(Module.GLFW,
         Possible errors include #NOT_INITIALIZED, #API_UNAVAILABLE, #PLATFORM_ERROR and #INVALID_VALUE.
 
         If an error occurs before the creation call is made, GLFW returns the Vulkan error code most appropriate for the error. Appropriate use of
-        #VulkanSupported() and #GetRequiredInstanceExtensions() should eliminate almost all occurrences of these errors.
+        #VulkanSupported() and {@code glfwGetRequiredInstanceExtensions} should eliminate almost all occurrences of these errors.
 
-        This function may be called from any thread. For synchronization details of Vulkan objects, see the Vulkan specification.
+        Notes:
+        ${ul(
+            "This function may be called from any thread. For synchronization details of Vulkan objects, see the Vulkan specification.",
+            """
+            <b>macOS</b>: GLFW prefers the {@code VK_EXT_metal_surface} extension, with the {@code VK_MVK_macos_surface} extension as a fallback. The name of
+            the selected extension, if any, is included in the array returned by {@code glfwGetRequiredInstanceExtensions}.
+            """,
+            """
+            <b>macOS</b>: This function creates and sets a {@code CAMetalLayer} instance for the window content view, which is required for MoltenVK to
+            function.
+            """,
+            """
+            <b>x11</b>: By default GLFW prefers the {@code VK_KHR_xcb_surface} extension, with the {@code VK_KHR_xlib_surface} extension as a fallback. You can
+            make {@code VK_KHR_xlib_surface} the preferred extension by setting the #X11_XCB_VULKAN_SURFACE init hint. The name of the selected extension, if
+            any, is included in the array returned by {@code glfwGetRequiredInstanceExtensions}.
+            """
+        )}
         """,
 
         VkInstance("instance", "the Vulkan instance to create the surface in"),
@@ -162,20 +208,23 @@ val GLFWVulkan = "GLFWVulkan".dependsOn(Module.VULKAN)?.nativeClass(Module.GLFW,
     )
 
     customMethod("""
-    /** Calls {@link #setPath(String)} with the path of the Vulkan shared library loaded by LWJGL. */
-    public static void setPathLWJGL() {
-        FunctionProvider fp = VK.getFunctionProvider();
-        if (!(fp instanceof SharedLibrary)) {
-            apiLog("GLFW Vulkan path override not set: Vulkan function provider is not a shared library.");
+    /**
+     * Calls {@link #setPath(String)} with the path of the specified {@link SharedLibrary}.
+     * 
+     * <p>Example usage: ${code("GLFWVulkan.setPath(VK.getFunctionProvider());")}</p> 
+     *
+     * @param sharedLibrary a {@code FunctionProvider} instance that will be cast to {@code SharedLibrary}
+     */
+    public static void setPath(FunctionProvider sharedLibrary) {
+        if (!(sharedLibrary instanceof SharedLibrary)) {
+            apiLog("GLFW Vulkan path override not set: function provider is not a shared library.");
             return;
-
         }
 
-        String path = ((SharedLibrary)fp).getPath();
+        String path = ((SharedLibrary)sharedLibrary).getPath();
         if (path == null) {
-            apiLog("GLFW Vulkan path override not set: Could not resolve the Vulkan shared library path.");
+            apiLog("GLFW Vulkan path override not set: Could not resolve the shared library path.");
             return;
-
         }
 
         setPath(path);

@@ -57,7 +57,7 @@ ENABLE_WARNINGS()""")
         "free",
         "aligned_alloc"
     ).forEach {
-        Code(nativeCall = "${t}return (jlong)(intptr_t)&rp$it;")..internal..opaque_p("${it}_address", "The #$it() function address.", void())
+        Code(nativeCall = "${t}return (jlong)(uintptr_t)&rp$it;")..internal..opaque_p("${it}_address", "The #$it() function address.", void())
     }
 
     intb("malloc_initialize", "Initializes allocator with default configuration.", void())
@@ -71,10 +71,15 @@ ENABLE_WARNINGS()""")
 
     Nonnull..rpmalloc_config_t.const.p("malloc_config", "Gets allocator configuration.", void())
 
-    void("malloc_finalize", "Finalizes allocator.")
-    void("malloc_thread_initialize", "Initializes allocator for calling thread.")
-    void("malloc_thread_finalize", "Finalizes allocator for calling thread.")
-    void("malloc_thread_collect", "Performs deferred deallocations pending for the calling thread heap.")
+    void("malloc_finalize", "Finalizes allocator.", void())
+    void("malloc_thread_initialize", "Initializes allocator for calling thread.", void())
+    void(
+        "malloc_thread_finalize",
+
+        "Finalizes allocator for calling thread.",
+        intb("release_caches", "pass non-zero to release thread caches to global cache")
+    )
+    void("malloc_thread_collect", "Performs deferred deallocations pending for the calling thread heap.", void())
     intb("malloc_is_thread_initialized", "Query if allocator is initialized for calling thread.", void())
 
     void(

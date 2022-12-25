@@ -17,19 +17,31 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         """
 
     IntConstant(
-        "The major version number of the GLFW library. This is incremented when the API is changed in non-compatible ways.",
+        """
+        The major version number of the GLFW header.
+        
+        This is incremented when the API is changed in non-compatible ways.
+        """,
 
         "VERSION_MAJOR".."3"
     )
 
     IntConstant(
-        "The minor version number of the GLFW library. This is incremented when features are added to the API but it remains backward-compatible.",
+        """
+        The minor version number of the GLFW header.
+        
+        This is incremented when features are added to the API but it remains backward-compatible.
+        """,
 
         "VERSION_MINOR".."4"
     )
 
     IntConstant(
-        "The revision number of the GLFW library. This is incremented when a bug fix release is made that does not contain any API changes.",
+        """
+        The revision number of the GLFW header.
+        
+        This is incremented when a bug fix release is made that does not contain any API changes.
+        """,
 
         "VERSION_REVISION".."0"
     )
@@ -343,7 +355,7 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
             """
             GLFW could not find support for the requested API on the system.
 
-            The installed graphics driver does not support the requested API, or does not support it via the chosen context creation backend. Below are a few
+            The installed graphics driver does not support the requested API, or does not support it via the chosen context creation API. Below are a few
             examples:
 
             Some pre-installed Windows graphics drivers do not support OpenGL. AMD only supports OpenGL ES via EGL, while Nvidia and Intel only support it via
@@ -398,12 +410,55 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
             """
             The specified cursor shape is not available.
 
-            The specified standard cursor shape is not available, either because the current system cursor theme does not provide it or because it is not
+            The specified standard cursor shape is not available, either because the current platform cursor theme does not provide it or because it is not
             available on the platform.
 
             Platform or system settings limitation. Pick another standard cursor shape or create a custom cursor.
             """,
             0x0001000B
+        ),
+        "FEATURE_UNAVAILABLE".enum(
+            """
+            The requested feature is not provided by the platform.
+ 
+            The requested feature is not provided by the platform, so GLFW is unable to implement it. The documentation for each function notes if it could
+            emit this error.
+ 
+            Platform or platform version limitation. The error can be ignored unless the feature is critical to the application.
+
+            A function call that emits this error has no effect other than the error and updating any existing out parameters.
+            """,
+            0x0001000C
+        ),
+        "FEATURE_UNIMPLEMENTED".enum(
+            """
+            The requested feature has not yet been implemented in GLFW for this platform.
+
+            An incomplete implementation of GLFW for this platform, hopefully fixed in a future release. The error can be ignored unless the feature is
+            critical to the application.
+
+            A function call that emits this error has no effect other than the error and updating any existing out parameters.
+            """,
+            0x0001000D
+        ),
+        "PLATFORM_UNAVAILABLE".enum(
+            """
+            Platform unavailable or no matching platform was found.
+
+            If emitted during initialization, no matching platform was found. If #PLATFORM is set to #ANY_PLATFORM, GLFW could not detect any of the platforms
+            supported by this library binary, except for the {@code Null} platform.  If set to a specific platform, it is either not supported by this library
+            binary or GLFW was not able to detect it.
+
+            If emitted by a native access function, GLFW was initialized for a different platform than the function is for.
+
+            Failure to detect any platform usually only happens on non-macOS Unix systems, either when no window system is running or the program was run from
+            a terminal that does not have the necessary environment variables.  Fall back to a different platform if possible or notify the user that no usable
+            platform was detected.
+
+            Failure to detect a specific platform may have the same cause as above or because support for that platform was not compiled in. Call
+            #PlatformSupported() to check whether a specific platform is supported by a library binary.
+            """,
+            0x0001000E
         )
     )
 
@@ -475,20 +530,28 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
             0x00020009),
         "TRANSPARENT_FRAMEBUFFER".enum(
             """
-            {@code WindowHint}: specifies whether the window framebuffer will be transparent. If enabled and supported by the system, the window framebuffer
+            {@code WindowHint}: Specifies whether the window framebuffer will be transparent. If enabled and supported by the system, the window framebuffer
             alpha channel will be used to combine the framebuffer with the background. This does not affect window decorations.
             """,
             0x0002000A),
         "HOVERED".enum(
-            "{@code GetWindowAttrib}: indicates whether the cursor is currently directly over the content area of the window, with no other windows between.",
+            "{@code GetWindowAttrib}: Indicates whether the cursor is currently directly over the content area of the window, with no other windows between.",
             0x0002000B),
         "FOCUS_ON_SHOW".enum(
             """
-            {@code WindowHint}: specifies whether input focuses on calling show window.
+            {@code WindowHint}: Specifies whether input focuses on calling show window.
 
             {@code GetWindowAttrib}: Indicates whether input focuses on calling show window.
             """,
-            0x0002000C)
+            0x0002000C),
+        "MOUSE_PASSTHROUGH".enum(
+            """
+            {@code WindowHint}: Specifies whether the window is transparent to mouse input, letting any mouse events pass through to whatever window is behind
+            it. This is only supported for undecorated windows. Decorated windows with this enabled will behave differently between platforms.
+
+            {@code GetWindowAttrib}: Indicates whether the window is transparent to mouse input.
+            """,
+            0x0002000D)
     ).javaDocLinks
 
     val InputModes = IntConstant(
@@ -596,12 +659,76 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
     )
 
     IntConstant(
-        "Init hints.",
+        """
+        Joystick hat buttons init hint.
+        
+        Specifies whether to also expose joystick hats as buttons, for compatibility with earlier versions of GLFW that did not have #GetJoystickHats().
+        Possible values are #TRUE and #FALSE.
+        """,
 
-        "JOYSTICK_HAT_BUTTONS"..0x00050001,
+        "JOYSTICK_HAT_BUTTONS"..0x00050001
+    )
 
-        "COCOA_CHDIR_RESOURCES"..0x00051001,
+    IntConstant(
+        """
+        ANGLE rendering backend init hint.
+        
+        Specifies the platform type (rendering backend) to request when using OpenGL ES and EGL via ${url(
+            "https://chromium.googlesource.com/angle/angle/", 
+            "ANGLE")
+        }. If the requested platform type is unavailable, ANGLE will use its default. Possible values are one of #ANGLE_PLATFORM_TYPE_NONE,
+        #ANGLE_PLATFORM_TYPE_OPENGL, #ANGLE_PLATFORM_TYPE_OPENGLES, #ANGLE_PLATFORM_TYPE_D3D9, #ANGLE_PLATFORM_TYPE_D3D11, #ANGLE_PLATFORM_TYPE_VULKAN and
+        #ANGLE_PLATFORM_TYPE_METAL.
+        """,
+
+        "ANGLE_PLATFORM_TYPE"..0x00050002
+    )
+
+    IntConstant(
+        "Platform selection init hint.",
+
+        "PLATFORM"..0x00050003
+    )
+
+    IntConstant(
+        """
+        macOS specific init hint.
+        
+        Specifies whether to set the current directory to the application to the {@code Contents/Resources} subdirectory of the application's bundle, if
+        present. Possible values are #TRUE` and #FALSE`. This is ignored on other platforms.
+        """,
+
+        "COCOA_CHDIR_RESOURCES"..0x00051001
+    )
+
+    IntConstant(
+        """
+        macOS specific init hint.
+        
+        Specifies whether to create the menu bar and dock icon when GLFW is initialized. This applies whether the menu bar is created from a nib or manually by
+        GLFW. Possible values are #TRUE and #FALSE. This is ignored on other platforms.
+        """,
+
         "COCOA_MENUBAR"..0x00051002
+    )
+
+    IntConstant(
+        """
+        X11 specific init hint.
+        """,
+
+        "X11_XCB_VULKAN_SURFACE"..0x00052001
+    )
+
+    IntConstant(
+        "Hint value for #PLATFORM that enables automatic platform selection.",
+
+        "ANY_PLATFORM"..0x00060000,
+        "PLATFORM_WIN32"..0x00060001,
+        "PLATFORM_COCOA"..0x00060002,
+        "PLATFORM_WAYLAND"..0x00060003,
+        "PLATFORM_X11"..0x00060004,
+        "PLATFORM_NULL"..0x00060005
     )
 
     IntConstant(
@@ -701,14 +828,17 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
             """,
             0x00022006
         ),
-        "OPENGL_DEBUG_CONTEXT".enum(
+        "CONTEXT_DEBUG".enum(
             """
-            {@code WindowHint}: Specifies whether to create a debug OpenGL context, which may have additional error and performance issue reporting functionality.
-            If OpenGL ES is requested, this hint is ignored.
+            {@code WindowHint}: Specifies whether to create a debug context, which may have additional error and performance issue reporting functionality.
 
-            {@code GetWindowAttrib}: Indicates if the window's context is an OpenGL debug context.
+            {@code GetWindowAttrib}: Indicates if the window's context is a debug context.
             """,
             0x00022007
+        ),
+        "OPENGL_DEBUG_CONTEXT".enum(
+            "Alias of #CONTEXT_DEBUG for compatibility with earlier versions.",
+            "GLFW_CONTEXT_DEBUG"
         ),
         "OPENGL_PROFILE".enum(
             """
@@ -739,8 +869,8 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         ),
         "CONTEXT_CREATION_API".enum(
             """
-            {@code WindowHint}: Specifies which context creation API to use to create the context. Possible values are #NATIVE_CONTEXT_API and #EGL_CONTEXT_API.
-            This is a hard constraint. If no client API is requested, this hint is ignored.
+            {@code WindowHint}: Specifies which context creation API to use to create the context. Possible values are #NATIVE_CONTEXT_API, #EGL_CONTEXT_API
+            and #OSMESA_CONTEXT_API. This is a hard constraint. If no client API is requested, this hint is ignored.
 
             ${note(ul(
                 "<b>macOS</b>: The EGL API is not available on this platform and requests to use it will fail.",
@@ -849,7 +979,21 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         "OSMESA_CONTEXT_API"..0x00036003
     ).javaDocLinks
 
-    intb(
+    IntConstant(
+        "Values for the #ANGLE_PLATFORM_TYPE hint.",
+
+        "ANGLE_PLATFORM_TYPE_NONE"..0x00037001,
+        "ANGLE_PLATFORM_TYPE_OPENGL"..0x00037002,
+        "ANGLE_PLATFORM_TYPE_OPENGLES"..0x00037003,
+        "ANGLE_PLATFORM_TYPE_D3D9"..0x00037004,
+        "ANGLE_PLATFORM_TYPE_D3D11"..0x00037005,
+        "ANGLE_PLATFORM_TYPE_VULKAN"..0x00037007,
+        "ANGLE_PLATFORM_TYPE_METAL"..0x00037008
+    )
+
+    Code(
+        javaInit = statement("$t${t}EventLoop.check();")
+    )..intb(
         "Init",
         """
         Initializes the GLFW library. Before most GLFW functions can be used, GLFW must be initialized, and before an application terminates GLFW should be
@@ -858,28 +1002,50 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         If this function fails, it calls #Terminate() before returning. If it succeeds, you should call #Terminate() before the application exits.
 
         Additional calls to this function after successful initialization but before termination will return #TRUE immediately.
+        
+        The #PLATFORM init hint controls which platforms are considered during initialization. This also depends on which platforms the library was compiled to
+        support.
 
         ${note(ul(
             "This function must only be called from the main thread.",
             """
             <b>macOS</b>: This function will change the current directory of the application to the `Contents/Resources` subdirectory of the application's
             bundle, if present. This can be disabled with the #COCOA_CHDIR_RESOURCES init hint.
+            """,
+            """
+            <b>macOS</b>: This function will create the main menu and dock icon for the application. If GLFW finds a {@code MainMenu.nib} it is loaded and
+            assumed to contain a menu bar. Otherwise a minimal menu bar is created manually with common commands like Hide, Quit and About. The About entry
+            opens a minimal about dialog with information from the application's bundle. The menu bar and dock icon can be disabled entirely with the
+            #COCOA_MENUBAR init hint.
+            """,
+            """
+            <b>x11</b>: This function will set the {@code LC_CTYPE} category of the application locale according to the current environment if that category is
+            still "C". This is because the "C" locale breaks Unicode text input.
             """
         ))}
         """,
 
-        returnDoc = "#TRUE if successful, or #FALSE if an error occurred.",
+        returnDoc =
+        """
+        #TRUE if successful, or #FALSE if an error occurred.
+        
+        Possible errors include #PLATFORM_UNAVAILABLE and #PLATFORM_ERROR.
+        """,
         since = "version 1.0"
     )
 
     void(
         "Terminate",
         """
-        Destroys all remaining windows and cursors, restores any modified gamma ramps and frees any other allocated resources. Once this function is called, you
-        must again call #Init() successfully before you will be able to use most GLFW functions.
+        Terminates the GLFW library.
+        
+        This function destroys all remaining windows and cursors, restores any modified gamma ramps and frees any other allocated resources. Once this function
+        is called, you must again call #Init() successfully before you will be able to use most GLFW functions.
 
         If GLFW has been successfully initialized, this function should be called before the application exits. If initialization fails, there is no need to
         call this function, as it is called by #Init() before it returns failure.
+        
+        This function has no effect if GLFW is not initialized.
 
         ${note(ul(
             "This function may be called before #Init().",
@@ -908,10 +1074,35 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         ))}
         """,
 
-        int("hint", "the init hint to set", "#JOYSTICK_HAT_BUTTONS #COCOA_CHDIR_RESOURCES #COCOA_MENUBAR"),
+        int(
+            "hint",
+            "the init hint to set",
+            "#JOYSTICK_HAT_BUTTONS #ANGLE_PLATFORM_TYPE #COCOA_CHDIR_RESOURCES #COCOA_MENUBAR #PLATFORM #X11_XCB_VULKAN_SURFACE"
+        ),
         int("value", "the new value of the init hint"),
 
         since = "version 3.3"
+    )
+
+    void(
+        "InitAllocator",
+        """
+        Sets the init allocator to the desired value.
+
+        To use the default allocator, call this function with a #NULL argument.
+
+        If you specify an allocator struct, every member must be a valid function pointer. If any member is #NULL, this function emits #INVALID_VALUE and the
+        init allocator is unchanged.
+        
+        ${note(ul(
+            "Possible errors include #INVALID_VALUE.",
+            "The specified allocator is copied before this function returns.",
+            "This function must only be called from the main thread."
+        ))}
+        """,
+
+        nullable..GLFWallocator.const.p("allocator", "the allocator to use at the next initialization, or #NULL to use the default one"),
+        since = "version 3.4"
     )
 
     void(
@@ -937,11 +1128,14 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
     Nonnull..charASCII.const.p(
         "GetVersionString",
         """
-        Returns the compile-time generated version string of the GLFW library binary. It describes the version, platform, compiler and any platform-specific
-        compile-time options. It should not be confused with the OpenGL or OpenGL ES version string, queried with {@code glGetString}.
+        Returns the compile-time generated version string of the GLFW library binary. It describes the version, platforms, compiler and any platform or
+        operating system specific compile-time options. It should not be confused with the OpenGL or OpenGL ES version string, queried with
+        {@code glGetString}.
 
         <b>Do not use the version string</b> to parse the GLFW library version. The #GetVersion() function already provides the version of the library binary
         in numerical format.
+        
+        <b>Do not use the version string</b> to parse what platforms are supported. The #PlatformSupported() function lets you query platform support.
 
         ${note(ul(
             "This function always succeeds.",
@@ -1005,6 +1199,51 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         since = "version 3.0"
     )
 
+    int(
+        "GetPlatform",
+        """
+        Returns the currently selected platform.
+
+        This function returns the platform that was selected during initialization. The returned value will be one of #PLATFORM_WIN32, #PLATFORM_COCOA,
+        #PLATFORM_WAYLAND, #PLATFORM_X11 or #PLATFORM_NULL.
+
+        This function may be called from any thread.
+        """,
+
+        void(),
+
+        returnDoc =
+        """
+        the currently selected platform, or zero if an error occurred.
+        
+        Possible errors include #NOT_INITIALIZED.
+        """,
+        since = "version 3.4"
+    )
+
+    intb(
+        "PlatformSupported",
+        """
+        Returns whether the library includes support for the specified platform.
+
+        This function returns whether the library was compiled with support for the specified platform.
+ 
+        This function may be called before #Init().
+        
+        This function may be called from any thread.
+        """,
+
+        int("platform", "the platform to query", "#PLATFORM_WIN32 #PLATFORM_COCOA #PLATFORM_WAYLAND #PLATFORM_X11 #PLATFORM_NULL"),
+
+        returnDoc =
+        """
+        #TRUE if the platform is supported, or #FALSE otherwise.
+        
+        Possible errors include #INVALID_ENUM.
+        """,
+        since = "version 3.4"
+    )
+
     GLFWmonitor.p.p(
         "GetMonitors",
         """
@@ -1059,7 +1298,7 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         Retrieves the work area of the monitor.
 
         This function returns the position, in screen coordinates, of the upper-left corner of the work area of the specified monitor along with the work area
-        size in screen coordinates. The work area is defined as the area of the monitor not occluded by the operating system task bar where present. If no task
+        size in screen coordinates. The work area is defined as the area of the monitor not occluded by the window system task bar where present. If no task
         bar exists then the work area is the monitor resolution in screen coordinates.
 
         Any or all of the position and size arguments may be #NULL.  If an error occurs, all non-#NULL position and size arguments will be set to zero.
@@ -1081,7 +1320,7 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         """
         Returns the size, in millimetres, of the display area of the specified monitor.
 
-        Some systems do not provide accurate monitor size information, either because the monitor
+        Some platforms do not provide accurate monitor size information, either because the monitor
         ${url("https://en.wikipedia.org/wiki/Extended_display_identification_data", "EDID")} data is incorrect or because the driver does not report it
         accurately.
 
@@ -1090,7 +1329,8 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         ${note(ul(
             "This function must only be called from the main thread.",
             """
-            <b>Windows</b>: The OS calculates the returned physical size from the current resolution and system DPI instead of querying the monitor EDID data.
+            <b>Windows</b>: On Windows 8 and earlier the physical size is calculated from the current resolution and system DPI instead of querying the monitor
+            EDID data.
             """
         ))}
         """,
@@ -1196,8 +1436,10 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
     GLFWvidmode.const.p(
         "GetVideoModes",
         """
-        Returns an array of all video modes supported by the specified monitor. The returned array is sorted in ascending order, first by color bit depth (the
-        sum of all channel depths) and then by resolution area (the product of width and height).
+        Returns an array of all video modes supported by the specified monitor.
+        
+        The returned array is sorted in ascending order, first by color bit depth (the sum of all channel depths), then by resolution area (the product of
+        width and height), then resolution width and finally by refresh rate.
 
         The returned array is allocated and freed by GLFW. You should not free it yourself. It is valid until the specified monitor is disconnected, this
         function is called again for that monitor or the library is terminated.
@@ -1345,6 +1587,7 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
             tr(td("#TRANSPARENT_FRAMEBUFFER"), td("#FALSE"), td("#TRUE or #FALSE")),
             tr(td("#FOCUS_ON_SHOW"), td("#TRUE"), td("#TRUE or #FALSE")),
             tr(td("#SCALE_TO_MONITOR"), td("#FALSE"), td("#TRUE or #FALSE")),
+            tr(td("#MOUSE_PASSTHROUGH"), td("#FALSE"), td("#TRUE or #FALSE")),
 
             tr(td("#RED_BITS"), td("8"), td("0 to Integer#MAX_VALUE or #DONT_CARE")),
             tr(td("#GREEN_BITS"), td("8"), td("0 to Integer#MAX_VALUE or #DONT_CARE")),
@@ -1432,9 +1675,7 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         since = "version 3.3"
     )
 
-    Code(
-        javaInit = statement("$t${t}EventLoop.OffScreen.check();")
-    )..GLFWwindow.p(
+    GLFWwindow.p(
         "CreateWindow",
         """
         Creates a window and its associated OpenGL or OpenGL ES context. Most of the options controlling how the window and its context should be created are
@@ -1488,11 +1729,6 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
             more information on bundles, see the
             ${url("https://developer.apple.com/library/content/documentation/CoreFoundation/Conceptual/CFBundles/", "Bundle Programming Guide")} in the Mac
             Developer Library.
-            """,
-            """
-            <b>macOS</b>: The first time a window is created the menu bar is created. If GLFW finds a {@code `MainMenu.nib`} it is loaded and assumed to
-            contain a menu bar. Otherwise a minimal menu bar is created manually with common commands like Hide, Quit and About. The About entry opens a
-            minimal about dialog with information from the application's bundle. Menu bar creation can be disabled entirely with the #COCOA_MENUBAR init hint.
             """,
             """
             <b>macOS</b>: On macOS 10.10 and later the window frame will not be rendered at full resolution on Retina displays unless the
@@ -1619,14 +1855,14 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
             "This function must only be called from the main thread.",
             "The specified image data is copied before this function returns.",
             """
-            <b>macOS</b>: The GLFW window has no icon, as it is not a document window, so this function does nothing. The dock icon will be the same as the
+            <b>macOS</b>: Regular windows do not have icons on macOS. This function will emit #FEATURE_UNAVAILABLE. The dock icon will be the same as the
             application bundle's icon. For more information on bundles, see the ${url(
                 "https://developer.apple.com/library/content/documentation/CoreFoundation/Conceptual/CFBundles/",
                 "Bundle Programming Guide")} in the Mac Developer Library.
             """,
             """
             <b>Wayland</b>: There is no existing protocol to change an icon, the window will thus inherit the one defined in the application's desktop file.
-            This function always emits #PLATFORM_ERROR.
+            This function will emit #FEATURE_UNAVAILABLE.
             """
         )}
         """,
@@ -1648,7 +1884,7 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         Notes:
         ${ul(
             "This function must only be called from the main thread.",
-            "<b>Wayland</b>: There is no way for an application to retrieve the global position of its windows, this function will always emit #PLATFORM_ERROR."
+            "<b>Wayland</b>: There is no way for an application to retrieve the global position of its windows. This function will emit #FEATURE_UNAVAILABLE."
         )}
         """,
 
@@ -1673,7 +1909,7 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         Notes:
         ${ul(
             "This function must only be called from the main thread.",
-            "<b>Wayland</b>: There is no way for an application to set the global position of its windows, this function will always emit #PLATFORM_ERROR."
+            "<b>Wayland</b>: There is no way for an application to set the global position of its windows. This function will emit #FEATURE_UNAVAILABLE."
         )}
         """,
 
@@ -1833,8 +2069,8 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         it should appear at a reasonable size on other machines regardless of their DPI and scaling settings. This relies on the system DPI and scaling
         settings being somewhat correct.
 
-        On systems where each monitor can have its own content scale, the window content scale will depend on which monitor the system considers the window to
-        be on.
+        On platforms where each monitor can have its own content scale, the window content scale will depend on which monitor the system considers the window
+        to be on.
         """,
 
         GLFWwindow.p("window", "the window to query"),
@@ -1878,7 +2114,11 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
 
         A window created with framebuffer transparency may not use whole window transparency. The results of doing this are undefined.
 
-        This function must only be called from the main thread.
+        Notes:
+        ${ul(
+            "This function must only be called from the main thread.",
+            "<b>Wayland</b>: There is no way to set an opacity factor for a window. This function will emit #FEATURE_UNAVAILABLE."
+        )}
         """,
 
         GLFWwindow.p("window", "the window to set the opacity for"),
@@ -1936,9 +2176,7 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         since = "version 3.2"
     )
 
-    Code(
-        javaInit = statement("$t${t}EventLoop.OnScreen.check();")
-    )..void(
+    void(
         "ShowWindow",
         """
         Makes the specified window visible if it was previously hidden. If the window is already visible or is in full screen mode, this function does nothing.
@@ -1946,7 +2184,14 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         By default, windowed mode windows are focused when shown. Set the #FOCUS_ON_SHOW window hint to change this behavior for all newly created windows, or
         change the behavior for an existing window with #SetWindowAttrib().
 
-        This function must only be called from the main thread.
+        Notes:
+        ${ul(
+            "This function must only be called from the main thread.",
+            """
+            <b>Wayland</b>: Because Wayland wants every frame of the desktop to be complete, this function does not immediately make the window visible.
+            Instead it will become visible the next time the window framebuffer is updated after this call.
+            """
+        )}
         """,
 
         GLFWwindow.p("window", "the window to make visible"),
@@ -1984,7 +2229,7 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         Notes:
         ${ul(
             "This function must only be called from the main thread.",
-            "<b>Wayland</b>: It is not possible for an application to bring its windows to front, this function will always emit #PLATFORM_ERROR."
+            "<b>Wayland</b>: It is not possible for an application to set the input focus. This function will emit #FEATURE_UNAVAILABLE."
         )}
         """,
 
@@ -2109,7 +2354,7 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
 
             Calling #GetWindowAttrib() will always return the latest value, even if that value is ignored by the current mode of the window.
             """,
-            "#DECORATED #RESIZABLE #FLOATING #AUTO_ICONIFY #FOCUS_ON_SHOW"
+            "#DECORATED #RESIZABLE #FLOATING #AUTO_ICONIFY #FOCUS_ON_SHOW #MOUSE_PASSTHROUGH"
         ),
         int("value", "the value to set"),
 
@@ -2307,9 +2552,7 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         since = "version 3.3"
     )
 
-    Code(
-        javaInit = statement("$t${t}EventLoop.OnScreen.check();")
-    )..void(
+    void(
         "PollEvents",
         """
         Processes all pending events.
@@ -2334,9 +2577,7 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         since = "version 1.0"
     )
 
-    Code(
-        javaInit = statement("$t${t}EventLoop.OnScreen.check();")
-    )..void(
+    void(
         "WaitEvents",
         """
         Waits until events are queued and processes them.
@@ -2364,9 +2605,7 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         since = "version 2.5"
     )
 
-    Code(
-        javaInit = statement("$t${t}EventLoop.OnScreen.check();")
-    )..void(
+    void(
         "WaitEventsTimeout",
         """
         Waits with timeout until events are queued and processes them.
@@ -2452,8 +2691,8 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         bit when Num Lock was on.
 
         If the mode is #RAW_MOUSE_MOTION, the value must be either #TRUE to enable raw (unscaled and unaccelerated) mouse motion when the cursor is disabled,
-        or #FALSE to disable it. If raw motion is not supported, attempting to set this will emit #PLATFORM_ERROR. Call #RawMouseMotionSupported() to check for
-        support.
+        or #FALSE to disable it. If raw motion is not supported, attempting to set this will emit #FEATURE_UNAVAILABLE. Call #RawMouseMotionSupported() to
+        check for support.
 
         This function must only be called from the main thread.
         """,
@@ -3273,7 +3512,7 @@ if (hats[2] & GLFW_HAT_RIGHT)
         Returns the value of the GLFW timer. Unless the timer has been set using #SetTime(), the timer measures time elapsed since GLFW was initialized.
 
         The resolution of the timer is system dependent, but is usually on the order of a few micro- or nanoseconds. It uses the highest-resolution monotonic
-        time source on each supported platform.
+        time source on each operating system.
 
         This function may be called from any thread. Reading and writing of the internal timer offset is not atomic, so it needs to be externally synchronized
         with calls to #SetTime().
@@ -3404,7 +3643,7 @@ if (hats[2] & GLFW_HAT_RIGHT)
         ${note(ul(
             "This function may be called from any thread.",
             """
-            This function is not called during window creation, leaving the swap interval set to whatever is the default on that platform. This is done because
+            This function is not called during window creation, leaving the swap interval set to whatever is the default for that API. This is done because
             some swap interval extensions used by GLFW do not allow the swap interval to be reset to zero once it has been set to a non-zero value.
             """,
             """

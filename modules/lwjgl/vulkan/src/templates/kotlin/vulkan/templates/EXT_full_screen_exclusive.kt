@@ -6,16 +6,16 @@
 package vulkan.templates
 
 import org.lwjgl.generator.*
-import core.windows.*
 import vulkan.*
 
-val EXT_full_screen_exclusive = "EXTFullScreenExclusive".nativeClassVK("EXT_full_screen_exclusive", type = "device", postfix = EXT) {
+val EXT_full_screen_exclusive = "EXTFullScreenExclusive".nativeClassVK("EXT_full_screen_exclusive", type = "device", postfix = "EXT") {
     documentation =
         """
         This extension allows applications to set the policy for swapchain creation and presentation mechanisms relating to full-screen access. Implementations may be able to acquire exclusive access to a particular display for an application window that covers the whole screen. This can increase performance on some systems by bypassing composition, however it can also result in disruptive or expensive transitions in the underlying windowing system when a change occurs.
 
         Applications can choose between explicitly disallowing or allowing this behavior, letting the implementation decide, or managing this mode of operation directly using the new #AcquireFullScreenExclusiveModeEXT() and #ReleaseFullScreenExclusiveModeEXT() commands.
 
+        <h5>VK_EXT_full_screen_exclusive</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_EXT_full_screen_exclusive}</dd>
@@ -40,9 +40,12 @@ val EXT_full_screen_exclusive = "EXTFullScreenExclusive".nativeClassVK("EXT_full
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>James Jones <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_EXT_full_screen_exclusive:%20&amp;body=@cubanismo%20">cubanismo</a></li>
+                <li>James Jones <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_EXT_full_screen_exclusive]%20@cubanismo%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_EXT_full_screen_exclusive%20extension%3E%3E">cubanismo</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2019-03-12</dd>
 
@@ -140,6 +143,12 @@ val EXT_full_screen_exclusive = "EXTFullScreenExclusive".nativeClassVK("EXT_full
 
         <h5>Description</h5>
         {@code vkGetPhysicalDeviceSurfacePresentModes2EXT} behaves similarly to #GetPhysicalDeviceSurfacePresentModesKHR(), with the ability to specify extended inputs via chained input structures.
+
+        <h5>Valid Usage</h5>
+        <ul>
+            <li>If the {@link GOOGLESurfacelessQuery VK_GOOGLE_surfaceless_query} extension is not enabled, {@code pSurfaceInfo→surface} <b>must</b> be a valid {@code VkSurfaceKHR} handle</li>
+            <li>If {@code pSurfaceInfo→surface} is not #NULL_HANDLE, it <b>must</b> be supported by {@code physicalDevice}, as reported by #GetPhysicalDeviceSurfaceSupportKHR() or an equivalent platform-specific mechanism</li>
+        </ul>
 
         <h5>Valid Usage (Implicit)</h5>
         <ul>
@@ -256,7 +265,7 @@ val EXT_full_screen_exclusive = "EXTFullScreenExclusive".nativeClassVK("EXT_full
         VkSwapchainKHR("swapchain", "the swapchain to release exclusive full-screen access from.")
     )
 
-    DependsOn("ext.contains(\"Vulkan11\") || ext.contains(\"VK_KHR_device_group\")")..VkResult(
+    DependsOn("""ext.contains("VK_KHR_device_group") || ext.contains("Vulkan11")""")..VkResult(
         "GetDeviceGroupSurfacePresentModes2EXT",
         """
         Query device group present capabilities for a surface.
@@ -272,6 +281,11 @@ val EXT_full_screen_exclusive = "EXTFullScreenExclusive".nativeClassVK("EXT_full
 
         <h5>Description</h5>
         {@code vkGetDeviceGroupSurfacePresentModes2EXT} behaves similarly to #GetDeviceGroupSurfacePresentModesKHR(), with the ability to specify extended inputs via chained input structures.
+
+        <h5>Valid Usage</h5>
+        <ul>
+            <li>{@code pSurfaceInfo→surface} <b>must</b> be supported by all physical devices associated with {@code device}, as reported by #GetPhysicalDeviceSurfaceSupportKHR() or an equivalent platform-specific mechanism</li>
+        </ul>
 
         <h5>Valid Usage (Implicit)</h5>
         <ul>

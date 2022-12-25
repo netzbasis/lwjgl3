@@ -1,9 +1,9 @@
 //-------------------------------------------------------------------------------------
 // DirectXMeshWeldVertices.cpp
-//  
+//
 // DirectX Mesh Geometry Library - Vertex welding
 //
-// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkID=324981
@@ -20,7 +20,7 @@ namespace
             _Inout_updates_all_(nFaces * 3) index_t* indices, size_t nFaces,
             size_t nVerts, _In_reads_(nVerts) const uint32_t* pointRep,
             _Out_writes_opt_(nVerts) uint32_t* vertexRemap,
-            std::function<bool __cdecl(uint32_t v0, uint32_t v1)>& weldTest)
+            const std::function<bool __cdecl(uint32_t v0, uint32_t v1)>& weldTest)
     {
         std::unique_ptr<uint32_t[]> temp(new (std::nothrow) uint32_t[nVerts * 2]);
         if (!temp)
@@ -145,8 +145,10 @@ namespace
 
 _Use_decl_annotations_
 HRESULT DirectX::WeldVertices(
-    uint16_t* indices, size_t nFaces,
-    size_t nVerts, const uint32_t* pointRep,
+    uint16_t* indices,
+    size_t nFaces,
+    size_t nVerts,
+    const uint32_t* pointRep,
     uint32_t* vertexRemap,
     std::function<bool __cdecl(uint32_t v0, uint32_t v1)> weldTest)
 {
@@ -157,7 +159,7 @@ HRESULT DirectX::WeldVertices(
         return E_INVALIDARG;
 
     if ((uint64_t(nFaces) * 3) >= UINT32_MAX)
-        return HRESULT_FROM_WIN32(ERROR_ARITHMETIC_OVERFLOW);
+        return HRESULT_E_ARITHMETIC_OVERFLOW;
 
     return WeldVerticesImpl<uint16_t>(indices, nFaces, nVerts, pointRep, vertexRemap, weldTest);
 }
@@ -176,7 +178,7 @@ HRESULT DirectX::WeldVertices(
         return E_INVALIDARG;
 
     if ((uint64_t(nFaces) * 3) >= UINT32_MAX)
-        return HRESULT_FROM_WIN32(ERROR_ARITHMETIC_OVERFLOW);
+        return HRESULT_E_ARITHMETIC_OVERFLOW;
 
     return WeldVerticesImpl<uint32_t>(indices, nFaces, nVerts, pointRep, vertexRemap, weldTest);
 }

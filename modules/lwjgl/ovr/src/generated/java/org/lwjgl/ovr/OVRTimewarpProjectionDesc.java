@@ -20,21 +20,13 @@ import static org.lwjgl.system.MemoryStack.*;
  * 
  * <p>Use the utility function {@link OVRUtil#ovrTimewarpProjectionDesc_FromProjection TimewarpProjectionDesc_FromProjection} to generate this structure from the application's projection matrix.</p>
  * 
- * <h3>Member documentation</h3>
- * 
- * <ul>
- * <li>{@code Projection22} &ndash; projection matrix element [2][2]</li>
- * <li>{@code Projection23} &ndash; projection matrix element [2][3]</li>
- * <li>{@code Projection32} &ndash; projection matrix element [3][2]</li>
- * </ul>
- * 
  * <h3>Layout</h3>
  * 
  * <pre><code>
  * struct ovrTimewarpProjectionDesc {
- *     float Projection22;
- *     float Projection23;
- *     float Projection32;
+ *     float {@link #Projection22};
+ *     float {@link #Projection23};
+ *     float {@link #Projection32};
  * }</code></pre>
  */
 @NativeType("struct ovrTimewarpProjectionDesc")
@@ -80,11 +72,11 @@ public class OVRTimewarpProjectionDesc extends Struct implements NativeResource 
     @Override
     public int sizeof() { return SIZEOF; }
 
-    /** Returns the value of the {@code Projection22} field. */
+    /** projection matrix element [2][2] */
     public float Projection22() { return nProjection22(address()); }
-    /** Returns the value of the {@code Projection23} field. */
+    /** projection matrix element [2][3] */
     public float Projection23() { return nProjection23(address()); }
-    /** Returns the value of the {@code Projection32} field. */
+    /** projection matrix element [3][2] */
     public float Projection32() { return nProjection32(address()); }
 
     // -----------------------------------
@@ -162,22 +154,29 @@ public class OVRTimewarpProjectionDesc extends Struct implements NativeResource 
 
     // -----------------------------------
 
-    /** Returns a new {@code OVRTimewarpProjectionDesc} instance allocated on the thread-local {@link MemoryStack}. */
-    public static OVRTimewarpProjectionDesc mallocStack() {
-        return mallocStack(stackGet());
-    }
-
-    /** Returns a new {@code OVRTimewarpProjectionDesc} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero. */
-    public static OVRTimewarpProjectionDesc callocStack() {
-        return callocStack(stackGet());
-    }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRTimewarpProjectionDesc mallocStack() { return malloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRTimewarpProjectionDesc callocStack() { return calloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRTimewarpProjectionDesc mallocStack(MemoryStack stack) { return malloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRTimewarpProjectionDesc callocStack(MemoryStack stack) { return calloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRTimewarpProjectionDesc.Buffer mallocStack(int capacity) { return malloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRTimewarpProjectionDesc.Buffer callocStack(int capacity) { return calloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRTimewarpProjectionDesc.Buffer mallocStack(int capacity, MemoryStack stack) { return malloc(capacity, stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRTimewarpProjectionDesc.Buffer callocStack(int capacity, MemoryStack stack) { return calloc(capacity, stack); }
 
     /**
      * Returns a new {@code OVRTimewarpProjectionDesc} instance allocated on the specified {@link MemoryStack}.
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRTimewarpProjectionDesc mallocStack(MemoryStack stack) {
+    public static OVRTimewarpProjectionDesc malloc(MemoryStack stack) {
         return wrap(OVRTimewarpProjectionDesc.class, stack.nmalloc(ALIGNOF, SIZEOF));
     }
 
@@ -186,45 +185,27 @@ public class OVRTimewarpProjectionDesc extends Struct implements NativeResource 
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRTimewarpProjectionDesc callocStack(MemoryStack stack) {
+    public static OVRTimewarpProjectionDesc calloc(MemoryStack stack) {
         return wrap(OVRTimewarpProjectionDesc.class, stack.ncalloc(ALIGNOF, 1, SIZEOF));
-    }
-
-    /**
-     * Returns a new {@link OVRTimewarpProjectionDesc.Buffer} instance allocated on the thread-local {@link MemoryStack}.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRTimewarpProjectionDesc.Buffer mallocStack(int capacity) {
-        return mallocStack(capacity, stackGet());
-    }
-
-    /**
-     * Returns a new {@link OVRTimewarpProjectionDesc.Buffer} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRTimewarpProjectionDesc.Buffer callocStack(int capacity) {
-        return callocStack(capacity, stackGet());
     }
 
     /**
      * Returns a new {@link OVRTimewarpProjectionDesc.Buffer} instance allocated on the specified {@link MemoryStack}.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRTimewarpProjectionDesc.Buffer mallocStack(int capacity, MemoryStack stack) {
+    public static OVRTimewarpProjectionDesc.Buffer malloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.nmalloc(ALIGNOF, capacity * SIZEOF), capacity);
     }
 
     /**
      * Returns a new {@link OVRTimewarpProjectionDesc.Buffer} instance allocated on the specified {@link MemoryStack} and initializes all its bits to zero.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRTimewarpProjectionDesc.Buffer callocStack(int capacity, MemoryStack stack) {
+    public static OVRTimewarpProjectionDesc.Buffer calloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.ncalloc(ALIGNOF, capacity, SIZEOF), capacity);
     }
 
@@ -275,11 +256,11 @@ public class OVRTimewarpProjectionDesc extends Struct implements NativeResource 
             return ELEMENT_FACTORY;
         }
 
-        /** Returns the value of the {@code Projection22} field. */
+        /** @return the value of the {@link OVRTimewarpProjectionDesc#Projection22} field. */
         public float Projection22() { return OVRTimewarpProjectionDesc.nProjection22(address()); }
-        /** Returns the value of the {@code Projection23} field. */
+        /** @return the value of the {@link OVRTimewarpProjectionDesc#Projection23} field. */
         public float Projection23() { return OVRTimewarpProjectionDesc.nProjection23(address()); }
-        /** Returns the value of the {@code Projection32} field. */
+        /** @return the value of the {@link OVRTimewarpProjectionDesc#Projection32} field. */
         public float Projection32() { return OVRTimewarpProjectionDesc.nProjection32(address()); }
 
     }

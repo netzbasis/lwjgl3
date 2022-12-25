@@ -8,7 +8,7 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val KHR_maintenance2 = "KHRMaintenance2".nativeClassVK("KHR_maintenance2", type = "device", postfix = KHR) {
+val KHR_maintenance2 = "KHRMaintenance2".nativeClassVK("KHR_maintenance2", type = "device", postfix = "KHR") {
     documentation =
         """
         {@code VK_KHR_maintenance2} adds a collection of minor features that were intentionally left out or overlooked from the original Vulkan 1.0 release.
@@ -18,7 +18,7 @@ val KHR_maintenance2 = "KHRMaintenance2".nativeClassVK("KHR_maintenance2", type 
         <ul>
             <li>Allow the application to specify which aspect of an input attachment might be read for a given subpass.</li>
             <li>Allow implementations to express the clipping behavior of points.</li>
-            <li>Allow creating images with usage flags that may not be supported for the base image&#8217;s format, but are supported for image views of the image that have a different but compatible format.</li>
+            <li>Allow creating images with usage flags that may not be supported for the base image’s format, but are supported for image views of the image that have a different but compatible format.</li>
             <li>Allow creating uncompressed image views of compressed images.</li>
             <li>Allow the application to select between an upper-left and lower-left origin for the tessellation domain space.</li>
             <li>Adds two new image layouts for depth stencil images to allow either the depth or stencil aspect to be read-only while the other aspect is writable.</li>
@@ -60,10 +60,11 @@ val KHR_maintenance2 = "KHRMaintenance2".nativeClassVK("KHR_maintenance2", type 
 ￿        ...
 ￿        .pNext = &amp;specifyAspects,
 ￿        ...
-￿    }
+￿    };
 ￿
 ￿    vkCreateRenderPass(...);</code></pre>
 
+        <h5>VK_KHR_maintenance2</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_KHR_maintenance2}</dd>
@@ -84,14 +85,17 @@ val KHR_maintenance2 = "KHRMaintenance2".nativeClassVK("KHR_maintenance2", type 
 
             <dt><b>Deprecation state</b></dt>
             <dd><ul>
-                <li><em>Promoted</em> to <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#versions-1.1-promotions">Vulkan 1.1</a></li>
+                <li><em>Promoted</em> to <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#versions-1.1-promotions">Vulkan 1.1</a></li>
             </ul></dd>
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Michael Worcester <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_KHR_maintenance2:%20&amp;body=@michaelworcester%20">michaelworcester</a></li>
+                <li>Michael Worcester <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_KHR_maintenance2]%20@michaelworcester%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_KHR_maintenance2%20extension%3E%3E">michaelworcester</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2017-09-05</dd>
 
@@ -117,13 +121,25 @@ val KHR_maintenance2 = "KHRMaintenance2".nativeClassVK("KHR_maintenance2", type 
     IntConstant(
         "The extension specification version.",
 
-        "KHR_MAINTENANCE2_SPEC_VERSION".."1"
+        "KHR_MAINTENANCE_2_SPEC_VERSION".."1"
     )
 
     StringConstant(
         "The extension name.",
 
-        "KHR_MAINTENANCE2_EXTENSION_NAME".."VK_KHR_maintenance2"
+        "KHR_MAINTENANCE_2_EXTENSION_NAME".."VK_KHR_maintenance2"
+    )
+
+    IntConstant(
+        "The extension specification version.",
+
+        "KHR_MAINTENANCE2_SPEC_VERSION".."VK_KHR_MAINTENANCE_2_SPEC_VERSION"
+    )
+
+    StringConstant(
+        "The extension name.",
+
+        "KHR_MAINTENANCE2_EXTENSION_NAME".expr("VK_KHR_MAINTENANCE_2_EXTENSION_NAME")
     )
 
     EnumConstant(

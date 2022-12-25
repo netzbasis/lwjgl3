@@ -18,19 +18,12 @@ import static org.lwjgl.system.MemoryStack.*;
 /**
  * A 2D rectangle with a position and size. All components are integers.
  * 
- * <h3>Member documentation</h3>
- * 
- * <ul>
- * <li>{@code Pos} &ndash; the rectangle position</li>
- * <li>{@code Size} &ndash; the rectangle size</li>
- * </ul>
- * 
  * <h3>Layout</h3>
  * 
  * <pre><code>
  * struct ovrRecti {
- *     {@link OVRVector2i ovrVector2i} Pos;
- *     {@link OVRSizei ovrSizei} Size;
+ *     {@link OVRVector2i ovrVector2i} {@link #Pos};
+ *     {@link OVRSizei ovrSizei} {@link #Size};
  * }</code></pre>
  */
 @NativeType("struct ovrRecti")
@@ -73,20 +66,20 @@ public class OVRRecti extends Struct implements NativeResource {
     @Override
     public int sizeof() { return SIZEOF; }
 
-    /** Returns a {@link OVRVector2i} view of the {@code Pos} field. */
+    /** the rectangle position */
     @NativeType("ovrVector2i")
     public OVRVector2i Pos() { return nPos(address()); }
-    /** Returns a {@link OVRSizei} view of the {@code Size} field. */
+    /** the rectangle size */
     @NativeType("ovrSizei")
     public OVRSizei Size() { return nSize(address()); }
 
-    /** Copies the specified {@link OVRVector2i} to the {@code Pos} field. */
+    /** Copies the specified {@link OVRVector2i} to the {@link #Pos} field. */
     public OVRRecti Pos(@NativeType("ovrVector2i") OVRVector2i value) { nPos(address(), value); return this; }
-    /** Passes the {@code Pos} field to the specified {@link java.util.function.Consumer Consumer}. */
+    /** Passes the {@link #Pos} field to the specified {@link java.util.function.Consumer Consumer}. */
     public OVRRecti Pos(java.util.function.Consumer<OVRVector2i> consumer) { consumer.accept(Pos()); return this; }
-    /** Copies the specified {@link OVRSizei} to the {@code Size} field. */
+    /** Copies the specified {@link OVRSizei} to the {@link #Size} field. */
     public OVRRecti Size(@NativeType("ovrSizei") OVRSizei value) { nSize(address(), value); return this; }
-    /** Passes the {@code Size} field to the specified {@link java.util.function.Consumer Consumer}. */
+    /** Passes the {@link #Size} field to the specified {@link java.util.function.Consumer Consumer}. */
     public OVRRecti Size(java.util.function.Consumer<OVRSizei> consumer) { consumer.accept(Size()); return this; }
 
     /** Initializes this struct with the specified values. */
@@ -187,22 +180,29 @@ public class OVRRecti extends Struct implements NativeResource {
 
     // -----------------------------------
 
-    /** Returns a new {@code OVRRecti} instance allocated on the thread-local {@link MemoryStack}. */
-    public static OVRRecti mallocStack() {
-        return mallocStack(stackGet());
-    }
-
-    /** Returns a new {@code OVRRecti} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero. */
-    public static OVRRecti callocStack() {
-        return callocStack(stackGet());
-    }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRRecti mallocStack() { return malloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRRecti callocStack() { return calloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRRecti mallocStack(MemoryStack stack) { return malloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRRecti callocStack(MemoryStack stack) { return calloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRRecti.Buffer mallocStack(int capacity) { return malloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRRecti.Buffer callocStack(int capacity) { return calloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRRecti.Buffer mallocStack(int capacity, MemoryStack stack) { return malloc(capacity, stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRRecti.Buffer callocStack(int capacity, MemoryStack stack) { return calloc(capacity, stack); }
 
     /**
      * Returns a new {@code OVRRecti} instance allocated on the specified {@link MemoryStack}.
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRRecti mallocStack(MemoryStack stack) {
+    public static OVRRecti malloc(MemoryStack stack) {
         return wrap(OVRRecti.class, stack.nmalloc(ALIGNOF, SIZEOF));
     }
 
@@ -211,45 +211,27 @@ public class OVRRecti extends Struct implements NativeResource {
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRRecti callocStack(MemoryStack stack) {
+    public static OVRRecti calloc(MemoryStack stack) {
         return wrap(OVRRecti.class, stack.ncalloc(ALIGNOF, 1, SIZEOF));
-    }
-
-    /**
-     * Returns a new {@link OVRRecti.Buffer} instance allocated on the thread-local {@link MemoryStack}.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRRecti.Buffer mallocStack(int capacity) {
-        return mallocStack(capacity, stackGet());
-    }
-
-    /**
-     * Returns a new {@link OVRRecti.Buffer} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRRecti.Buffer callocStack(int capacity) {
-        return callocStack(capacity, stackGet());
     }
 
     /**
      * Returns a new {@link OVRRecti.Buffer} instance allocated on the specified {@link MemoryStack}.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRRecti.Buffer mallocStack(int capacity, MemoryStack stack) {
+    public static OVRRecti.Buffer malloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.nmalloc(ALIGNOF, capacity * SIZEOF), capacity);
     }
 
     /**
      * Returns a new {@link OVRRecti.Buffer} instance allocated on the specified {@link MemoryStack} and initializes all its bits to zero.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRRecti.Buffer callocStack(int capacity, MemoryStack stack) {
+    public static OVRRecti.Buffer calloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.ncalloc(ALIGNOF, capacity, SIZEOF), capacity);
     }
 
@@ -303,20 +285,20 @@ public class OVRRecti extends Struct implements NativeResource {
             return ELEMENT_FACTORY;
         }
 
-        /** Returns a {@link OVRVector2i} view of the {@code Pos} field. */
+        /** @return a {@link OVRVector2i} view of the {@link OVRRecti#Pos} field. */
         @NativeType("ovrVector2i")
         public OVRVector2i Pos() { return OVRRecti.nPos(address()); }
-        /** Returns a {@link OVRSizei} view of the {@code Size} field. */
+        /** @return a {@link OVRSizei} view of the {@link OVRRecti#Size} field. */
         @NativeType("ovrSizei")
         public OVRSizei Size() { return OVRRecti.nSize(address()); }
 
-        /** Copies the specified {@link OVRVector2i} to the {@code Pos} field. */
+        /** Copies the specified {@link OVRVector2i} to the {@link OVRRecti#Pos} field. */
         public OVRRecti.Buffer Pos(@NativeType("ovrVector2i") OVRVector2i value) { OVRRecti.nPos(address(), value); return this; }
-        /** Passes the {@code Pos} field to the specified {@link java.util.function.Consumer Consumer}. */
+        /** Passes the {@link OVRRecti#Pos} field to the specified {@link java.util.function.Consumer Consumer}. */
         public OVRRecti.Buffer Pos(java.util.function.Consumer<OVRVector2i> consumer) { consumer.accept(Pos()); return this; }
-        /** Copies the specified {@link OVRSizei} to the {@code Size} field. */
+        /** Copies the specified {@link OVRSizei} to the {@link OVRRecti#Size} field. */
         public OVRRecti.Buffer Size(@NativeType("ovrSizei") OVRSizei value) { OVRRecti.nSize(address(), value); return this; }
-        /** Passes the {@code Size} field to the specified {@link java.util.function.Consumer Consumer}. */
+        /** Passes the {@link OVRRecti#Size} field to the specified {@link java.util.function.Consumer Consumer}. */
         public OVRRecti.Buffer Size(java.util.function.Consumer<OVRSizei> consumer) { consumer.accept(Size()); return this; }
 
     }

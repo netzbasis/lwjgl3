@@ -41,9 +41,18 @@ val GLBinding = Generator.register(object : APIBinding(
     }
 
     private val functionOrdinals by lazy {
-        functions.asSequence()
-            .mapIndexed { index, func -> func.name to index }
-            .toMap()
+        LinkedHashMap<String, Int>().also { functionOrdinals ->
+            classes.asSequence()
+                .filter { !it.isCore && it.hasNativeFunctions }
+                .forEach {
+                    it.functions.asSequence()
+                        .forEach { cmd ->
+                            if (!cmd.has<Macro>() && !functionOrdinals.contains(cmd.name)) {
+                                functionOrdinals[cmd.name] = functionOrdinals.size
+                            }
+                        }
+                }
+        }
     }
 
     override fun getFunctionOrdinal(function: Func) = functionOrdinals[function.name]!!
@@ -117,45 +126,96 @@ val GLBinding = Generator.register(object : APIBinding(
 
     private val EXTENSION_NAME = "[A-Za-z0-9_]+".toRegex()
 
-    override fun PrintWriter.generateFunctionSetup(nativeClass: NativeClass) {
+    private fun getFunctionDependencyExpression(func: Func) = func.get<DependsOn>()
+        .reference
+        .let { expression ->
+            if (EXTENSION_NAME.matches(expression))
+                "ext.contains(\"$expression\")"
+            else
+                expression
+        }.let {
+            if (func has DeprecatedGL) {
+                "!fc || ${if (it.contains(' ')) "($it)" else it}"
+            } else {
+                it
+            }
+        }
+
+    private fun PrintWriter.printCheckFunctions(
+        nativeClass: NativeClass,
+        dependencies: LinkedHashMap<String, Int>,
+        filter: (Func) -> Boolean
+    ) {
+        print("checkFunctions(provider, caps, new int[] {")
+        nativeClass.printPointers(this, { func ->
+            val index = functionOrdinals[func.name]
+            if (func.has<DependsOn>()) {
+                "flag${dependencies[getFunctionDependencyExpression(func)]} + $index"
+            } else {
+                index.toString()
+            }
+        }, filter)
+        print("},")
+        nativeClass.printPointers(this, { "\"${it.name}\"" }, filter)
+        print(")")
+    }
+
+    private fun PrintWriter.checkExtensionFunctions(nativeClass: NativeClass) {
         if (nativeClass.isCore) {
             return
         }
 
+        val capName = nativeClass.capName
         val hasDeprecated = nativeClass.functions.hasDeprecated
 
-        print("\n${t}static boolean isAvailable($CAPABILITIES_CLASS caps")
-        if (nativeClass.functions.any { it.has<DependsOn>() }) print(", java.util.Set<String> ext")
+        print("\n${t}private static boolean check_${nativeClass.templateName}(FunctionProvider provider, PointerBuffer caps, Set<String> ext")
         if (hasDeprecated) print(", boolean fc")
-        println(") {")
-        print("$t${t}return ")
-
-        val printPointer = { func: Func ->
-            if (func.has<DependsOn>())
-                "${func.get<DependsOn>().reference.let { if (EXTENSION_NAME.matches(it)) "ext.contains(\"$it\")" else it }} ? caps.${func.name} : -1L"
-            else
-                "caps.${func.name}"
+        print(""") {
+        if (!ext.contains("$capName")) {
+            return false;
+        }""")
+        val dependencies = nativeClass.functions
+            .filter { it.has<DependsOn>() }
+            .map(::getFunctionDependencyExpression)
+            .foldIndexed(LinkedHashMap<String, Int>()) { index, map, expression ->
+                if (!map.containsKey(expression)) {
+                    map[expression] = index
+                }
+                map
+            }
+        if (dependencies.isNotEmpty()) {
+            println()
+            dependencies.forEach { (expression, index) ->
+                print("\n$t${t}int flag$index = $expression ? 0 : Integer.MIN_VALUE;")
+            }
         }
 
+        print("\n\n$t${t}return (")
         if (hasDeprecated) {
-            print("(fc || checkFunctions(")
-            nativeClass.printPointers(this, printPointer) { it has DeprecatedGL && !it.has<DependsOn>() }
-            print(")) && ")
+            print("(fc || ")
+            printCheckFunctions(nativeClass, dependencies) {
+                it has DeprecatedGL && !it.has<DependsOn>()
+            }
+            print(") && ")
         }
-
-        print("checkFunctions(")
-        if (hasDeprecated)
-            nativeClass.printPointers(this, printPointer) { (!it.has(DeprecatedGL) || it.has<DependsOn>()) && !it.has(IgnoreMissing) }
+        printCheckFunctions(nativeClass, dependencies, if (hasDeprecated)
+            { it -> (!it.has(DeprecatedGL) || it.has<DependsOn>()) && !it.has(IgnoreMissing) }
         else
-            nativeClass.printPointers(this, printPointer) { !it.has(IgnoreMissing) }
-        println(");")
+            { it -> !it.has(IgnoreMissing) })
+        println(") || reportMissing(\"GL\", \"$capName\");")
         println("$t}")
+    }
+
+    private fun PrintWriter.checkExtensionPresent(core: String, extension: String) {
+        println("""${t}private static boolean $extension(Set<String> ext) { return ext.contains("OpenGL$core") || ext.contains("GL_$extension"); }""")
     }
 
     init {
         javaImport(
             "org.lwjgl.*",
+            "java.util.function.IntFunction",
             "static org.lwjgl.system.APIUtil.*",
+            "static org.lwjgl.system.Checks.*",
             "static org.lwjgl.system.MemoryUtil.*"
         )
 
@@ -164,13 +224,33 @@ val GLBinding = Generator.register(object : APIBinding(
 
     override fun PrintWriter.generateJava() {
         generateJavaPreamble()
-        println("public final class $CAPABILITIES_CLASS {\n")
+        println("""public final class $CAPABILITIES_CLASS {
 
-        println("${t}public final long")
-        println(functions
-            .map(Func::name)
-            .joinToString(",\n$t$t", prefix = "$t$t", postfix = ";\n"))
+    static final int ADDRESS_BUFFER_SIZE = ${functions.size};""")
 
+        val functionSet = LinkedHashSet<String>()
+        classes.asSequence()
+            .filter { !it.isCore && it.hasNativeFunctions }
+            .forEach {
+                val functions = it.functions.asSequence()
+                    .filter { cmd ->
+                        if (!cmd.has<Macro>()) {
+                            if (functionSet.add(cmd.name)) {
+                                return@filter true
+                            }
+                        }
+                        false
+                    }
+                    .joinToString(",\n$t$t") { cmd -> cmd.name }
+
+                if (functions.isNotEmpty()) {
+                    println("\n$t// ${it.templateName}")
+                    println("${t}public final long")
+                    println("$t$t$functions;")
+                }
+            }
+
+        println()
         classes.asSequence()
             .filter { !it.isCore }
             .forEach {
@@ -185,16 +265,10 @@ val GLBinding = Generator.register(object : APIBinding(
     /** Off-heap array of the above function addresses. */
     final PointerBuffer addresses;
 
-    $CAPABILITIES_CLASS(FunctionProvider provider, Set<String> ext, boolean fc) {
+    $CAPABILITIES_CLASS(FunctionProvider provider, Set<String> ext, boolean fc, IntFunction<PointerBuffer> bufferFactory) {
         forwardCompatible = fc;
-""")
 
-        println(functions.joinToString(prefix = "$t$t", separator = "\n$t$t") {
-            if (it has DeprecatedGL && !it.has<DependsOn>())
-                "${it.name} = getFunctionAddress(fc, provider, ${it.functionAddress});"
-            else
-                "${it.name} = provider.getFunctionAddress(${it.functionAddress});"
-        })
+        PointerBuffer caps = bufferFactory.apply(ADDRESS_BUFFER_SIZE);""")
 
         for (extension in classes) {
             if (extension.isCore) {
@@ -202,36 +276,73 @@ val GLBinding = Generator.register(object : APIBinding(
             }
             val capName = extension.capName
             if (extension.hasNativeFunctions) {
-                print("\n$t$t$capName = ext.contains(\"$capName\") && checkExtension(\"$capName\", ${if (capName == extension.className) "$packageName.${extension.className}" else extension.className}.isAvailable(this")
-                if (extension.functions.any { it.has<DependsOn>() }) print(", ext")
+                print("\n$t$t$capName = check_${extension.templateName}(provider, caps, ext")
                 if (extension.functions.hasDeprecated) print(", fc")
-                print("));")
+                print(");")
             } else
                 print("\n$t$t$capName = ext.contains(\"$capName\");")
         }
-        print("""
 
-        addresses = ThreadLocalUtil.getAddressesFromCapabilities(this);
-    }
-
-    boolean hasDSA(Set<String> ext) {
-        return ext.contains("GL45") || ext.contains("GL_ARB_direct_state_access") || ext.contains("GL_EXT_direct_state_access");
-    }
-
-    private static long getFunctionAddress(boolean fc, FunctionProvider provider, String functionName) {
-        return fc ? NULL : provider.getFunctionAddress(functionName);
-    }
-
-    private static boolean checkExtension(String extension, boolean supported) {
-        if (supported) {
-            return true;
+        println()
+        functionOrdinals.forEach { (it, index) ->
+            print("\n$t$t$it = caps.get($index);")
         }
 
-        apiLog("[GL] " + extension + " was reported as available but an entry point is missing.");
-        return false;
+        print("""
+
+        addresses = ThreadLocalUtil.setupAddressBuffer(caps);
     }
 
-}""")
+    /** Returns the buffer of OpenGL function pointers. */
+    public PointerBuffer getAddressBuffer() {
+        return addresses;
+    }
+
+    /** Ensures that the lwjgl_opengl shared library has been loaded. */
+    public static void initialize() {
+        // intentionally empty to trigger static initializer
+    }
+""")
+
+        for (extension in classes) {
+            if (extension.isCore || !extension.hasNativeFunctions) {
+                continue
+            }
+
+            checkExtensionFunctions(extension)
+        }
+
+        println("""
+    private static boolean hasDSA(Set<String> ext) {
+        return ext.contains("GL45") || ext.contains("GL_ARB_direct_state_access") || ext.contains("GL_EXT_direct_state_access");
+    }
+""")
+
+        // TODO: some are unused
+        checkExtensionPresent("30", "ARB_framebuffer_object")
+        checkExtensionPresent("30", "ARB_map_buffer_range")
+        checkExtensionPresent("30", "ARB_vertex_array_object")
+        checkExtensionPresent("31", "ARB_copy_buffer")
+        checkExtensionPresent("31", "ARB_texture_buffer_object") // TextureBuffer
+        checkExtensionPresent("31", "ARB_uniform_buffer_object") // TransformFeedbackBufferBase, TransformFeedbackBufferRange
+        checkExtensionPresent("33", "ARB_instanced_arrays")
+        checkExtensionPresent("33", "ARB_sampler_objects")
+        checkExtensionPresent("40", "ARB_transform_feedback2")
+        checkExtensionPresent("41", "ARB_vertex_attrib_64bit")
+        checkExtensionPresent("41", "ARB_separate_shader_objects")
+        checkExtensionPresent("42", "ARB_texture_storage")
+        checkExtensionPresent("43", "ARB_texture_storage_multisample")
+        checkExtensionPresent("43", "ARB_vertex_attrib_binding")
+        checkExtensionPresent("43", "ARB_invalidate_subdata")
+        checkExtensionPresent("43", "ARB_texture_buffer_range")
+        checkExtensionPresent("43", "ARB_clear_buffer_object")
+        checkExtensionPresent("43", "ARB_framebuffer_no_attachments")
+        checkExtensionPresent("44", "ARB_buffer_storage")
+        checkExtensionPresent("44", "ARB_clear_texture")
+        checkExtensionPresent("44", "ARB_multi_bind")
+        checkExtensionPresent("44", "ARB_query_buffer_object")
+
+        println("\n}")
     }
 
 })
@@ -241,7 +352,7 @@ val GLBinding = Generator.register(object : APIBinding(
 fun String.nativeClassGL(
     templateName: String,
     prefix: String = "GL",
-    prefixMethod: String = prefix.toLowerCase(),
+    prefixMethod: String = prefix.lowercase(),
     postfix: String = "",
     init: NativeClass.() -> Unit
 ) = nativeClass(

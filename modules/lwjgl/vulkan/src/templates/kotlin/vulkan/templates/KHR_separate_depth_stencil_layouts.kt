@@ -8,7 +8,7 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val KHR_separate_depth_stencil_layouts = "KHRSeparateDepthStencilLayouts".nativeClassVK("KHR_separate_depth_stencil_layouts", type = "device", postfix = KHR) {
+val KHR_separate_depth_stencil_layouts = "KHRSeparateDepthStencilLayouts".nativeClassVK("KHR_separate_depth_stencil_layouts", type = "device", postfix = "KHR") {
     documentation =
         """
         This extension allows image memory barriers for depth/stencil images to have just one of the #IMAGE_ASPECT_DEPTH_BIT or #IMAGE_ASPECT_STENCIL_BIT aspect bits set, rather than require both. This allows their layouts to be set independently. To support depth/stencil images with different layouts for the depth and stencil aspects, the depth/stencil attachment interface has been updated to support a separate layout for stencil.
@@ -16,6 +16,7 @@ val KHR_separate_depth_stencil_layouts = "KHRSeparateDepthStencilLayouts".native
         <h5>Promotion to Vulkan 1.2</h5>
         All functionality in this extension is included in core Vulkan 1.2, with the KHR suffix omitted. The original type, enum and command names are still available as aliases of the core functionality.
 
+        <h5>VK_KHR_separate_depth_stencil_layouts</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_KHR_separate_depth_stencil_layouts}</dd>
@@ -38,15 +39,18 @@ val KHR_separate_depth_stencil_layouts = "KHRSeparateDepthStencilLayouts".native
 
             <dt><b>Deprecation state</b></dt>
             <dd><ul>
-                <li><em>Promoted</em> to <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#versions-1.2-promotions">Vulkan 1.2</a></li>
+                <li><em>Promoted</em> to <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#versions-1.2-promotions">Vulkan 1.2</a></li>
             </ul></dd>
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Piers Daniell <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_KHR_separate_depth_stencil_layouts:%20&amp;body=@pdaniell-nv%20">pdaniell-nv</a></li>
+                <li>Piers Daniell <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_KHR_separate_depth_stencil_layouts]%20@pdaniell-nv%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_KHR_separate_depth_stencil_layouts%20extension%3E%3E">pdaniell-nv</a></li>
             </ul></dd>
+        </dl>
 
-            <dt><b>Last Modified Data</b></dt>
+        <h5>Other Extension Metadata</h5>
+        <dl>
+            <dt><b>Last Modified Date</b></dt>
             <dd>2019-06-25</dd>
 
             <dt><b>Interactions and External Dependencies</b></dt>

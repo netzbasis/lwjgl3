@@ -21,19 +21,12 @@ import static org.lwjgl.system.MemoryStack.*;
  * <p>{@code ovrLayerHeader} is used as a base member in these larger structs. This struct cannot be used by itself except for the case that {@code Type} is
  * {@link OVR#ovrLayerType_Disabled LayerType_Disabled}.</p>
  * 
- * <h3>Member documentation</h3>
- * 
- * <ul>
- * <li>{@code Type} &ndash; described by {@code ovrLayerType}. One of:<br><table><tr><td>{@link OVR#ovrLayerType_Disabled LayerType_Disabled}</td><td>{@link OVR#ovrLayerType_EyeFov LayerType_EyeFov}</td><td>{@link OVR#ovrLayerType_EyeFovDepth LayerType_EyeFovDepth}</td><td>{@link OVR#ovrLayerType_Quad LayerType_Quad}</td></tr><tr><td>{@link OVR#ovrLayerType_EyeMatrix LayerType_EyeMatrix}</td><td>{@link OVR#ovrLayerType_EyeFovMultires LayerType_EyeFovMultires}</td><td>{@link OVR#ovrLayerType_Cylinder LayerType_Cylinder}</td><td>{@link OVR#ovrLayerType_Cube LayerType_Cube}</td></tr></table></li>
- * <li>{@code Flags} &ndash; described by {@code ovrLayerFlags}</li>
- * </ul>
- * 
  * <h3>Layout</h3>
  * 
  * <pre><code>
  * struct ovrLayerHeader {
- *     ovrLayerType Type;
- *     unsigned int Flags;
+ *     ovrLayerType {@link #Type};
+ *     unsigned int {@link #Flags};
  *     char[128];
  * }</code></pre>
  */
@@ -79,16 +72,16 @@ public class OVRLayerHeader extends Struct implements NativeResource {
     @Override
     public int sizeof() { return SIZEOF; }
 
-    /** Returns the value of the {@code Type} field. */
+    /** described by {@code ovrLayerType}. One of:<br><table><tr><td>{@link OVR#ovrLayerType_Disabled LayerType_Disabled}</td><td>{@link OVR#ovrLayerType_EyeFov LayerType_EyeFov}</td><td>{@link OVR#ovrLayerType_EyeFovDepth LayerType_EyeFovDepth}</td><td>{@link OVR#ovrLayerType_Quad LayerType_Quad}</td></tr><tr><td>{@link OVR#ovrLayerType_EyeMatrix LayerType_EyeMatrix}</td><td>{@link OVR#ovrLayerType_EyeFovMultires LayerType_EyeFovMultires}</td><td>{@link OVR#ovrLayerType_Cylinder LayerType_Cylinder}</td><td>{@link OVR#ovrLayerType_Cube LayerType_Cube}</td></tr></table> */
     @NativeType("ovrLayerType")
     public int Type() { return nType(address()); }
-    /** Returns the value of the {@code Flags} field. */
+    /** described by {@code ovrLayerFlags} */
     @NativeType("unsigned int")
     public int Flags() { return nFlags(address()); }
 
-    /** Sets the specified value to the {@code Type} field. */
+    /** Sets the specified value to the {@link #Type} field. */
     public OVRLayerHeader Type(@NativeType("ovrLayerType") int value) { nType(address(), value); return this; }
-    /** Sets the specified value to the {@code Flags} field. */
+    /** Sets the specified value to the {@link #Flags} field. */
     public OVRLayerHeader Flags(@NativeType("unsigned int") int value) { nFlags(address(), value); return this; }
 
     /** Initializes this struct with the specified values. */
@@ -189,22 +182,29 @@ public class OVRLayerHeader extends Struct implements NativeResource {
 
     // -----------------------------------
 
-    /** Returns a new {@code OVRLayerHeader} instance allocated on the thread-local {@link MemoryStack}. */
-    public static OVRLayerHeader mallocStack() {
-        return mallocStack(stackGet());
-    }
-
-    /** Returns a new {@code OVRLayerHeader} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero. */
-    public static OVRLayerHeader callocStack() {
-        return callocStack(stackGet());
-    }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRLayerHeader mallocStack() { return malloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRLayerHeader callocStack() { return calloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRLayerHeader mallocStack(MemoryStack stack) { return malloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRLayerHeader callocStack(MemoryStack stack) { return calloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRLayerHeader.Buffer mallocStack(int capacity) { return malloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRLayerHeader.Buffer callocStack(int capacity) { return calloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRLayerHeader.Buffer mallocStack(int capacity, MemoryStack stack) { return malloc(capacity, stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRLayerHeader.Buffer callocStack(int capacity, MemoryStack stack) { return calloc(capacity, stack); }
 
     /**
      * Returns a new {@code OVRLayerHeader} instance allocated on the specified {@link MemoryStack}.
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRLayerHeader mallocStack(MemoryStack stack) {
+    public static OVRLayerHeader malloc(MemoryStack stack) {
         return wrap(OVRLayerHeader.class, stack.nmalloc(ALIGNOF, SIZEOF));
     }
 
@@ -213,45 +213,27 @@ public class OVRLayerHeader extends Struct implements NativeResource {
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRLayerHeader callocStack(MemoryStack stack) {
+    public static OVRLayerHeader calloc(MemoryStack stack) {
         return wrap(OVRLayerHeader.class, stack.ncalloc(ALIGNOF, 1, SIZEOF));
-    }
-
-    /**
-     * Returns a new {@link OVRLayerHeader.Buffer} instance allocated on the thread-local {@link MemoryStack}.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRLayerHeader.Buffer mallocStack(int capacity) {
-        return mallocStack(capacity, stackGet());
-    }
-
-    /**
-     * Returns a new {@link OVRLayerHeader.Buffer} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRLayerHeader.Buffer callocStack(int capacity) {
-        return callocStack(capacity, stackGet());
     }
 
     /**
      * Returns a new {@link OVRLayerHeader.Buffer} instance allocated on the specified {@link MemoryStack}.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRLayerHeader.Buffer mallocStack(int capacity, MemoryStack stack) {
+    public static OVRLayerHeader.Buffer malloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.nmalloc(ALIGNOF, capacity * SIZEOF), capacity);
     }
 
     /**
      * Returns a new {@link OVRLayerHeader.Buffer} instance allocated on the specified {@link MemoryStack} and initializes all its bits to zero.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRLayerHeader.Buffer callocStack(int capacity, MemoryStack stack) {
+    public static OVRLayerHeader.Buffer calloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.ncalloc(ALIGNOF, capacity, SIZEOF), capacity);
     }
 
@@ -305,16 +287,16 @@ public class OVRLayerHeader extends Struct implements NativeResource {
             return ELEMENT_FACTORY;
         }
 
-        /** Returns the value of the {@code Type} field. */
+        /** @return the value of the {@link OVRLayerHeader#Type} field. */
         @NativeType("ovrLayerType")
         public int Type() { return OVRLayerHeader.nType(address()); }
-        /** Returns the value of the {@code Flags} field. */
+        /** @return the value of the {@link OVRLayerHeader#Flags} field. */
         @NativeType("unsigned int")
         public int Flags() { return OVRLayerHeader.nFlags(address()); }
 
-        /** Sets the specified value to the {@code Type} field. */
+        /** Sets the specified value to the {@link OVRLayerHeader#Type} field. */
         public OVRLayerHeader.Buffer Type(@NativeType("ovrLayerType") int value) { OVRLayerHeader.nType(address(), value); return this; }
-        /** Sets the specified value to the {@code Flags} field. */
+        /** Sets the specified value to the {@link OVRLayerHeader#Flags} field. */
         public OVRLayerHeader.Buffer Flags(@NativeType("unsigned int") int value) { OVRLayerHeader.nFlags(address(), value); return this; }
 
     }

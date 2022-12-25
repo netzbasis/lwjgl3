@@ -19,17 +19,33 @@ This script is included in /build.xml and /config/update-dependencies.xml.
         Valid values: x64, x86, arm64, arm32
     -->
     <property name="build.arch" value="${env.LWJGL_BUILD_ARCH}" if:set="env.LWJGL_BUILD_ARCH"/>
-    <condition property="build.arch" value="x64" else="x86" unless:set="build.arch"> <!-- Normalize os.arch -->
-        <contains string="${os.arch}" substring="64"/>
+
+    <local name="is64Bit"/>
+    <condition property="is64Bit" value="true" else="false">
+        <or>
+            <contains string="${os.arch}" substring="64"/>
+            <contains string="${os.arch}" substring="armv8"/>
+        </or>
     </condition>
+    <condition property="build.arch.arm" value="true">
+        <or>
+            <contains string="${build.arch}" substring="arm"/>
+            <contains string="${os.arch}"    substring="arm"/>
+            <contains string="${os.arch}"    substring="aarch64"/>
+        </or>
+    </condition>
+
+    <!-- Normalize os.arch -->
+    <condition property="build.arch" value="arm64" unless:set="build.arch"><and>     <isset property="build.arch.arm"/>      <istrue  value="${is64Bit}"/></and></condition>
+    <condition property="build.arch" value="arm32" unless:set="build.arch"><and>     <isset property="build.arch.arm"/>      <isfalse value="${is64Bit}"/></and></condition>
+    <condition property="build.arch" value="x64"   unless:set="build.arch"><and><not><isset property="build.arch.arm"/></not><istrue  value="${is64Bit}"/></and></condition>
+    <condition property="build.arch" value="x86"   unless:set="build.arch"><and><not><isset property="build.arch.arm"/></not><isfalse value="${is64Bit}"/></and></condition>
 
     <fail message="Invalid or unsupported build architecture: ${build.arch}. Supported: x64, x86, arm64, arm32">
         <condition><not><matches string="${build.arch}" pattern="^(x64|x86|arm64|arm32)$"/></not></condition>
     </fail>
 
     <property name="build.arch.${build.arch}" value="true"/>
-
-    <import file="build-bindings.xml"/>
 
     <!--
     This is used as the source of binary dependencies. Valid values:
@@ -66,11 +82,13 @@ This script is included in /build.xml and /config/update-dependencies.xml.
 
     <property name="module.lwjgl" location="modules/lwjgl" relative="true"/>
 
+    <property name="src.ant" location="modules/ant/src/main" relative="true"/>
     <property name="src.extract" location="modules/extract/src/main" relative="true"/>
     <property name="src.generator" location="modules/generator/src/main" relative="true"/>
 
     <property name="test.resources" location="modules/samples/src/test/resources" relative="true"/>
 
+    <property name="bin.ant" location="bin/classes/ant" relative="true"/>
     <property name="bin.extract" location="bin/classes/extract" relative="true"/>
     <property name="bin.generator" location="bin/classes/generator" relative="true"/>
     <property name="bin.javadoc" location="bin/javadoc" relative="true"/>
@@ -126,26 +144,39 @@ This script is included in /build.xml and /config/update-dependencies.xml.
 
     <property name="lib.native" location="${lib}/native/${platform}/${build.arch}" relative="true"/>
 
-    <!-- JDK version -->
-    <condition property="jdk10"> <!-- 10 or higher -->
-        <!--
-        VNUM = [1-9][0-9]*((\.0)*\.[1-9][0-9]*)*
-        PRE = [a-zA-Z0-9]+
-        java.version = $VNUM(\-$PRE)?
-        -->
-        <matches string="${java.version}" pattern="^[1-9][0-9]+((\.0)*\.[1-9][0-9]*)*(-[a-zA-Z0-9]+)?$"/>
+    <!--
+    Detect version of JDK running the Ant build.
+
+    VNUM = [1-9][0-9]*((\.0)*\.[1-9][0-9]*)*
+    PRE = [a-zA-Z0-9]+
+    java.version = $VNUM(\-$PRE)?
+    -->
+    <local name="java.version.regex"/>
+    <property name="java.version.regex" value="[1-9][0-9]+((\.0)*\.[1-9][0-9]*)*(-[a-zA-Z0-9]+)?"/>
+
+    <condition property="jdk14">                             <matches string="${java.version}" pattern="^(?!1[0-3])${java.version.regex}$"/>     </condition>
+    <condition property="jdk13"><or><isset property="jdk14"/><matches string="${java.version}" pattern="^(?!1[0-2])${java.version.regex}$"/></or></condition>
+    <condition property="jdk12"><or><isset property="jdk13"/><matches string="${java.version}" pattern="^(?!1[0-1])${java.version.regex}$"/></or></condition>
+    <condition property="jdk11"><or><isset property="jdk12"/><matches string="${java.version}" pattern="^(?!1[0-0])${java.version.regex}$"/></or></condition>
+    <condition property="jdk10">
+        <or>
+            <isset property="jdk11"/>
+            <matches string="${java.version}" pattern="^10((\.0)*\.[1-9][0-9]*)*(-[a-zA-Z0-9]+)?$"/>
+        </or>
     </condition>
-    <condition property="jdk9"> <!-- 9 or higher -->
+    <condition property="jdk9">
         <or>
             <isset property="jdk10"/>
             <matches string="${java.version}" pattern="^9((\.0)*\.[1-9][0-9]*)*(-[a-zA-Z0-9]+)?$"/>
         </or>
     </condition>
 
-    <!-- Used for testing multi-release implementations. -->
+    <!-- May be set in the ant command line to test multi-release implementations. -->
+    <condition property="core.java13"><isset property="core.java14"/></condition>
+    <condition property="core.java12"><isset property="core.java13"/></condition>
     <condition property="core.java11"><isset property="core.java12"/></condition>
     <condition property="core.java10"><isset property="core.java11"/></condition>
-    <condition property="core.java9"><isset property="core.java10"/></condition>
+    <condition property="core.java9"> <isset property="core.java10"/></condition>
 
     <property name="jni.headers" location="${java.home}/include" if:set="jdk9"/>
     <property name="jni.headers" location="${java.home}/../include" unless:set="jdk9"/>
@@ -159,9 +190,11 @@ This script is included in /build.xml and /config/update-dependencies.xml.
     <!-- Different location per platform/architecture. This is intentional. -->
     <property name="bin.native" location="bin/${platform}/${build.arch}" relative="true"/>
 
+    <import file="build-bindings.xml"/>
+
     <presetdef name="lwjgl.javac">
         <javac sourcepath="" debug="yes" source="8" target="8" encoding="UTF-8">
-            <compilerarg line='--boot-class-path "${env.JAVA8_HOME}/jre/lib/rt.jar${path.separator}${env.JAVA8_HOME}/jre/lib/ext/jfxrt.jar"' if:set="set-boot-class-path"/>
+            <compilerarg line='--boot-class-path "${env.JAVA8_HOME}/jre/lib/rt.jar"' if:set="set-boot-class-path"/>
             <compilerarg value="-Xlint:all"/>
             <compilerarg value="-XDignore.symbol.file"/> <!-- Suppresses internal API (e.g. Unsafe) usage warnings -->
         </javac>
@@ -183,16 +216,20 @@ This script is included in /build.xml and /config/update-dependencies.xml.
         </javac>
     </presetdef>
 
+    <presetdef name="lwjgl.javac11">
+        <javac sourcepath="" debug="yes" encoding="UTF-8">
+            <compilerarg line="--release 11"/>
+            <compilerarg value="-Xlint:all"/>
+            <compilerarg value="-XDignore.symbol.file"/>
+        </javac>
+    </presetdef>
+
     <macrodef name="quiet">
         <element name="body" implicit="yes"/>
         <sequential>
-            <script language="javascript">
-                project.getBuildListeners().firstElement().setMessageOutputLevel(org.apache.tools.ant.Project.MSG_WARN);
-            </script>
+            <logLevel level="error"/>
             <body/>
-            <script language="javascript">
-                project.getBuildListeners().firstElement().setMessageOutputLevel(org.apache.tools.ant.Project.MSG_INFO);
-            </script>
+            <logLevel level="info"/>
         </sequential>
     </macrodef>
 
@@ -299,11 +336,13 @@ This script is included in /build.xml and /config/update-dependencies.xml.
         <attribute name="group"/>
         <attribute name="artifact"/>
         <attribute name="version"/>
+        <attribute name="classifier" default=""/>
+        <attribute name="subfolder" default=""/>
         <attribute name="sources" default="true"/>
 
         <sequential>
-            <get-quiet name="@{name}" url="https://repo.maven.apache.org/maven2/@{group}/@{artifact}/@{version}/@{artifact}-@{version}.jar" dest="${lib}/java/@{artifact}.jar" skipexisting="false"/>
-            <get-quiet name="@{name}" url="https://repo.maven.apache.org/maven2/@{group}/@{artifact}/@{version}/@{artifact}-@{version}-sources.jar" dest="${lib}/java/@{artifact}-sources.jar" skipexisting="false" if:true="@{sources}"/>
+            <get-quiet name="@{name}" url="https://repo.maven.apache.org/maven2/@{group}/@{artifact}/@{version}/@{artifact}-@{version}@{classifier}.jar" dest="${lib}/java@{subfolder}/@{artifact}.jar" skipexisting="false"/>
+            <get-quiet name="@{name}" url="https://repo.maven.apache.org/maven2/@{group}/@{artifact}/@{version}/@{artifact}-@{version}-sources.jar" dest="${lib}/java@{subfolder}/@{artifact}-sources.jar" skipexisting="false" if:true="@{sources}"/>
         </sequential>
     </macrodef>
 

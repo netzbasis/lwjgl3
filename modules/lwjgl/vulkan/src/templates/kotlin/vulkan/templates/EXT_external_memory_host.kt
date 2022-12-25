@@ -8,11 +8,12 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val EXT_external_memory_host = "EXTExternalMemoryHost".nativeClassVK("EXT_external_memory_host", type = "device", postfix = EXT) {
+val EXT_external_memory_host = "EXTExternalMemoryHost".nativeClassVK("EXT_external_memory_host", type = "device", postfix = "EXT") {
     documentation =
         """
         This extension enables an application to import host allocations and host mapped foreign device memory to Vulkan memory objects.
 
+        <h5>VK_EXT_external_memory_host</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_EXT_external_memory_host}</dd>
@@ -34,9 +35,12 @@ val EXT_external_memory_host = "EXTExternalMemoryHost".nativeClassVK("EXT_extern
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Daniel Rakos <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_EXT_external_memory_host:%20&amp;body=@drakos-amd%20">drakos-amd</a></li>
+                <li>Daniel Rakos <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_EXT_external_memory_host]%20@drakos-amd%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_EXT_external_memory_host%20extension%3E%3E">drakos-amd</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2017-11-10</dd>
 
@@ -121,6 +125,7 @@ val EXT_external_memory_host = "EXTExternalMemoryHost".nativeClassVK("EXT_extern
 
             <dt>On failure, this command returns</dt>
             <dd><ul>
+                <li>#ERROR_OUT_OF_HOST_MEMORY</li>
                 <li>#ERROR_INVALID_EXTERNAL_HANDLE</li>
             </ul></dd>
         </dl>
@@ -130,7 +135,7 @@ val EXT_external_memory_host = "EXTExternalMemoryHost".nativeClassVK("EXT_extern
         """,
 
         VkDevice("device", "the logical device that will be importing {@code pHostPointer}."),
-        VkExternalMemoryHandleTypeFlagBits("handleType", "the type of the handle {@code pHostPointer}."),
+        VkExternalMemoryHandleTypeFlagBits("handleType", "a {@code VkExternalMemoryHandleTypeFlagBits} value specifying the type of the handle {@code pHostPointer}."),
         opaque_const_p("pHostPointer", "the host pointer to import from."),
         VkMemoryHostPointerPropertiesEXT.p("pMemoryHostPointerProperties", "a pointer to a ##VkMemoryHostPointerPropertiesEXT structure in which the host pointer properties are returned.")
     )

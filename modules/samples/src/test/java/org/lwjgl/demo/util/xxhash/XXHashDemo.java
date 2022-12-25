@@ -39,8 +39,9 @@ public final class XXHashDemo {
 
         assertEquals(hash32, 0xC5C8C208);
         assertEquals(hash64, 0x656D889F290F0BCCL);
-        assertEquals(hash128.high64(), 0x2A3D06D3261fBBC1L);
-        assertEquals(hash128.low64(), 0x34BA1D414B6D39F6L);
+
+        assertEquals(hash128.high64(), 0xCF675433C345E921L);
+        assertEquals(hash128.low64(), 0x9A021761E5D533D6L);
 
         System.out.format("test %d-bit hash = 0x%X\n", 32, hash32);
         System.out.format("test %d-bit hash = 0x%X\n", 64, hash64);
@@ -60,7 +61,7 @@ public final class XXHashDemo {
 
             // Using stack allocation
             try (MemoryStack stack = stackPush()) {
-                state = XXH64State.mallocStack(stack);
+                state = XXH64State.malloc(stack);
                 hash64 = streamingHash(buffer, resource, state, SEED);
                 System.out.format("streaming 64-bit hash: 0x%X (%s, stack)\n", hash64, resource);
             }

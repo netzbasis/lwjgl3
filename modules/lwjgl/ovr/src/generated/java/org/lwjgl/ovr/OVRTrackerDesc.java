@@ -18,23 +18,14 @@ import static org.lwjgl.system.MemoryStack.*;
 /**
  * Specifies the description of a single sensor.
  * 
- * <h3>Member documentation</h3>
- * 
- * <ul>
- * <li>{@code FrustumHFovInRadians} &ndash; sensor frustum horizontal field-of-view (if present).</li>
- * <li>{@code FrustumVFovInRadians} &ndash; sensor frustum vertical field-of-view (if present).</li>
- * <li>{@code FrustumNearZInMeters} &ndash; sensor frustum near Z (if present).</li>
- * <li>{@code FrustumFarZInMeters} &ndash; sensor frustum far Z (if present).</li>
- * </ul>
- * 
  * <h3>Layout</h3>
  * 
  * <pre><code>
  * struct ovrTrackerDesc {
- *     float FrustumHFovInRadians;
- *     float FrustumVFovInRadians;
- *     float FrustumNearZInMeters;
- *     float FrustumFarZInMeters;
+ *     float {@link #FrustumHFovInRadians};
+ *     float {@link #FrustumVFovInRadians};
+ *     float {@link #FrustumNearZInMeters};
+ *     float {@link #FrustumFarZInMeters};
  * }</code></pre>
  */
 @NativeType("struct ovrTrackerDesc")
@@ -84,13 +75,13 @@ public class OVRTrackerDesc extends Struct implements NativeResource {
     @Override
     public int sizeof() { return SIZEOF; }
 
-    /** Returns the value of the {@code FrustumHFovInRadians} field. */
+    /** sensor frustum horizontal field-of-view (if present). */
     public float FrustumHFovInRadians() { return nFrustumHFovInRadians(address()); }
-    /** Returns the value of the {@code FrustumVFovInRadians} field. */
+    /** sensor frustum vertical field-of-view (if present). */
     public float FrustumVFovInRadians() { return nFrustumVFovInRadians(address()); }
-    /** Returns the value of the {@code FrustumNearZInMeters} field. */
+    /** sensor frustum near Z (if present). */
     public float FrustumNearZInMeters() { return nFrustumNearZInMeters(address()); }
-    /** Returns the value of the {@code FrustumFarZInMeters} field. */
+    /** sensor frustum far Z (if present). */
     public float FrustumFarZInMeters() { return nFrustumFarZInMeters(address()); }
 
     // -----------------------------------
@@ -168,22 +159,29 @@ public class OVRTrackerDesc extends Struct implements NativeResource {
 
     // -----------------------------------
 
-    /** Returns a new {@code OVRTrackerDesc} instance allocated on the thread-local {@link MemoryStack}. */
-    public static OVRTrackerDesc mallocStack() {
-        return mallocStack(stackGet());
-    }
-
-    /** Returns a new {@code OVRTrackerDesc} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero. */
-    public static OVRTrackerDesc callocStack() {
-        return callocStack(stackGet());
-    }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRTrackerDesc mallocStack() { return malloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRTrackerDesc callocStack() { return calloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRTrackerDesc mallocStack(MemoryStack stack) { return malloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRTrackerDesc callocStack(MemoryStack stack) { return calloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRTrackerDesc.Buffer mallocStack(int capacity) { return malloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRTrackerDesc.Buffer callocStack(int capacity) { return calloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRTrackerDesc.Buffer mallocStack(int capacity, MemoryStack stack) { return malloc(capacity, stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRTrackerDesc.Buffer callocStack(int capacity, MemoryStack stack) { return calloc(capacity, stack); }
 
     /**
      * Returns a new {@code OVRTrackerDesc} instance allocated on the specified {@link MemoryStack}.
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRTrackerDesc mallocStack(MemoryStack stack) {
+    public static OVRTrackerDesc malloc(MemoryStack stack) {
         return wrap(OVRTrackerDesc.class, stack.nmalloc(ALIGNOF, SIZEOF));
     }
 
@@ -192,45 +190,27 @@ public class OVRTrackerDesc extends Struct implements NativeResource {
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRTrackerDesc callocStack(MemoryStack stack) {
+    public static OVRTrackerDesc calloc(MemoryStack stack) {
         return wrap(OVRTrackerDesc.class, stack.ncalloc(ALIGNOF, 1, SIZEOF));
-    }
-
-    /**
-     * Returns a new {@link OVRTrackerDesc.Buffer} instance allocated on the thread-local {@link MemoryStack}.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRTrackerDesc.Buffer mallocStack(int capacity) {
-        return mallocStack(capacity, stackGet());
-    }
-
-    /**
-     * Returns a new {@link OVRTrackerDesc.Buffer} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRTrackerDesc.Buffer callocStack(int capacity) {
-        return callocStack(capacity, stackGet());
     }
 
     /**
      * Returns a new {@link OVRTrackerDesc.Buffer} instance allocated on the specified {@link MemoryStack}.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRTrackerDesc.Buffer mallocStack(int capacity, MemoryStack stack) {
+    public static OVRTrackerDesc.Buffer malloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.nmalloc(ALIGNOF, capacity * SIZEOF), capacity);
     }
 
     /**
      * Returns a new {@link OVRTrackerDesc.Buffer} instance allocated on the specified {@link MemoryStack} and initializes all its bits to zero.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRTrackerDesc.Buffer callocStack(int capacity, MemoryStack stack) {
+    public static OVRTrackerDesc.Buffer calloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.ncalloc(ALIGNOF, capacity, SIZEOF), capacity);
     }
 
@@ -283,13 +263,13 @@ public class OVRTrackerDesc extends Struct implements NativeResource {
             return ELEMENT_FACTORY;
         }
 
-        /** Returns the value of the {@code FrustumHFovInRadians} field. */
+        /** @return the value of the {@link OVRTrackerDesc#FrustumHFovInRadians} field. */
         public float FrustumHFovInRadians() { return OVRTrackerDesc.nFrustumHFovInRadians(address()); }
-        /** Returns the value of the {@code FrustumVFovInRadians} field. */
+        /** @return the value of the {@link OVRTrackerDesc#FrustumVFovInRadians} field. */
         public float FrustumVFovInRadians() { return OVRTrackerDesc.nFrustumVFovInRadians(address()); }
-        /** Returns the value of the {@code FrustumNearZInMeters} field. */
+        /** @return the value of the {@link OVRTrackerDesc#FrustumNearZInMeters} field. */
         public float FrustumNearZInMeters() { return OVRTrackerDesc.nFrustumNearZInMeters(address()); }
-        /** Returns the value of the {@code FrustumFarZInMeters} field. */
+        /** @return the value of the {@link OVRTrackerDesc#FrustumFarZInMeters} field. */
         public float FrustumFarZInMeters() { return OVRTrackerDesc.nFrustumFarZInMeters(address()); }
 
     }

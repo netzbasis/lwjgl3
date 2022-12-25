@@ -4,12 +4,13 @@
  */
 package org.lwjgl.opengles;
 
-import org.lwjgl.egl.*;
+import org.lwjgl.*;
 import org.lwjgl.system.*;
 
 import javax.annotation.*;
 import java.nio.*;
 import java.util.*;
+import java.util.function.*;
 
 import static java.lang.Math.*;
 import static org.lwjgl.opengles.GLES30.*;
@@ -103,21 +104,52 @@ public final class GLES {
         create(Library.loadNative(GLES.class, "org.lwjgl.opengles", libName));
     }
 
-    private static void create(SharedLibrary GLES) {
-        try {
-            FunctionProvider egl = EGL.getFunctionProvider();
-            if (egl == null) {
-                throw new IllegalStateException("The EGL function provider is not available.");
-            }
+    @Nullable
+    private static FunctionProvider getContextProvider() {
+        FunctionProvider provider = null;
 
+        String contextAPI = Configuration.OPENGLES_CONTEXT_API.get();
+        if (contextAPI == null || "EGL".equals(contextAPI)) {
+            try {
+                provider = (FunctionProvider)Class
+                    .forName("org.lwjgl.egl.EGL")
+                    .getMethod("getFunctionProvider")
+                    .invoke(null);
+            } catch (Throwable ignored) {
+                apiLog("[GLES] Failed to initialize EGL");
+            }
+        }
+
+        if (provider == null && (contextAPI == null || "native".equals(contextAPI))) {
+            try {
+                provider = (FunctionProvider)Class
+                    .forName("org.lwjgl.opengl.GL")
+                    .getMethod("getFunctionProvider")
+                    .invoke(null);
+            } catch (Throwable ignored) {
+                apiLog("[GLES] Failed to initialize OpenGL");
+            }
+        }
+
+        return provider;
+    }
+
+    private static void create(SharedLibrary GLES) {
+        FunctionProvider contextProvider = getContextProvider();
+        if (contextProvider == null) {
+            GLES.free();
+            throw new IllegalStateException("There is no OpenGL ES context management API available.");
+        }
+
+        try {
             create((FunctionProvider)new SharedLibrary.Delegate(GLES) {
                 @Override
                 public long getFunctionAddress(ByteBuffer functionName) {
-                    long address = egl.getFunctionAddress(functionName);
+                    long address = contextProvider.getFunctionAddress(functionName);
                     if (address == NULL) {
                         address = library.getFunctionAddress(functionName);
                         if (address == NULL && DEBUG_FUNCTIONS) {
-                            apiLog("Failed to locate address for GLES function " + functionName);
+                            apiLog("Failed to locate address for GLES function " + memASCII(functionName));
                         }
                     }
 
@@ -141,7 +173,7 @@ public final class GLES {
         }
 
         GLES.functionProvider = functionProvider;
-        ThreadLocalUtil.setFunctionMissingAddresses(GLESCapabilities.class, 3);
+        ThreadLocalUtil.setFunctionMissingAddresses(GLESCapabilities.ADDRESS_BUFFER_SIZE);
     }
     /** Unloads the OpenGL ES native library. */
     public static void destroy() {
@@ -149,7 +181,7 @@ public final class GLES {
             return;
         }
 
-        ThreadLocalUtil.setFunctionMissingAddresses(null, 3);
+        ThreadLocalUtil.setFunctionMissingAddresses(0);
 
         if (functionProvider instanceof NativeResource) {
             ((NativeResource)functionProvider).free();
@@ -171,7 +203,7 @@ public final class GLES {
      */
     public static void setCapabilities(@Nullable GLESCapabilities caps) {
         capabilitiesTLS.set(caps);
-        ThreadLocalUtil.setEnv(caps == null ? NULL : memAddress(caps.addresses), 3);
+        ThreadLocalUtil.setCapabilities(caps == null ? NULL : memAddress(caps.addresses));
         icd.set(caps);
     }
 
@@ -205,117 +237,130 @@ public final class GLES {
      * @throws IllegalStateException if no OpenGL ES context is current in the current thread
      */
     public static GLESCapabilities createCapabilities() {
+        return createCapabilities(null);
+    }
+
+    /**
+     * Creates a new {@link GLESCapabilities} instance for the OpenGL ES context that is current in the current thread.
+     *
+     * <p>This method calls {@link #setCapabilities(GLESCapabilities)} with the new instance before returning.</p>
+     *
+     * @param bufferFactory a function that allocates a {@link PointerBuffer} given a size. The buffer must be filled with zeroes. If {@code null}, LWJGL will
+     *                      allocate a GC-managed buffer internally.
+     *
+     * @return the {@code GLESCapabilities} instance
+     *
+     * @throws IllegalStateException if no OpenGL ES context is current in the current thread
+     */
+    public static GLESCapabilities createCapabilities(@Nullable IntFunction<PointerBuffer> bufferFactory) {
         FunctionProvider functionProvider = GLES.functionProvider;
         if (functionProvider == null) {
             throw new IllegalStateException("OpenGL ES library not been loaded.");
         }
 
-        GLESCapabilities caps = null;
+        // We don't have a current GLESCapabilities when this method is called
+        // so we have to use the native bindings directly.
+        long GetError    = functionProvider.getFunctionAddress("glGetError");
+        long GetString   = functionProvider.getFunctionAddress("glGetString");
+        long GetIntegerv = functionProvider.getFunctionAddress("glGetIntegerv");
 
-        try {
-            // We don't have a current GLESCapabilities when this method is called
-            // so we have to use the native bindings directly.
-            long GetError    = functionProvider.getFunctionAddress("glGetError");
-            long GetString   = functionProvider.getFunctionAddress("glGetString");
-            long GetIntegerv = functionProvider.getFunctionAddress("glGetIntegerv");
+        if (GetError == NULL || GetString == NULL || GetIntegerv == NULL) {
+            throw new IllegalStateException(
+                "Core OpenGL ES functions could not be found. Make sure that the OpenGL ES library has been loaded correctly."
+            );
+        }
 
-            if (GetError == NULL || GetString == NULL || GetIntegerv == NULL) {
-                throw new IllegalStateException(
-                    "Core OpenGL ES functions could not be found. Make sure that the OpenGL ES library has been loaded correctly."
-                );
+        int errorCode = callI(GetError);
+        if (errorCode != GL_NO_ERROR) {
+            apiLog(String.format("An OpenGL ES context was in an error state before the creation of its capabilities instance. Error: [0x%X]", errorCode));
+        }
+
+        int majorVersion;
+        int minorVersion;
+
+        try (MemoryStack stack = stackPush()) {
+            IntBuffer pi = stack.ints(0);
+
+            // Try the 3.0+ version query first
+            callPV(GL_MAJOR_VERSION, memAddress(pi), GetIntegerv);
+            if (callI(GetError) == GL_NO_ERROR && 3 <= (majorVersion = pi.get(0))) {
+                // We're on an 3.0+ context.
+                callPV(GL_MINOR_VERSION, memAddress(pi), GetIntegerv);
+                minorVersion = pi.get(0);
+            } else {
+                // Fallback to the string query.
+                String versionString = memUTF8Safe(callP(GL_VERSION, GetString));
+                if (versionString == null || callI(GetError) != GL_NO_ERROR) {
+                    throw new IllegalStateException("There is no OpenGL ES context current in the current thread.");
+                }
+
+                APIVersion version = apiParseVersion(versionString);
+
+                majorVersion = version.major;
+                minorVersion = version.minor;
+            }
+        }
+
+        if (majorVersion < 2) {
+            throw new IllegalStateException("OpenGL ES 2.0 is required.");
+        }
+
+        int[] GL_VERSIONS = {
+            -1, // OpenGL ES 1.0 not supported
+            0, // OpenGL ES 2.0
+            2 // OpenGL ES 3.0 to 3.2
+        };
+
+        Set<String> supportedExtensions = new HashSet<>(128);
+
+        int maxMajor = min(majorVersion, GL_VERSIONS.length);
+        if (MAX_VERSION != null) {
+            maxMajor = min(MAX_VERSION.major, maxMajor);
+        }
+        for (int M = 2; M <= maxMajor; M++) {
+            int maxMinor = GL_VERSIONS[M - 1];
+            if (M == majorVersion) {
+                maxMinor = min(minorVersion, maxMinor);
+            }
+            if (MAX_VERSION != null && M == MAX_VERSION.major) {
+                maxMinor = min(MAX_VERSION.minor, maxMinor);
             }
 
-            int errorCode = callI(GetError);
-            if (errorCode != GL_NO_ERROR) {
-                apiLog(String.format("An OpenGL ES context was in an error state before the creation of its capabilities instance. Error: [0x%X]", errorCode));
+            for (int m = 0; m <= maxMinor; m++) {
+                supportedExtensions.add(String.format("GLES%d%d", M, m));
             }
+        }
 
-            int majorVersion;
-            int minorVersion;
+        if (majorVersion < 3) {
+            // Parse EXTENSIONS string
+            String extensionsString = memASCIISafe(callP(GL_EXTENSIONS, GetString));
+            if (extensionsString != null) {
+                StringTokenizer tokenizer = new StringTokenizer(extensionsString);
+                while (tokenizer.hasMoreTokens()) {
+                    supportedExtensions.add(tokenizer.nextToken());
+                }
+            }
+        } else {
+            // Use indexed EXTENSIONS
+            int extensionCount;
 
             try (MemoryStack stack = stackPush()) {
                 IntBuffer pi = stack.ints(0);
 
-                // Try the 3.0+ version query first
-                callPV(GL_MAJOR_VERSION, memAddress(pi), GetIntegerv);
-                if (callI(GetError) == GL_NO_ERROR && 3 <= (majorVersion = pi.get(0))) {
-                    // We're on an 3.0+ context.
-                    callPV(GL_MINOR_VERSION, memAddress(pi), GetIntegerv);
-                    minorVersion = pi.get(0);
-                } else {
-                    // Fallback to the string query.
-                    String versionString = memUTF8Safe(callP(GL_VERSION, GetString));
-                    if (versionString == null || callI(GetError) != GL_NO_ERROR) {
-                        throw new IllegalStateException("There is no OpenGL ES context current in the current thread.");
-                    }
-
-                    APIVersion version = apiParseVersion(versionString, "OpenGL ES");
-
-                    majorVersion = version.major;
-                    minorVersion = version.minor;
-                }
+                callPV(GL_NUM_EXTENSIONS, memAddress(pi), GetIntegerv);
+                extensionCount = pi.get(0);
             }
 
-            if (majorVersion < 2) {
-                throw new IllegalStateException("OpenGL ES 2.0 is required.");
+            long GetStringi = apiGetFunctionAddress(functionProvider, "glGetStringi");
+            for (int i = 0; i < extensionCount; i++) {
+                supportedExtensions.add(memASCII(callP(GL_EXTENSIONS, i, GetStringi)));
             }
-
-            int[] GL_VERSIONS = {
-                -1, // OpenGL ES 1.0 not supported
-                0, // OpenGL ES 2.0
-                2 // OpenGL ES 3.0 to 3.2
-            };
-
-            Set<String> supportedExtensions = new HashSet<>(128);
-
-            int maxMajor = min(majorVersion, GL_VERSIONS.length);
-            if (MAX_VERSION != null) {
-                maxMajor = min(MAX_VERSION.major, maxMajor);
-            }
-            for (int M = 2; M <= maxMajor; M++) {
-                int maxMinor = GL_VERSIONS[M - 1];
-                if (M == majorVersion) {
-                    maxMinor = min(minorVersion, maxMinor);
-                }
-                if (MAX_VERSION != null && M == MAX_VERSION.major) {
-                    maxMinor = min(MAX_VERSION.minor, maxMinor);
-                }
-
-                for (int m = 0; m <= maxMinor; m++) {
-                    supportedExtensions.add(String.format("GLES%d%d", M, m));
-                }
-            }
-
-            if (majorVersion < 3) {
-                // Parse EXTENSIONS string
-                String extensionsString = memASCIISafe(callP(GL_EXTENSIONS, GetString));
-                if (extensionsString != null) {
-                    StringTokenizer tokenizer = new StringTokenizer(extensionsString);
-                    while (tokenizer.hasMoreTokens()) {
-                        supportedExtensions.add(tokenizer.nextToken());
-                    }
-                }
-            } else {
-                // Use indexed EXTENSIONS
-                int extensionCount;
-
-                try (MemoryStack stack = stackPush()) {
-                    IntBuffer pi = stack.ints(0);
-
-                    callPV(GL_NUM_EXTENSIONS, memAddress(pi), GetIntegerv);
-                    extensionCount = pi.get(0);
-                }
-
-                long GetStringi = apiGetFunctionAddress(functionProvider, "glGetStringi");
-                for (int i = 0; i < extensionCount; i++) {
-                    supportedExtensions.add(memASCII(callP(GL_EXTENSIONS, i, GetStringi)));
-                }
-            }
-
-            caps = new GLESCapabilities(functionProvider, supportedExtensions);
-        } finally {
-            setCapabilities(caps);
         }
+        apiFilterExtensions(supportedExtensions, Configuration.OPENGLES_EXTENSION_FILTER);
+
+        GLESCapabilities caps = new GLESCapabilities(functionProvider, supportedExtensions, bufferFactory == null ? BufferUtils::createPointerBuffer : bufferFactory);
+
+        setCapabilities(caps);
 
         return caps;
     }
@@ -342,6 +387,7 @@ public final class GLES {
         @Nullable
         private static GLESCapabilities tempCaps;
 
+        @SuppressWarnings("AssignmentToStaticFieldFromInstanceMethod")
         @Override
         public void set(@Nullable GLESCapabilities caps) {
             if (tempCaps == null) {
@@ -353,20 +399,20 @@ public final class GLES {
         }
 
         @Override
-        @Nullable
         public GLESCapabilities get() {
             return WriteOnce.caps;
         }
 
         private static final class WriteOnce {
             // This will be initialized the first time get() above is called
-            @Nullable
-            static final GLESCapabilities caps = ICDStatic.tempCaps;
+            static final GLESCapabilities caps;
 
             static {
-                if (caps == null) {
+                GLESCapabilities tempCaps = ICDStatic.tempCaps;
+                if (tempCaps == null) {
                     throw new IllegalStateException("No GLESCapabilities instance has been set");
                 }
+                caps = tempCaps;
             }
         }
 

@@ -176,6 +176,7 @@ val bgfx_transient_index_buffer_t = struct(Module.BGFX, "BGFXTransientIndexBuffe
     AutoSize("data")..uint32_t("size", "data size")
     uint32_t("startIndex", "first index")
     bgfx_index_buffer_handle_t("handle", "index buffer handle")
+    bool("isIndex16", "index buffer format is 16-bits if true, otherwise it is 32-bit")
 }
 
 val bgfx_transient_vertex_buffer_t = struct(Module.BGFX, "BGFXTransientVertexBuffer", nativeName = "bgfx_transient_vertex_buffer_t") {
@@ -228,7 +229,8 @@ val bgfx_attachment_t = struct(Module.BGFX, "BGFXAttachment", nativeName = "bgfx
     bgfx_access_t("access", "attachment access")
     bgfx_texture_handle_t("handle", "render target texture handle")
     uint16_t("mip", "mip level")
-    uint16_t("layer", "cubemap side or depth layer/slice")
+    uint16_t("layer", "cubemap side or depth layer/slice to use")
+    uint16_t("numLayers", "number of texture layer/slice(s) in array to use")
     uint8_t("resolve", "resolve flags").links("RESOLVE_\\w+")
 }
 
@@ -240,7 +242,7 @@ val bgfx_caps_gpu_t = struct(Module.BGFX, "BGFXCapsGPU", nativeName = "bgfx_caps
 }
 
 val bgfx_caps_limits_t = struct(Module.BGFX, "BGFXCapsLimits", nativeName = "bgfx_caps_limits_t", mutable = false) {
-    documentation = "Rendering limits."
+    documentation = "Renderer runtime limits."
 
     uint32_t("maxDrawCalls", "maximum number of draw calls")
     uint32_t("maxBlits", "maximum number of blit calls")
@@ -263,6 +265,7 @@ val bgfx_caps_limits_t = struct(Module.BGFX, "BGFXCapsLimits", nativeName = "bgf
     uint32_t("maxUniforms", "maximum number of uniform handles")
     uint32_t("maxOcclusionQueries", "maximum number of occlusion query handles")
     uint32_t("maxEncoders", "maximum number of encoder threads")
+    uint32_t("minResourceCbSize", "minimum resource command buffer size")
     uint32_t("transientVbSize", "maximum transient vertex buffer size")
     uint32_t("transientIbSize", "maximum transient index buffer size")
 }
@@ -282,7 +285,7 @@ val bgfx_caps_t = struct(Module.BGFX, "BGFXCaps", nativeName = "bgfx_caps_t", mu
     AutoSize("gpu")..uint8_t("numGPUs", "number of enumerated GPUs")
 
     bgfx_caps_gpu_t("gpu", "enumerated GPUs")[4]
-    bgfx_caps_limits_t("limits", "rendering limits")
+    bgfx_caps_limits_t("limits", "renderer runtime limits")
 
     uint16_t("formats", "supported texture formats")["BGFX_TEXTURE_FORMAT_COUNT"]
 }
@@ -293,9 +296,17 @@ val bgfx_fatal_t = "bgfx_fatal_t".enumType
 
 private val _bgfx_callback_interface_t = struct(Module.BGFX, "BGFXCallbackInterface", nativeName = "bgfx_callback_interface_t")
 val bgfx_callback_vtbl_t = struct(Module.BGFX, "BGFXCallbackVtbl", nativeName = "bgfx_callback_vtbl_t", skipBuffer = true) {
-    documentation = "Callback virtual table."
+    documentation =
+        """
+        Callback virtual table.
+        
+        <b>LWJGL note</b>: The bgfx build bundled with LWJGL will never invoke the {@code fatal}, {@code trace_vargs}, {@code profiler_begin},
+        {@code profiler_begin_literal}, {@code profiler_end} callbacks, so they may be #NULL. When using a custom build with {@code BGFX_CONFIG_DEBUG}
+        ({@code Debug} configuration) and/or {@code BGFX_CONFIG_PROFILER} ({@code --with-profiler} build option), the corresponding callbacks should not be
+        #NULL.
+        """
 
-    Module.BGFX.callback {
+    nullable..Module.BGFX.callback {
         void(
             "BGFXFatalCallback",
             "This callback is called on unrecoverable errors.",
@@ -315,7 +326,7 @@ val bgfx_callback_vtbl_t = struct(Module.BGFX, "BGFXCallbackVtbl", nativeName = 
                 """
         }
     }("fatal", "the fatal error callback")
-    Module.BGFX.callback {
+    nullable..Module.BGFX.callback {
         void(
             "BGFXTraceVarArgsCallback",
             "Will be called when a debug message is produced.",
@@ -328,13 +339,13 @@ val bgfx_callback_vtbl_t = struct(Module.BGFX, "BGFXCallbackVtbl", nativeName = 
         ) {
             documentation =
                 """
-            Prints a debug message.
-
-            Not thread safe and it can be called from any thread.
-            """
+                Prints a debug message.
+    
+                Not thread safe and it can be called from any thread.
+                """
         }
     }("trace_vargs", "the debug message callback")
-    Module.BGFX.callback {
+    nullable..Module.BGFX.callback {
         void(
             "BGFXProfilerBegin",
             """
@@ -352,7 +363,7 @@ val bgfx_callback_vtbl_t = struct(Module.BGFX, "BGFXCallbackVtbl", nativeName = 
             documentation = "Profiler region begin."
         }
     }("profiler_begin", "the profiler begin callback")
-    Module.BGFX.callback {
+    nullable..Module.BGFX.callback {
         void(
             "BGFXProfilerBeginLiteral",
             """
@@ -370,7 +381,7 @@ val bgfx_callback_vtbl_t = struct(Module.BGFX, "BGFXCallbackVtbl", nativeName = 
             documentation = "Profiler region begin with string literal name."
         }
     }("profiler_begin_literal", "the profiler begin literal callback")
-    Module.BGFX.callback {
+    nullable..Module.BGFX.callback {
         void(
             "BGFXProfilerEnd",
             """
@@ -536,7 +547,10 @@ val bgfx_resolution_t = struct(Module.BGFX, "BGFXResolution", nativeName = "bgfx
 }
 
 val bgfx_init_limits_t = struct(Module.BGFX, "BGFXInitLimits", nativeName = "bgfx_init_limits_t", skipBuffer = true)  {
+    documentation = "Configurable runtime limits parameters."
+
     uint16_t("maxEncoders", "maximum number of encoder threads")
+    uint32_t("minResourceCbSize", "minimum resource command buffer size")
     uint32_t("transientVbSize", "maximum transient vertex buffer size")
     uint32_t("transientIbSize", "maximum transient index buffer size")
 }
@@ -544,11 +558,11 @@ val bgfx_init_limits_t = struct(Module.BGFX, "BGFXInitLimits", nativeName = "bgf
 val bgfx_platform_data_t = struct(Module.BGFX, "BGFXPlatformData", nativeName = "bgfx_platform_data_t", skipBuffer = true) {
     documentation = "Platform data."
 
-    nullable..opaque_p("ndt", "native display type")
-    nullable..opaque_p("nwh", "native window handle")
-    nullable..opaque_p("context", "GL context, or D3D device")
-    nullable..opaque_p("backBuffer", "GL backbuffer, or D3D render target view")
-    nullable..opaque_p("backBufferDS", "Backbuffer depth/stencil")
+    nullable..opaque_p("ndt", "native display type (*nix specific)")
+    nullable..opaque_p("nwh", "native window handle. If #NULL bgfx will create headless context/device if renderer API supports it.")
+    nullable..opaque_p("context", "GL context, or D3D device. If #NULL, bgfx will create context/device.")
+    nullable..opaque_p("backBuffer", "GL back-buffer, or D3D render target view. If #NULL bgfx will create back-buffer color surface.")
+    nullable..opaque_p("backBufferDS", "backbuffer depth/stencil. If #NULL bgfx will create back-buffer depth/stencil surface.")
 }
 
 val bgfx_init_t = struct(Module.BGFX, "BGFXInit", nativeName = "bgfx_init_t", skipBuffer = true) {
@@ -560,12 +574,13 @@ val bgfx_init_t = struct(Module.BGFX, "BGFXInit", nativeName = "bgfx_init_t", sk
     ).links("RENDERER_TYPE_\\w+")
     uint16_t("vendorId", "vendor PCI id. If set to #PCI_ID_NONE it will select the first device.").links("PCI_ID_\\w+")
     uint16_t("deviceId", "device id. If set to 0 it will select first device, or device with matching id.")
+    uint64_t("capabilities", "capabilities initialization mask (default: {@code UINT64_MAX})")
     bool("debug", "enable device for debugging")
     bool("profile", "enable device for profiling")
 
     bgfx_platform_data_t("platformData", "platform data")
     bgfx_resolution_t("resolution", "backbuffer resolution and reset parameters")
-    bgfx_init_limits_t("limits", "")
+    bgfx_init_limits_t("limits", "configurable runtime limits parameters")
 
     nullable..bgfx_callback_interface_t.p("callback", "provide application specific callback interface")
     nullable..bgfx_allocator_interface_t.p(

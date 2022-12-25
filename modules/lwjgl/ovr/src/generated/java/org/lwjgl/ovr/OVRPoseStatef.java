@@ -21,28 +21,17 @@ import static org.lwjgl.system.MemoryStack.*;
  * <p>Body refers to any object for which ovrPoseStatef is providing data.  It can be the HMD, Touch controller, sensor or something else. The context
  * depends on the usage of the struct.</p>
  * 
- * <h3>Member documentation</h3>
- * 
- * <ul>
- * <li>{@code ThePose} &ndash; position and orientation</li>
- * <li>{@code AngularVelocity} &ndash; angular velocity in radians per second</li>
- * <li>{@code LinearVelocity} &ndash; velocity in meters per second</li>
- * <li>{@code AngularAcceleration} &ndash; angular acceleration in radians per second per second</li>
- * <li>{@code LinearAcceleration} &ndash; acceleration in meters per second per second</li>
- * <li>{@code TimeInSeconds} &ndash; absolute time that this pose refers to. See {@link OVR#ovr_GetTimeInSeconds GetTimeInSeconds}</li>
- * </ul>
- * 
  * <h3>Layout</h3>
  * 
  * <pre><code>
  * struct ovrPoseStatef {
- *     {@link OVRPosef ovrPosef} ThePose;
- *     {@link OVRVector3f ovrVector3f} AngularVelocity;
- *     {@link OVRVector3f ovrVector3f} LinearVelocity;
- *     {@link OVRVector3f ovrVector3f} AngularAcceleration;
- *     {@link OVRVector3f ovrVector3f} LinearAcceleration;
+ *     {@link OVRPosef ovrPosef} {@link #ThePose};
+ *     {@link OVRVector3f ovrVector3f} {@link #AngularVelocity};
+ *     {@link OVRVector3f ovrVector3f} {@link #LinearVelocity};
+ *     {@link OVRVector3f ovrVector3f} {@link #AngularAcceleration};
+ *     {@link OVRVector3f ovrVector3f} {@link #LinearAcceleration};
  *     char[4];
- *     double TimeInSeconds;
+ *     double {@link #TimeInSeconds};
  * }</code></pre>
  */
 @NativeType("struct ovrPoseStatef")
@@ -98,22 +87,22 @@ public class OVRPoseStatef extends Struct implements NativeResource {
     @Override
     public int sizeof() { return SIZEOF; }
 
-    /** Returns a {@link OVRPosef} view of the {@code ThePose} field. */
+    /** position and orientation */
     @NativeType("ovrPosef")
     public OVRPosef ThePose() { return nThePose(address()); }
-    /** Returns a {@link OVRVector3f} view of the {@code AngularVelocity} field. */
+    /** angular velocity in radians per second */
     @NativeType("ovrVector3f")
     public OVRVector3f AngularVelocity() { return nAngularVelocity(address()); }
-    /** Returns a {@link OVRVector3f} view of the {@code LinearVelocity} field. */
+    /** velocity in meters per second */
     @NativeType("ovrVector3f")
     public OVRVector3f LinearVelocity() { return nLinearVelocity(address()); }
-    /** Returns a {@link OVRVector3f} view of the {@code AngularAcceleration} field. */
+    /** angular acceleration in radians per second per second */
     @NativeType("ovrVector3f")
     public OVRVector3f AngularAcceleration() { return nAngularAcceleration(address()); }
-    /** Returns a {@link OVRVector3f} view of the {@code LinearAcceleration} field. */
+    /** acceleration in meters per second per second */
     @NativeType("ovrVector3f")
     public OVRVector3f LinearAcceleration() { return nLinearAcceleration(address()); }
-    /** Returns the value of the {@code TimeInSeconds} field. */
+    /** absolute time that this pose refers to. See {@link OVR#ovr_GetTimeInSeconds GetTimeInSeconds} */
     public double TimeInSeconds() { return nTimeInSeconds(address()); }
 
     // -----------------------------------
@@ -191,22 +180,29 @@ public class OVRPoseStatef extends Struct implements NativeResource {
 
     // -----------------------------------
 
-    /** Returns a new {@code OVRPoseStatef} instance allocated on the thread-local {@link MemoryStack}. */
-    public static OVRPoseStatef mallocStack() {
-        return mallocStack(stackGet());
-    }
-
-    /** Returns a new {@code OVRPoseStatef} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero. */
-    public static OVRPoseStatef callocStack() {
-        return callocStack(stackGet());
-    }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRPoseStatef mallocStack() { return malloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRPoseStatef callocStack() { return calloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRPoseStatef mallocStack(MemoryStack stack) { return malloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRPoseStatef callocStack(MemoryStack stack) { return calloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRPoseStatef.Buffer mallocStack(int capacity) { return malloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRPoseStatef.Buffer callocStack(int capacity) { return calloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRPoseStatef.Buffer mallocStack(int capacity, MemoryStack stack) { return malloc(capacity, stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRPoseStatef.Buffer callocStack(int capacity, MemoryStack stack) { return calloc(capacity, stack); }
 
     /**
      * Returns a new {@code OVRPoseStatef} instance allocated on the specified {@link MemoryStack}.
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRPoseStatef mallocStack(MemoryStack stack) {
+    public static OVRPoseStatef malloc(MemoryStack stack) {
         return wrap(OVRPoseStatef.class, stack.nmalloc(ALIGNOF, SIZEOF));
     }
 
@@ -215,45 +211,27 @@ public class OVRPoseStatef extends Struct implements NativeResource {
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRPoseStatef callocStack(MemoryStack stack) {
+    public static OVRPoseStatef calloc(MemoryStack stack) {
         return wrap(OVRPoseStatef.class, stack.ncalloc(ALIGNOF, 1, SIZEOF));
-    }
-
-    /**
-     * Returns a new {@link OVRPoseStatef.Buffer} instance allocated on the thread-local {@link MemoryStack}.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRPoseStatef.Buffer mallocStack(int capacity) {
-        return mallocStack(capacity, stackGet());
-    }
-
-    /**
-     * Returns a new {@link OVRPoseStatef.Buffer} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRPoseStatef.Buffer callocStack(int capacity) {
-        return callocStack(capacity, stackGet());
     }
 
     /**
      * Returns a new {@link OVRPoseStatef.Buffer} instance allocated on the specified {@link MemoryStack}.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRPoseStatef.Buffer mallocStack(int capacity, MemoryStack stack) {
+    public static OVRPoseStatef.Buffer malloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.nmalloc(ALIGNOF, capacity * SIZEOF), capacity);
     }
 
     /**
      * Returns a new {@link OVRPoseStatef.Buffer} instance allocated on the specified {@link MemoryStack} and initializes all its bits to zero.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRPoseStatef.Buffer callocStack(int capacity, MemoryStack stack) {
+    public static OVRPoseStatef.Buffer calloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.ncalloc(ALIGNOF, capacity, SIZEOF), capacity);
     }
 
@@ -310,22 +288,22 @@ public class OVRPoseStatef extends Struct implements NativeResource {
             return ELEMENT_FACTORY;
         }
 
-        /** Returns a {@link OVRPosef} view of the {@code ThePose} field. */
+        /** @return a {@link OVRPosef} view of the {@link OVRPoseStatef#ThePose} field. */
         @NativeType("ovrPosef")
         public OVRPosef ThePose() { return OVRPoseStatef.nThePose(address()); }
-        /** Returns a {@link OVRVector3f} view of the {@code AngularVelocity} field. */
+        /** @return a {@link OVRVector3f} view of the {@link OVRPoseStatef#AngularVelocity} field. */
         @NativeType("ovrVector3f")
         public OVRVector3f AngularVelocity() { return OVRPoseStatef.nAngularVelocity(address()); }
-        /** Returns a {@link OVRVector3f} view of the {@code LinearVelocity} field. */
+        /** @return a {@link OVRVector3f} view of the {@link OVRPoseStatef#LinearVelocity} field. */
         @NativeType("ovrVector3f")
         public OVRVector3f LinearVelocity() { return OVRPoseStatef.nLinearVelocity(address()); }
-        /** Returns a {@link OVRVector3f} view of the {@code AngularAcceleration} field. */
+        /** @return a {@link OVRVector3f} view of the {@link OVRPoseStatef#AngularAcceleration} field. */
         @NativeType("ovrVector3f")
         public OVRVector3f AngularAcceleration() { return OVRPoseStatef.nAngularAcceleration(address()); }
-        /** Returns a {@link OVRVector3f} view of the {@code LinearAcceleration} field. */
+        /** @return a {@link OVRVector3f} view of the {@link OVRPoseStatef#LinearAcceleration} field. */
         @NativeType("ovrVector3f")
         public OVRVector3f LinearAcceleration() { return OVRPoseStatef.nLinearAcceleration(address()); }
-        /** Returns the value of the {@code TimeInSeconds} field. */
+        /** @return the value of the {@link OVRPoseStatef#TimeInSeconds} field. */
         public double TimeInSeconds() { return OVRPoseStatef.nTimeInSeconds(address()); }
 
     }

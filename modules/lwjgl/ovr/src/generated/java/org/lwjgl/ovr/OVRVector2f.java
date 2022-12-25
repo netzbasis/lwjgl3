@@ -18,19 +18,12 @@ import static org.lwjgl.system.MemoryStack.*;
 /**
  * A 2D vector with float components.
  * 
- * <h3>Member documentation</h3>
- * 
- * <ul>
- * <li>{@code x} &ndash; the vector x component</li>
- * <li>{@code y} &ndash; the vector y component</li>
- * </ul>
- * 
  * <h3>Layout</h3>
  * 
  * <pre><code>
  * struct ovrVector2f {
- *     float x;
- *     float y;
+ *     float {@link #x};
+ *     float {@link #y};
  * }</code></pre>
  */
 @NativeType("struct ovrVector2f")
@@ -73,14 +66,14 @@ public class OVRVector2f extends Struct implements NativeResource {
     @Override
     public int sizeof() { return SIZEOF; }
 
-    /** Returns the value of the {@code x} field. */
+    /** the vector x component */
     public float x() { return nx(address()); }
-    /** Returns the value of the {@code y} field. */
+    /** the vector y component */
     public float y() { return ny(address()); }
 
-    /** Sets the specified value to the {@code x} field. */
+    /** Sets the specified value to the {@link #x} field. */
     public OVRVector2f x(float value) { nx(address(), value); return this; }
-    /** Sets the specified value to the {@code y} field. */
+    /** Sets the specified value to the {@link #y} field. */
     public OVRVector2f y(float value) { ny(address(), value); return this; }
 
     /** Initializes this struct with the specified values. */
@@ -181,22 +174,29 @@ public class OVRVector2f extends Struct implements NativeResource {
 
     // -----------------------------------
 
-    /** Returns a new {@code OVRVector2f} instance allocated on the thread-local {@link MemoryStack}. */
-    public static OVRVector2f mallocStack() {
-        return mallocStack(stackGet());
-    }
-
-    /** Returns a new {@code OVRVector2f} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero. */
-    public static OVRVector2f callocStack() {
-        return callocStack(stackGet());
-    }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRVector2f mallocStack() { return malloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRVector2f callocStack() { return calloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRVector2f mallocStack(MemoryStack stack) { return malloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRVector2f callocStack(MemoryStack stack) { return calloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRVector2f.Buffer mallocStack(int capacity) { return malloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRVector2f.Buffer callocStack(int capacity) { return calloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRVector2f.Buffer mallocStack(int capacity, MemoryStack stack) { return malloc(capacity, stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRVector2f.Buffer callocStack(int capacity, MemoryStack stack) { return calloc(capacity, stack); }
 
     /**
      * Returns a new {@code OVRVector2f} instance allocated on the specified {@link MemoryStack}.
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRVector2f mallocStack(MemoryStack stack) {
+    public static OVRVector2f malloc(MemoryStack stack) {
         return wrap(OVRVector2f.class, stack.nmalloc(ALIGNOF, SIZEOF));
     }
 
@@ -205,45 +205,27 @@ public class OVRVector2f extends Struct implements NativeResource {
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRVector2f callocStack(MemoryStack stack) {
+    public static OVRVector2f calloc(MemoryStack stack) {
         return wrap(OVRVector2f.class, stack.ncalloc(ALIGNOF, 1, SIZEOF));
-    }
-
-    /**
-     * Returns a new {@link OVRVector2f.Buffer} instance allocated on the thread-local {@link MemoryStack}.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRVector2f.Buffer mallocStack(int capacity) {
-        return mallocStack(capacity, stackGet());
-    }
-
-    /**
-     * Returns a new {@link OVRVector2f.Buffer} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRVector2f.Buffer callocStack(int capacity) {
-        return callocStack(capacity, stackGet());
     }
 
     /**
      * Returns a new {@link OVRVector2f.Buffer} instance allocated on the specified {@link MemoryStack}.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRVector2f.Buffer mallocStack(int capacity, MemoryStack stack) {
+    public static OVRVector2f.Buffer malloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.nmalloc(ALIGNOF, capacity * SIZEOF), capacity);
     }
 
     /**
      * Returns a new {@link OVRVector2f.Buffer} instance allocated on the specified {@link MemoryStack} and initializes all its bits to zero.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRVector2f.Buffer callocStack(int capacity, MemoryStack stack) {
+    public static OVRVector2f.Buffer calloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.ncalloc(ALIGNOF, capacity, SIZEOF), capacity);
     }
 
@@ -297,14 +279,14 @@ public class OVRVector2f extends Struct implements NativeResource {
             return ELEMENT_FACTORY;
         }
 
-        /** Returns the value of the {@code x} field. */
+        /** @return the value of the {@link OVRVector2f#x} field. */
         public float x() { return OVRVector2f.nx(address()); }
-        /** Returns the value of the {@code y} field. */
+        /** @return the value of the {@link OVRVector2f#y} field. */
         public float y() { return OVRVector2f.ny(address()); }
 
-        /** Sets the specified value to the {@code x} field. */
+        /** Sets the specified value to the {@link OVRVector2f#x} field. */
         public OVRVector2f.Buffer x(float value) { OVRVector2f.nx(address(), value); return this; }
-        /** Sets the specified value to the {@code y} field. */
+        /** Sets the specified value to the {@link OVRVector2f#y} field. */
         public OVRVector2f.Buffer y(float value) { OVRVector2f.ny(address(), value); return this; }
 
     }

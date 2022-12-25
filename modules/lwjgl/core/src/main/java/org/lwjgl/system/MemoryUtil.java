@@ -7,12 +7,13 @@ package org.lwjgl.system;
 import org.lwjgl.*;
 import org.lwjgl.system.MemoryManage.*;
 import org.lwjgl.system.MemoryUtil.MemoryAllocationReport.*;
-import org.lwjgl.system.jni.*;
 
 import javax.annotation.*;
+import java.lang.reflect.*;
 import java.nio.*;
 import java.nio.charset.*;
 import java.util.*;
+import java.util.function.*;
 
 import static java.lang.Character.*;
 import static java.lang.Math.*;
@@ -98,7 +99,6 @@ public final class MemoryUtil {
     static {
         Library.initialize();
 
-        //ACCESSOR = MemoryAccess.getInstance();
         ByteBuffer bb = ByteBuffer.allocateDirect(0).order(NATIVE_ORDER);
 
         BUFFER_BYTE = bb.getClass();
@@ -119,18 +119,13 @@ public final class MemoryUtil {
 
             ADDRESS = getAddressOffset();
 
-            int oopSize = UNSAFE.arrayIndexScale(Object[].class);
-
-            long offset = (max(max(max(MARK, POSITION), LIMIT), CAPACITY) + 4 + (oopSize - 1)) & ~Integer.toUnsignedLong(oopSize - 1);
-            long a      = memAddress(bb);
-
-            PARENT_BYTE = getParentOffset(offset, oopSize, bb, bb.duplicate().order(bb.order()));
-            PARENT_SHORT = getParentOffset(offset, oopSize, memShortBuffer(a, 0), bb.asShortBuffer());
-            PARENT_CHAR = getParentOffset(offset, oopSize, memCharBuffer(a, 0), bb.asCharBuffer());
-            PARENT_INT = getParentOffset(offset, oopSize, memIntBuffer(a, 0), bb.asIntBuffer());
-            PARENT_LONG = getParentOffset(offset, oopSize, memLongBuffer(a, 0), bb.asLongBuffer());
-            PARENT_FLOAT = getParentOffset(offset, oopSize, memFloatBuffer(a, 0), bb.asFloatBuffer());
-            PARENT_DOUBLE = getParentOffset(offset, oopSize, memDoubleBuffer(a, 0), bb.asDoubleBuffer());
+            PARENT_BYTE = getFieldOffsetObject(bb.duplicate().order(bb.order()), bb);
+            PARENT_SHORT = getFieldOffsetObject(bb.asShortBuffer(), bb);
+            PARENT_CHAR = getFieldOffsetObject(bb.asCharBuffer(), bb);
+            PARENT_INT = getFieldOffsetObject(bb.asIntBuffer(), bb);
+            PARENT_LONG = getFieldOffsetObject(bb.asLongBuffer(), bb);
+            PARENT_FLOAT = getFieldOffsetObject(bb.asFloatBuffer(), bb);
+            PARENT_DOUBLE = getFieldOffsetObject(bb.asDoubleBuffer(), bb);
         } catch (Throwable t) {
             throw new UnsupportedOperationException(t);
         }
@@ -1795,70 +1790,53 @@ public final class MemoryUtil {
         - The native memset becomes fastest at bigger sizes, when the JNI overhead becomes negligible.
          */
 
-        //UNSAFE.setMemory(dst, bytes, (byte)(value & 0xFF));
-        if (256L <= bytes) {
-            nmemset(ptr, value, bytes);
-            return;
+        //UNSAFE.setMemory(ptr, bytes, (byte)(value & 0xFF));
+        if (bytes < 256L) {
+            int p = (int)ptr;
+            if (BITS64) {
+                if ((p & 7) == 0) {
+                    memSet64(ptr, value, (int)bytes & 0xFF);
+                    return;
+                }
+            } else {
+                if ((p & 3) == 0) {
+                    memSet32(p, value, (int)bytes & 0xFF);
+                    return;
+                }
+            }
         }
-
-        if (BITS64) {
-            memSet64(ptr, value, (int)bytes);
-        } else {
-            memSet32((int)ptr, value, (int)bytes);
-        }
+        nmemset(ptr, value, bytes);
     }
     private static void memSet64(long ptr, int value, int bytes) {
         long fill = (value & 0xFF) * FILL_PATTERN_64;
 
-        int i = 0,
-            length = bytes & 0xFF;
-
-        int misalignment = (int)ptr & 7;
-        if (misalignment != 0 && length != 0) {
-            long aligned = ptr - misalignment;
-            UNSAFE.putLong(null, aligned, merge(
-                UNSAFE.getLong(null, aligned),
-                fill,
-                SHIFT.right(SHIFT.left(-1L, max(0, 8 - length)), misalignment) // 0x0000FFFFFFFF0000
-            ));
-            i += 8 - misalignment;
-            ptr += 8 - misalignment;
-        }
+        int remaining = bytes;
 
         // Aligned longs for performance
-        for (; i <= length - 8; i += 8, ptr += 8) {
+        while (8 <= remaining) {
             UNSAFE.putLong(null, ptr, fill);
+            remaining -= 8;
+
+            ptr += 8;
         }
 
-        int tail = length - i;
-        if (0 < tail) {
+        if (remaining != 0) {
             // Aligned tail
-            UNSAFE.putLong(null, ptr, merge(
-                fill,
-                UNSAFE.getLong(null, ptr),
-                SHIFT.right(-1L, tail) // 0x00000000FFFFFFFF
-            ));
+            long mask = SHIFT.right(-1L, remaining);
+            UNSAFE.putLong(null, ptr, fill ^ ((fill ^ UNSAFE.getLong(null, ptr)) & mask));
         }
     }
     private static void memSet32(int ptr, int value, int bytes) {
         int fill = (value & 0xFF) * FILL_PATTERN_32;
 
-        int i = 0,
-            length = bytes & 0xFF;
-
-        int misalignment = ptr & 3;
-        if (misalignment != 0) {
-            for (int len = min(4 - misalignment, length); i < len; i++) {
-                UNSAFE.putByte(null, (long)(ptr + i), (byte)fill);
-            }
-        }
+        int i = 0;
 
         // Aligned ints for performance
-        for (; i <= length - 4; i += 4) {
+        for (; i <= bytes - 4; i += 4) {
             UNSAFE.putInt(null, (long)(ptr + i), fill);
         }
 
-        for (; i < length; i++) {
+        for (; i < bytes; i++) {
             UNSAFE.putByte(null, (long)(ptr + i), (byte)fill);
         }
     }
@@ -1970,23 +1948,27 @@ public final class MemoryUtil {
      */
     public static native <T> T memGlobalRefToObject(long globalRef);
 
-    /** Deprecated, use {@link JNINativeInterface#NewGlobalRef} instead. */
-    @Deprecated public static long memNewGlobalRef(Object obj) { return NewGlobalRef(obj); }
-
-    /** Deprecated, use {@link JNINativeInterface#DeleteGlobalRef} instead. */
-    @Deprecated public static void memDeleteGlobalRef(long globalRef) { DeleteGlobalRef(globalRef); }
-
-    /** Deprecated, use {@link JNINativeInterface#NewWeakGlobalRef} instead. */
-    @Deprecated public static long memNewWeakGlobalRef(Object obj) { return NewWeakGlobalRef(obj); }
-
-    /** Deprecated, use {@link JNINativeInterface#DeleteWeakGlobalRef} instead. */
-    @Deprecated public static void memDeleteWeakGlobalRef(long globalRef) { DeleteWeakGlobalRef(globalRef);}
-
     /*  -------------------------------------
         -------------------------------------
                   TEXT ENCODING API
         -------------------------------------
         ------------------------------------- */
+
+    private static int write8(long target, int offset, int value) {
+        UNSAFE.putByte(null, target + Integer.toUnsignedLong(offset), (byte)value);
+        return offset + 1;
+    }
+    private static int write8Safe(long target, int offset, int maxLength, int value) {
+        if (offset == maxLength) {
+            throw new BufferOverflowException();
+        }
+        UNSAFE.putByte(null, target + Integer.toUnsignedLong(offset), (byte)value);
+        return offset + 1;
+    }
+    private static int write16(long target, int offset, char value) {
+        UNSAFE.putShort(null, target + Integer.toUnsignedLong(offset), (short)value);
+        return offset + 2;
+    }
 
     /**
      * Returns a ByteBuffer containing the specified text ASCII encoded and null-terminated.
@@ -2023,11 +2005,7 @@ public final class MemoryUtil {
         if (CHECKS && target == NULL) {
             throw new OutOfMemoryError();
         }
-        if (BITS64) {
-            encodeASCIIUnsafe64(text, nullTerminated, target);
-        } else {
-            encodeASCIIUnsafe32(text, nullTerminated, (int)target);
-        }
+        encodeASCIIUnsafe(text, nullTerminated, target);
         return wrap(BUFFER_BYTE, target, length).order(NATIVE_ORDER);
     }
 
@@ -2054,9 +2032,7 @@ public final class MemoryUtil {
             throw new BufferOverflowException();
         }
         long address = memAddress(target);
-        return BITS64
-            ? encodeASCIIUnsafe64(text, nullTerminated, address)
-            : encodeASCIIUnsafe32(text, nullTerminated, (int)address);
+        return encodeASCIIUnsafe(text, nullTerminated, address);
     }
 
     /**
@@ -2075,32 +2051,20 @@ public final class MemoryUtil {
         if (target.capacity() - offset < memLengthASCII(text, nullTerminated)) {
             throw new BufferOverflowException();
         }
-        long address = memAddress(target, offset);
-        return BITS64
-            ? encodeASCIIUnsafe64(text, nullTerminated, address)
-            : encodeASCIIUnsafe32(text, nullTerminated, (int)address);
+        return encodeASCIIUnsafe(text, nullTerminated, memAddress(target, offset));
     }
 
-    static int encodeASCIIUnsafe64(CharSequence text, boolean nullTerminated, long target) {
-        long p = target;
+    static int encodeASCIIUnsafe(CharSequence text, boolean nullTerminated, long target) {
+        int i = 0, len = text.length();
 
-        for (int i = 0, len = text.length(); i < len; i++) {
-            UNSAFE.putByte(null, p++, (byte)text.charAt(i));
-        }
-        if (nullTerminated) {
-            UNSAFE.putByte(null, p++, (byte)0);
+        while (i < len) {
+            i = write8(target, i, text.charAt(i));
         }
 
-        return (int)(p - target);
-    }
-    static int encodeASCIIUnsafe32(CharSequence text, boolean nullTerminated, int target) {
-        int i = 0;
-        for (int len = text.length(); i < len; i++) {
-            UNSAFE.putByte(null, (long)(target + i), (byte)text.charAt(i));
-        }
         if (nullTerminated) {
-            UNSAFE.putByte(null, (long)(target + i++), (byte)0);
+            i = write8(target, i, 0);
         }
+
         return i;
     }
 
@@ -2157,11 +2121,7 @@ public final class MemoryUtil {
         if (CHECKS && target == NULL) {
             throw new OutOfMemoryError();
         }
-        if (BITS64) {
-            encodeUTF8Unsafe64(text, nullTerminated, target);
-        } else {
-            encodeUTF8Unsafe32(text, nullTerminated, (int)target);
-        }
+        encodeUTF8Unsafe(text, nullTerminated, target);
         return wrap(BUFFER_BYTE, target, length).order(NATIVE_ORDER);
     }
 
@@ -2184,9 +2144,10 @@ public final class MemoryUtil {
      * @throws BufferOverflowException if more than {@code target.remaining} bytes are required to encode the text.
      */
     public static int memUTF8(CharSequence text, boolean nullTerminated, ByteBuffer target) {
-        return BITS64
-            ? encodeUTF8Safe64(text, nullTerminated, memAddress(target), target.remaining())
-            : encodeUTF8Safe32(text, nullTerminated, (int)memAddress(target), target.remaining());
+        if (target.remaining() < memLengthASCII(text, nullTerminated)) {
+            throw new BufferOverflowException();
+        }
+        return encodeUTF8Safe(text, nullTerminated, memAddress(target), target.remaining());
     }
 
     /**
@@ -2203,177 +2164,87 @@ public final class MemoryUtil {
      * @throws BufferOverflowException if more than {@code target.capacity() - offset} bytes are required to encode the text.
      */
     public static int memUTF8(CharSequence text, boolean nullTerminated, ByteBuffer target, int offset) {
-        return BITS64
-            ? encodeUTF8Safe64(text, nullTerminated, memAddress(target, offset), target.capacity() - offset)
-            : encodeUTF8Safe32(text, nullTerminated, (int)memAddress(target, offset), target.capacity() - offset);
-    }
-
-    static int encodeUTF8Unsafe64(CharSequence text, boolean nullTerminated, long target) {
-        long p = target;
-
-        int i = 0, len = text.length();
-        while (i < len) {
-            char c = text.charAt(i++);
-            if (c < 0x80) {
-                UNSAFE.putByte(null, p++, (byte)c);
-            } else {
-                int cp = c;
-                if (c < 0x800) {
-                    UNSAFE.putByte(null, p++, (byte)(0xC0 | cp >> 6));
-                } else {
-                    if (!isHighSurrogate(c)) {
-                        UNSAFE.putByte(null, p++, (byte)(0xE0 | cp >> 12));
-                    } else {
-                        cp = toCodePoint(c, text.charAt(i++));
-
-                        UNSAFE.putByte(null, p++, (byte)(0xF0 | cp >> 18));
-                        UNSAFE.putByte(null, p++, (byte)(0x80 | cp >> 12 & 0x3F));
-                    }
-                    UNSAFE.putByte(null, p++, (byte)(0x80 | cp >> 6 & 0x3F));
-                }
-                UNSAFE.putByte(null, p++, (byte)(0x80 | cp & 0x3F));
-            }
-        }
-
-        if (nullTerminated) {
-            UNSAFE.putByte(null, p++, (byte)0);
-        }
-
-        return (int)(p - target);
-    }
-    static int encodeUTF8Unsafe32(CharSequence text, boolean nullTerminated, int target) {
-        int p = 0;
-
-        int i = 0, len = text.length();
-        while (i < len) {
-            char c = text.charAt(i++);
-            if (c < 0x80) {
-                UNSAFE.putByte(null, (long)(target + p++), (byte)c);
-            } else {
-                int cp = c;
-                if (c < 0x800) {
-                    UNSAFE.putByte(null, (long)(target + p++), (byte)(0xC0 | cp >> 6));
-                } else {
-                    if (!isHighSurrogate(c)) {
-                        UNSAFE.putByte(null, (long)(target + p++), (byte)(0xE0 | cp >> 12));
-                    } else {
-                        cp = toCodePoint(c, text.charAt(i++));
-
-                        UNSAFE.putByte(null, (long)(target + p++), (byte)(0xF0 | cp >> 18));
-                        UNSAFE.putByte(null, (long)(target + p++), (byte)(0x80 | cp >> 12 & 0x3F));
-                    }
-                    UNSAFE.putByte(null, (long)(target + p++), (byte)(0x80 | cp >> 6 & 0x3F));
-                }
-                UNSAFE.putByte(null, (long)(target + p++), (byte)(0x80 | cp & 0x3F));
-            }
-        }
-
-        if (nullTerminated) {
-            UNSAFE.putByte(null, (long)(target + p++), (byte)0);
-        }
-
-        return p;
-    }
-    static int encodeUTF8Safe64(CharSequence text, boolean nullTerminated, long target, int maxLength) {
-        long p = target;
-
-        int i = 0, length = text.length();
-
-        // ASCII fast path
-        char c;
-        while (i < min(length, maxLength) && (c = text.charAt(i)) < 0x80) {
-            UNSAFE.putByte(p++, (byte)c);
-            i++;
-        }
-        maxLength -= i;
-
-        // Slow path
-        while (i < length) {
-            c = text.charAt(i++);
-            if (c < 0x80) {
-                checkBOE(maxLength -= 1);
-                UNSAFE.putByte(null, p++, (byte)c);
-            } else {
-                int cp = c;
-                if (c < 0x800) {
-                    checkBOE(maxLength -= 2);
-                    UNSAFE.putByte(null, p++, (byte)(0xC0 | cp >> 6));
-                } else {
-                    if (!isHighSurrogate(c)) {
-                        checkBOE(maxLength -= 3);
-                        UNSAFE.putByte(null, p++, (byte)(0xE0 | cp >> 12));
-                    } else {
-                        checkBOE(maxLength -= 4);
-                        cp = toCodePoint(c, text.charAt(i++));
-
-                        UNSAFE.putByte(null, p++, (byte)(0xF0 | cp >> 18));
-                        UNSAFE.putByte(null, p++, (byte)(0x80 | cp >> 12 & 0x3F));
-                    }
-                    UNSAFE.putByte(null, p++, (byte)(0x80 | cp >> 6 & 0x3F));
-                }
-                UNSAFE.putByte(null, p++, (byte)(0x80 | cp & 0x3F));
-            }
-        }
-
-        if (nullTerminated) {
-            checkBOE(maxLength - 1);
-            UNSAFE.putByte(null, p++, (byte)0);
-        }
-
-        return (int)(p - target);
-    }
-    static int encodeUTF8Safe32(CharSequence text, boolean nullTerminated, int target, int maxLength) {
-        int p = 0;
-
-        int i = 0, length = text.length();
-
-        // ASCII fast path
-        char c;
-        while (i < min(length, maxLength) && (c = text.charAt(i)) < 0x80) {
-            UNSAFE.putByte(null, (long)(target + p++), (byte)c);
-            i++;
-        }
-        maxLength -= i;
-
-        // Slow path
-        while (i < length) {
-            c = text.charAt(i++);
-            if (c < 0x80) {
-                checkBOE(maxLength -= 1);
-                UNSAFE.putByte(null, (long)(target + p++), (byte)c);
-            } else {
-                int cp = c;
-                if (c < 0x800) {
-                    checkBOE(maxLength -= 2);
-                    UNSAFE.putByte(null, (long)(target + p++), (byte)(0xC0 | cp >> 6));
-                } else {
-                    if (!isHighSurrogate(c)) {
-                        checkBOE(maxLength -= 3);
-                        UNSAFE.putByte(null, (long)(target + p++), (byte)(0xE0 | cp >> 12));
-                    } else {
-                        checkBOE(maxLength -= 4);
-                        cp = toCodePoint(c, text.charAt(i++));
-
-                        UNSAFE.putByte(null, (long)(target + p++), (byte)(0xF0 | cp >> 18));
-                        UNSAFE.putByte(null, (long)(target + p++), (byte)(0x80 | cp >> 12 & 0x3F));
-                    }
-                    UNSAFE.putByte(null, (long)(target + p++), (byte)(0x80 | cp >> 6 & 0x3F));
-                }
-                UNSAFE.putByte(null, (long)(target + p++), (byte)(0x80 | cp & 0x3F));
-            }
-        }
-
-        if (nullTerminated) {
-            checkBOE(maxLength - 1);
-            UNSAFE.putByte(null, (long)(target + p++), (byte)0);
-        }
-
-        return p;
-    }
-    private static void checkBOE(int remainingBytes) {
-        if (remainingBytes < 0) {
+        if (target.capacity() - offset < memLengthASCII(text, nullTerminated)) {
             throw new BufferOverflowException();
         }
+        return encodeUTF8Safe(text, nullTerminated, memAddress(target, offset), target.capacity() - offset);
+    }
+
+    static int encodeUTF8Unsafe(CharSequence text, boolean nullTerminated, long target) {
+        int p = 0, i = 0, len = text.length();
+
+        while (i < len) {
+            char c = text.charAt(i++);
+            if (c < 0x80) {
+                p = write8(target, p, c);
+            } else {
+                int cp = c;
+                if (c < 0x800) {
+                    p = write8(target, p, 0xC0 | cp >> 6);
+                } else {
+                    if (!isHighSurrogate(c)) {
+                        p = write8(target, p, 0xE0 | cp >> 12);
+                    } else {
+                        cp = toCodePoint(c, text.charAt(i++));
+
+                        p = write8(target, p, 0xF0 | cp >> 18);
+                        p = write8(target, p, 0x80 | cp >> 12 & 0x3F);
+                    }
+                    p = write8(target, p, 0x80 | cp >> 6 & 0x3F);
+                }
+                p = write8(target, p, 0x80 | cp & 0x3F);
+            }
+        }
+
+        if (nullTerminated) {
+            p = write8(target, p, 0);
+        }
+
+        return p;
+    }
+
+    static int encodeUTF8Safe(CharSequence text, boolean nullTerminated, long target, int maxLength) {
+        int p = 0, i = 0, length = text.length();
+
+        // ASCII fast path
+        while (i < length) {
+            char c = text.charAt(i);
+            if (0x80 <= c) {
+                break;
+            }
+            p = write8(target, p, c); // have already checked that text.length() <= maxLength
+            i++;
+        }
+
+        // Slow path
+        while (i < length) {
+            char c = text.charAt(i++);
+            if (c < 0x80) {
+                p = write8Safe(target, p, maxLength, c);
+            } else {
+                int cp = c;
+                if (c < 0x800) {
+                    p = write8Safe(target, p, maxLength, 0xC0 | cp >> 6);
+                } else {
+                    if (!isHighSurrogate(c)) {
+                        p = write8Safe(target, p, maxLength, 0xE0 | cp >> 12);
+                    } else {
+                        cp = toCodePoint(c, text.charAt(i++));
+
+                        p = write8Safe(target, p, maxLength, 0xF0 | cp >> 18);
+                        p = write8Safe(target, p, maxLength, 0x80 | cp >> 12 & 0x3F);
+                    }
+                    p = write8Safe(target, p, maxLength, 0x80 | cp >> 6 & 0x3F);
+                }
+                p = write8Safe(target, p, maxLength, 0x80 | cp & 0x3F);
+            }
+        }
+
+        if (nullTerminated) {
+            p = write8Safe(target, p, maxLength, 0);
+        }
+
+        return p;
     }
 
     /**
@@ -2456,11 +2327,7 @@ public final class MemoryUtil {
         if (CHECKS && target == NULL) {
             throw new OutOfMemoryError();
         }
-        if (BITS64) {
-            encodeUTF16Unsafe64(text, nullTerminated, target);
-        } else {
-            encodeUTF16Unsafe32(text, nullTerminated, (int)target);
-        }
+        encodeUTF16Unsafe(text, nullTerminated, target);
         return wrap(BUFFER_BYTE, target, length).order(NATIVE_ORDER);
     }
 
@@ -2488,9 +2355,7 @@ public final class MemoryUtil {
             throw new BufferOverflowException();
         }
         long address = memAddress(target);
-        return BITS64
-            ? encodeUTF16Unsafe64(text, nullTerminated, address)
-            : encodeUTF16Unsafe32(text, nullTerminated, (int)address);
+        return encodeUTF16Unsafe(text, nullTerminated, address);
     }
 
     /**
@@ -2512,35 +2377,18 @@ public final class MemoryUtil {
             throw new BufferOverflowException();
         }
         long address = memAddress(target, offset);
-        return BITS64
-            ? encodeUTF16Unsafe64(text, nullTerminated, address)
-            : encodeUTF16Unsafe32(text, nullTerminated, (int)address);
+        return encodeUTF16Unsafe(text, nullTerminated, address);
     }
 
-    static int encodeUTF16Unsafe64(CharSequence text, boolean nullTerminated, long target) {
-        long p = target;
+    static int encodeUTF16Unsafe(CharSequence text, boolean nullTerminated, long target) {
+        int p = 0, i = 0, len = text.length();
 
-        for (int i = 0, len = text.length(); i < len; i++) {
-            UNSAFE.putShort(null, p, (short)text.charAt(i));
-            p += 2;
+        while (i < len) {
+            p = write16(target, p, text.charAt(i++));
         }
+
         if (nullTerminated) {
-            UNSAFE.putShort(null, p, (short)0);
-            p += 2;
-        }
-
-        return (int)(p - target);
-    }
-    static int encodeUTF16Unsafe32(CharSequence text, boolean nullTerminated, int target) {
-        int p = 0;
-
-        for (int i = 0, len = text.length(); i < len; i++) {
-            UNSAFE.putShort(null, (long)(target + p), (short)text.charAt(i));
-            p += 2;
-        }
-        if (nullTerminated) {
-            UNSAFE.putShort(null, (long)(target + p), (short)0);
-            p += 2;
+            p = write16(target, p, '\0');
         }
 
         return p;
@@ -2574,7 +2422,7 @@ public final class MemoryUtil {
         }
         return BITS64
             ? strlen64NT1(address, maxLength)
-            : strlen32NT1((int)address, maxLength);
+            : strlen32NT1(address, maxLength);
     }
 
     private static int strlen64NT1(long address, int maxLength) {
@@ -2585,15 +2433,15 @@ public final class MemoryUtil {
             if (misalignment != 0) {
                 // Align to 8 bytes
                 for (int len = 8 - misalignment; i < len; i++) {
-                    if (UNSAFE.getByte(null, address++) == 0) {
+                    if (UNSAFE.getByte(null, address + i) == 0) {
                         return i;
                     }
                 }
             }
 
             // Aligned longs for performance
-            for (; i <= maxLength - 8; i += 8, address += 8) {
-                if (mathHasZeroByte(UNSAFE.getLong(null, address))) {
+            for (; i <= maxLength - 8; i += 8) {
+                if (mathHasZeroByte(UNSAFE.getLong(null, address + i))) {
                     break;
                 }
             }
@@ -2601,7 +2449,7 @@ public final class MemoryUtil {
 
         // Tail
         for (; i < maxLength; i++) {
-            if (UNSAFE.getByte(null, address++) == 0) {
+            if (UNSAFE.getByte(null, address + i) == 0) {
                 break;
             }
         }
@@ -2609,15 +2457,15 @@ public final class MemoryUtil {
         return i;
     }
 
-    private static int strlen32NT1(int address, int maxLength) {
+    private static int strlen32NT1(long address, int maxLength) {
         int i = 0;
 
         if (4 <= maxLength) {
-            int misalignment = address & 3;
+            int misalignment = (int)address & 3;
             if (misalignment != 0) {
                 // Align to 4 bytes
                 for (int len = 4 - misalignment; i < len; i++) {
-                    if (UNSAFE.getByte(null, (long)(address + i)) == 0) {
+                    if (UNSAFE.getByte(null, address + i) == 0) {
                         return i;
                     }
                 }
@@ -2625,7 +2473,7 @@ public final class MemoryUtil {
 
             // Aligned ints for performance
             for (; i <= maxLength - 4; i += 4) {
-                if (mathHasZeroByte(UNSAFE.getInt(null, (long)(address + i)))) {
+                if (mathHasZeroByte(UNSAFE.getInt(null, address + i))) {
                     break;
                 }
             }
@@ -2633,7 +2481,7 @@ public final class MemoryUtil {
 
         // Tail
         for (; i < maxLength; i++) {
-            if (UNSAFE.getByte(null, (long)(address + i)) == 0) {
+            if (UNSAFE.getByte(null, address + i) == 0) {
                 break;
             }
         }
@@ -2671,24 +2519,24 @@ public final class MemoryUtil {
             int misalignment = (int)address & 7;
             if (misalignment != 0) {
                 // Align to 8 bytes
-                for (int len = 8 - misalignment; i < len; i += 2, address += 2) {
-                    if (UNSAFE.getShort(null, address) == 0) {
+                for (int len = 8 - misalignment; i < len; i += 2) {
+                    if (UNSAFE.getShort(null, address + i) == 0) {
                         return i;
                     }
                 }
             }
 
             // Aligned longs for performance
-            for (; i <= maxLength - 8; i += 8, address += 8) {
-                if (mathHasZeroShort(UNSAFE.getLong(null, address))) {
+            for (; i <= maxLength - 8; i += 8) {
+                if (mathHasZeroShort(UNSAFE.getLong(null, address + i))) {
                     break;
                 }
             }
         }
 
         // Tail
-        for (; i < maxLength; i += 2, address += 2) {
-            if (UNSAFE.getShort(null, address) == 0) {
+        for (; i < maxLength; i += 2) {
+            if (UNSAFE.getShort(null, address + i) == 0) {
                 break;
             }
         }
@@ -2696,15 +2544,15 @@ public final class MemoryUtil {
         return i;
     }
 
-    private static int strlen32NT2(int address, int maxLength) {
+    private static int strlen32NT2(long address, int maxLength) {
         int i = 0;
 
         if (4 <= maxLength) {
-            int misalignment = address & 3;
+            int misalignment = (int)address & 3;
             if (misalignment != 0) {
                 // Align to 4 bytes
                 for (int len = 4 - misalignment; i < len; i += 2) {
-                    if (UNSAFE.getShort(null, (long)(address + i)) == 0) {
+                    if (UNSAFE.getShort(null, address + i) == 0) {
                         return i;
                     }
                 }
@@ -2712,7 +2560,7 @@ public final class MemoryUtil {
 
             // Aligned longs for performance
             while (i <= maxLength - 4) {
-                if (mathHasZeroShort(UNSAFE.getInt(null, (long)(address + i)))) {
+                if (mathHasZeroShort(UNSAFE.getInt(null, address + i))) {
                     break;
                 }
                 i += 4;
@@ -2721,7 +2569,7 @@ public final class MemoryUtil {
 
         // Tail
         for (; i < maxLength; i += 2) {
-            if (UNSAFE.getShort(null, (long)(address + i)) == 0) {
+            if (UNSAFE.getShort(null, address + i) == 0) {
                 break;
             }
         }
@@ -3135,78 +2983,65 @@ public final class MemoryUtil {
         throw new UnsupportedOperationException("LWJGL requires sun.misc.Unsafe to be available.");
     }
 
-    private static long getAddressOffset() {
-        long MAGIC_ADDRESS = 0xDEADBEEF8BADF00DL;
-        if (BITS32) {
-            MAGIC_ADDRESS &= 0xFFFFFFFFL;
+    private static long getFieldOffset(Class<?> containerType, Class<?> fieldType, LongPredicate predicate) {
+        Class<?> c = containerType;
+        while (c != Object.class) {
+            Field[] fields = c.getDeclaredFields();
+            for (Field field : fields) {
+                if (!field.getType().isAssignableFrom(fieldType) || Modifier.isStatic(field.getModifiers()) || field.isSynthetic()) {
+                    continue;
+                }
+
+                long offset = UNSAFE.objectFieldOffset(field);
+                if (predicate.test(offset)) {
+                    return offset;
+                }
+            }
+            c = c.getSuperclass();
         }
+        throw new UnsupportedOperationException("Failed to find field offset in class.");
+    }
+
+    private static long getFieldOffsetInt(Object container, int value) {
+        return getFieldOffset(container.getClass(), int.class, offset -> UNSAFE.getInt(container, offset) == value);
+    }
+
+    private static long getFieldOffsetObject(Object container, Object value) {
+        return getFieldOffset(container.getClass(), value.getClass(), offset -> UNSAFE.getObject(container, offset) == value);
+    }
+
+    private static long getAddressOffset() {
+        long MAGIC_ADDRESS = 0xDEADBEEF8BADF00DL & (BITS32 ? 0xFFFF_FFFFL : 0xFFFF_FFFF_FFFF_FFFFL);
 
         ByteBuffer bb = Objects.requireNonNull(NewDirectByteBuffer(MAGIC_ADDRESS, 0));
 
-        long offset = 8L; // 8 byte aligned, cannot be at 0
-        while (true) {
-            if (UNSAFE.getLong(bb, offset) == MAGIC_ADDRESS) {
-                return offset;
-            }
-            offset += 8L;
-        }
+        return getFieldOffset(bb.getClass(), long.class, offset -> UNSAFE.getLong(bb, offset) == MAGIC_ADDRESS);
     }
 
     private static final int MAGIC_CAPACITY = 0x0D15EA5E;
     private static final int MAGIC_POSITION = 0x00FACADE;
 
-    private static long getIntFieldOffset(ByteBuffer bb, int magicValue) {
-        long offset = 4L; // 4 byte aligned, cannot be at 0
-        while (true) {
-            if (UNSAFE.getInt(bb, offset) == magicValue) {
-                return offset;
-            }
-            offset += 4L;
-        }
-    }
-
     private static long getMarkOffset() {
         ByteBuffer bb = Objects.requireNonNull(NewDirectByteBuffer(1L, 0));
-        return getIntFieldOffset(bb, -1);
+        return getFieldOffsetInt(bb, -1);
     }
 
     private static long getPositionOffset() {
         ByteBuffer bb = Objects.requireNonNull(NewDirectByteBuffer(-1L, MAGIC_CAPACITY));
         bb.position(MAGIC_POSITION);
-        return getIntFieldOffset(bb, MAGIC_POSITION);
+        return getFieldOffsetInt(bb, MAGIC_POSITION);
     }
 
     private static long getLimitOffset() {
         ByteBuffer bb = Objects.requireNonNull(NewDirectByteBuffer(-1L, MAGIC_CAPACITY));
         bb.limit(MAGIC_POSITION);
-        return getIntFieldOffset(bb, MAGIC_POSITION);
+        return getFieldOffsetInt(bb, MAGIC_POSITION);
     }
 
     private static long getCapacityOffset() {
         ByteBuffer bb = Objects.requireNonNull(NewDirectByteBuffer(-1L, MAGIC_CAPACITY));
         bb.limit(0);
-        return getIntFieldOffset(bb, MAGIC_CAPACITY);
-    }
-
-    private static <T extends Buffer> long getParentOffset(long offset, int oopSize, T buffer, T bufferWithAttachment) {
-        switch (oopSize) {
-            case Integer.BYTES: // 32-bit or 64-bit with compressed oops
-                while (true) {
-                    if (UNSAFE.getInt(buffer, offset) != UNSAFE.getInt(bufferWithAttachment, offset)) {
-                        return offset;
-                    }
-                    offset += oopSize;
-                }
-            case Long.BYTES: // 64-bit with uncompressed oops
-                while (true) {
-                    if (UNSAFE.getLong(buffer, offset) != UNSAFE.getLong(bufferWithAttachment, offset)) {
-                        return offset;
-                    }
-                    offset += oopSize;
-                }
-            default:
-                throw new IllegalStateException();
-        }
+        return getFieldOffsetInt(bb, MAGIC_CAPACITY);
     }
 
     @SuppressWarnings("unchecked")

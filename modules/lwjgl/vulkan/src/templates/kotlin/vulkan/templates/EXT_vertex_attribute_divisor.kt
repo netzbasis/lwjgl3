@@ -8,7 +8,7 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val EXT_vertex_attribute_divisor = "EXTVertexAttributeDivisor".nativeClassVK("EXT_vertex_attribute_divisor", type = "device", postfix = EXT) {
+val EXT_vertex_attribute_divisor = "EXTVertexAttributeDivisor".nativeClassVK("EXT_vertex_attribute_divisor", type = "device", postfix = "EXT") {
     documentation =
         """
         This extension allows instance-rate vertex attributes to be repeated for certain number of instances instead of advancing for every instance when instanced rendering is enabled.
@@ -46,6 +46,7 @@ val EXT_vertex_attribute_divisor = "EXTVertexAttributeDivisor".nativeClassVK("EX
 ￿    };
 ￿    //...</code></pre>
 
+        <h5>VK_EXT_vertex_attribute_divisor</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_EXT_vertex_attribute_divisor}</dd>
@@ -67,9 +68,12 @@ val EXT_vertex_attribute_divisor = "EXTVertexAttributeDivisor".nativeClassVK("EX
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Vikram Kushwaha <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_EXT_vertex_attribute_divisor:%20&amp;body=@vkushwaha%20">vkushwaha</a></li>
+                <li>Vikram Kushwaha <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_EXT_vertex_attribute_divisor]%20@vkushwaha%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_EXT_vertex_attribute_divisor%20extension%3E%3E">vkushwaha</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2018-08-03</dd>
 

@@ -8,7 +8,7 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val EXT_sampler_filter_minmax = "EXTSamplerFilterMinmax".nativeClassVK("EXT_sampler_filter_minmax", type = "device", postfix = EXT) {
+val EXT_sampler_filter_minmax = "EXTSamplerFilterMinmax".nativeClassVK("EXT_sampler_filter_minmax", type = "device", postfix = "EXT") {
     documentation =
         """
         In unextended Vulkan, minification and magnification filters such as LINEAR allow sampled image lookups to return a filtered texel value produced by computing a weighted average of a collection of texels in the neighborhood of the texture coordinate provided.
@@ -18,9 +18,7 @@ val EXT_sampler_filter_minmax = "EXTSamplerFilterMinmax".nativeClassVK("EXT_samp
         <h5>Promotion to Vulkan 1.2</h5>
         All functionality in this extension is included in core Vulkan 1.2, with the EXT suffix omitted. The original type, enum and command names are still available as aliases of the core functionality.
 
-        <h5>Examples</h5>
-        None.
-
+        <h5>VK_EXT_sampler_filter_minmax</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_EXT_sampler_filter_minmax}</dd>
@@ -42,14 +40,17 @@ val EXT_sampler_filter_minmax = "EXTSamplerFilterMinmax".nativeClassVK("EXT_samp
 
             <dt><b>Deprecation state</b></dt>
             <dd><ul>
-                <li><em>Promoted</em> to <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#versions-1.2-promotions">Vulkan 1.2</a></li>
+                <li><em>Promoted</em> to <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#versions-1.2-promotions">Vulkan 1.2</a></li>
             </ul></dd>
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Jeff Bolz <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_EXT_sampler_filter_minmax:%20&amp;body=@jeffbolznv%20">jeffbolznv</a></li>
+                <li>Jeff Bolz <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_EXT_sampler_filter_minmax]%20@jeffbolznv%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_EXT_sampler_filter_minmax%20extension%3E%3E">jeffbolznv</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2017-05-19</dd>
 

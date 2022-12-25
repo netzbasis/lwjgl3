@@ -45,7 +45,7 @@ public class RPMallocTest {
                 for (int j = 0; j < 100; j++) {
                     rpmalloc_thread_initialize();
                     rpfree(rpmalloc(8));
-                    rpmalloc_thread_finalize();
+                    rpmalloc_thread_finalize(true);
                 }
             });
             t.start();
@@ -68,7 +68,7 @@ public class RPMallocTest {
             rpmalloc_initialize();
 
             // get default configuration
-            RPMallocConfig config = RPMallocConfig.mallocStack(stack);
+            RPMallocConfig config = RPMallocConfig.malloc(stack);
             config.set(rpmalloc_config());
 
             rpmalloc_finalize();

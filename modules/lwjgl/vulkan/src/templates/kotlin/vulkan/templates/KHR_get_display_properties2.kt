@@ -8,11 +8,12 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val KHR_get_display_properties2 = "KHRGetDisplayProperties2".nativeClassVK("KHR_get_display_properties2", type = "instance", postfix = KHR) {
+val KHR_get_display_properties2 = "KHRGetDisplayProperties2".nativeClassVK("KHR_get_display_properties2", type = "instance", postfix = "KHR") {
     documentation =
         """
         This extension provides new entry points to query device display properties and capabilities in a way that can be easily extended by other extensions, without introducing any further entry points. This extension can be considered the {@link KHRDisplay VK_KHR_display} equivalent of the {@link KHRGetPhysicalDeviceProperties2 VK_KHR_get_physical_device_properties2} extension.
 
+        <h5>VK_KHR_get_display_properties2</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_KHR_get_display_properties2}</dd>
@@ -34,9 +35,12 @@ val KHR_get_display_properties2 = "KHRGetDisplayProperties2".nativeClassVK("KHR_
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>James Jones <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_KHR_get_display_properties2:%20&amp;body=@cubanismo%20">cubanismo</a></li>
+                <li>James Jones <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_KHR_get_display_properties2]%20@cubanismo%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_KHR_get_display_properties2%20extension%3E%3E">cubanismo</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2017-02-21</dd>
 
@@ -127,7 +131,7 @@ val KHR_get_display_properties2 = "KHRGetDisplayProperties2".nativeClassVK("KHR_
         Query information about the available display planes.
 
         <h5>C Specification</h5>
-        To query the properties of a device's display planes, call:
+        To query the properties of a device’s display planes, call:
 
         <pre><code>
 ￿VkResult vkGetPhysicalDeviceDisplayPlaneProperties2KHR(
@@ -175,7 +179,7 @@ val KHR_get_display_properties2 = "KHRGetDisplayProperties2".nativeClassVK("KHR_
         Query information about the available display modes.
 
         <h5>C Specification</h5>
-        To query the properties of a device's built-in display modes, call:
+        To query the properties of a device’s built-in display modes, call:
 
         <pre><code>
 ￿VkResult vkGetDisplayModeProperties2KHR(
@@ -193,6 +197,7 @@ val KHR_get_display_properties2 = "KHRGetDisplayProperties2".nativeClassVK("KHR_
             <li>{@code display} <b>must</b> be a valid {@code VkDisplayKHR} handle</li>
             <li>{@code pPropertyCount} <b>must</b> be a valid pointer to a {@code uint32_t} value</li>
             <li>If the value referenced by {@code pPropertyCount} is not 0, and {@code pProperties} is not {@code NULL}, {@code pProperties} <b>must</b> be a valid pointer to an array of {@code pPropertyCount} ##VkDisplayModeProperties2KHR structures</li>
+            <li>{@code display} <b>must</b> have been created, allocated, or retrieved from {@code physicalDevice}</li>
         </ul>
 
         <h5>Return Codes</h5>

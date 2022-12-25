@@ -21,30 +21,45 @@ val GLFWNativeWGL = "GLFWNativeWGL".nativeClass(Module.GLFW, nativeSubPath = "wi
         "GetWGLContext",
         """
         Returns the {@code HGLRC} of the specified window.
+        
+        The {@code HDC} associated with the window can be queried with the
+        ${url("https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getdc", "GetDC")} function.
+        ${code("""
+        HDC dc = GetDC(glfwGetWin32Window(window));""")}
+        This DC is private and does not need to be released.
 
         Note: This function may be called from any thread. Access is not synchronized.
         """,
 
         GLFWwindow.p("window", "the GLFW window"),
-        returnDoc = "The {@code HGLRC} of the specified window, or #NULL if an error occurred.",
+
+        returnDoc =
+        """
+        the {@code HGLRC} of the specified window, or #NULL if an error occurred.
+        
+        Possible errors include #NO_WINDOW_CONTEXT and #NOT_INITIALIZED.
+        """,
         since = "version 3.0"
     )
 
     customMethod("""
-    /** Calls {@link #setPath(String)} with the path of the OpenGL shared library loaded by LWJGL. */
-    public static void setPathLWJGL() {
-        FunctionProvider fp = GL.getFunctionProvider();
-        if (!(fp instanceof SharedLibrary)) {
-            apiLog("GLFW OpenGL path override not set: OpenGL function provider is not a shared library.");
+    /**
+     * Calls {@link #setPath(String)} with the path of the specified {@link SharedLibrary}.
+     * 
+     * <p>Example usage: ${code("GLFWNativeWGL.setPath(GL.getFunctionProvider());")}</p> 
+     *
+     * @param sharedLibrary a {@code FunctionProvider} instance that will be cast to {@code SharedLibrary}
+     */
+    public static void setPath(FunctionProvider sharedLibrary) {
+        if (!(sharedLibrary instanceof SharedLibrary)) {
+            apiLog("GLFW OpenGL path override not set: Function provider is not a shared library.");
             return;
-
         }
 
-        String path = ((SharedLibrary)fp).getPath();
+        String path = ((SharedLibrary)sharedLibrary).getPath();
         if (path == null) {
-            apiLog("GLFW OpenGL path override not set: Could not resolve the OpenGL shared library path.");
+            apiLog("GLFW OpenGL path override not set: Could not resolve the shared library path.");
             return;
-
         }
 
         setPath(path);

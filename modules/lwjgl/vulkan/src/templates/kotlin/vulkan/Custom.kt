@@ -40,12 +40,12 @@ fun templateCustomization() {
             #GetPhysicalDeviceProperties().
             """,
 
-            "API_VERSION_1_0".."VK_MAKE_VERSION(1, 0, 0)"
+            "API_VERSION_1_0".."VK_MAKE_API_VERSION(0, 1, 0, 0)"
         )
 
         IntConstant(
             "The Vulkan registry version used to generate the LWJGL bindings.",
-            "HEADER_VERSION".."131"
+            "HEADER_VERSION".."206"
         )
 
         LongConstant(
@@ -58,12 +58,66 @@ fun templateCustomization() {
             "NULL_HANDLE"..0L
         )
 
+        macro(expression = "(variant << 29) | (major << 22) | (minor << 12) | patch")..uint32_t(
+            "VK_MAKE_API_VERSION",
+            """
+            Constructs an API version number.
+
+            This macro <b>can</b> be used when constructing the ##VkApplicationInfo{@code ::pname:apiVersion} parameter passed to #CreateInstance().
+            """,
+
+            uint32_t("variant", "the variant number"),
+            uint32_t("major", "the major version number"),
+            uint32_t("minor", "the minor version number"),
+            uint32_t("patch", "the patch version number"),
+
+            noPrefix = true
+        )
+
+        macro(expression = "version >>> 29")..uint32_t(
+            "VK_API_VERSION_VARIANT",
+            "Extracts the API variant version number from a packed version number.",
+
+            uint32_t("version", "the Vulkan API version"),
+
+            noPrefix = true
+        )
+
+        macro(expression = "(version >>> 22) & 0x7F")..uint32_t(
+            "VK_API_VERSION_MAJOR",
+            "Extracts the API major version number from a packed version number.",
+
+            uint32_t("version", "the Vulkan API version"),
+
+            noPrefix = true
+        )
+
+        macro(expression = "(version >>> 12) & 0x3FF")..uint32_t(
+            "VK_API_VERSION_MINOR",
+            "Extracts the API minor version number from a packed version number.",
+
+            uint32_t("version", "the Vulkan API version"),
+
+            noPrefix = true
+        )
+
+        macro(expression = "(version >>> 22) & 0xFFF")..uint32_t(
+            "VK_API_VERSION_PATCH",
+            "Extracts the API patch version number from a packed version number.",
+
+            uint32_t("version", "the Vulkan API version"),
+
+            noPrefix = true
+        )
+
         macro(expression = "(major << 22) | (minor << 12) | patch")..uint32_t(
             "VK_MAKE_VERSION",
             """
             Constructs an API version number.
 
             This macro <b>can</b> be used when constructing the ##VkApplicationInfo{@code ::pname:apiVersion} parameter passed to #CreateInstance().
+
+            <em>Deprecated</em>, #VK_MAKE_API_VERSION() should be used instead.
             """,
 
             uint32_t("major", "the major version number"),
@@ -73,18 +127,26 @@ fun templateCustomization() {
             noPrefix = true
         )
 
-        macro(expression = "version >> 22")..uint32_t(
+        macro(expression = "version >>> 22")..uint32_t(
             "VK_VERSION_MAJOR",
-            "Extracts the API major version number from a packed version number.",
+            """
+            Extracts the API major version number from a packed version number.
+
+            <em>Deprecated</em>, #VK_API_VERSION_MAJOR() should be used instead.
+            """,
 
             uint32_t("version", "the Vulkan API version"),
 
             noPrefix = true
         )
 
-        macro(expression = "(version >> 12) & 0x3FF")..uint32_t(
+        macro(expression = "(version >>> 12) & 0x3FF")..uint32_t(
             "VK_VERSION_MINOR",
-            "Extracts the API minor version number from a packed version number.",
+            """
+            Extracts the API minor version number from a packed version number.
+
+            <em>Deprecated</em>, #VK_API_VERSION_MINOR() should be used instead.
+            """,
 
             uint32_t("version", "the Vulkan API version"),
 
@@ -93,7 +155,11 @@ fun templateCustomization() {
 
         macro(expression = "version & 0xFFF")..uint32_t(
             "VK_VERSION_PATCH",
-            "Extracts the API patch version number from a packed version number.",
+            """
+            Extracts the API patch version number from a packed version number.
+
+            <em>Deprecated</em>, #VK_API_VERSION_PATCH() should be used instead.
+            """,
 
             uint32_t("version", "the Vulkan API version"),
 
@@ -105,6 +171,7 @@ fun templateCustomization() {
 
             "MAX_PHYSICAL_DEVICE_NAME_SIZE".."256",
             "UUID_SIZE".."16",
+            "LUID_SIZE".."8",
             "MAX_EXTENSION_NAME_SIZE".."256",
             "MAX_DESCRIPTION_SIZE".."256",
             "MAX_MEMORY_TYPES".."32",
@@ -115,7 +182,11 @@ fun templateCustomization() {
             "TRUE".."1",
             "FALSE".."0",
             "QUEUE_FAMILY_IGNORED".."(~0)",
-            "SUBPASS_EXTERNAL".."(~0)"
+            "QUEUE_FAMILY_EXTERNAL".."(~0-1)",
+            "SUBPASS_EXTERNAL".."(~0)",
+            "MAX_DEVICE_GROUP_SIZE".."32",
+            "MAX_DRIVER_NAME_SIZE".."256",
+            "MAX_DRIVER_INFO_SIZE".."256"
         )
 
         FloatConstant(
@@ -129,6 +200,8 @@ fun templateCustomization() {
 
             "WHOLE_SIZE".."(~0L)"
         )
+
+        nullable..this["GetInstanceProcAddr"].getParam("instance")
 
         MultiType(
             PointerMapping.DATA_INT,
@@ -211,15 +284,7 @@ fun templateCustomization() {
 
         IntConstant(
             "The API version number for Vulkan 1.1.",
-            "API_VERSION_1_1".."VK10.VK_MAKE_VERSION(1, 1, 0)"
-        )
-
-        IntConstant(
-            "API Constants",
-
-            "LUID_SIZE".."8",
-            "QUEUE_FAMILY_EXTERNAL".."(~0-1)",
-            "MAX_DEVICE_GROUP_SIZE".."32"
+            "API_VERSION_1_1".."VK_MAKE_API_VERSION(0, 1, 1, 0)"
         )
     }
 
@@ -260,41 +325,41 @@ fun templateCustomization() {
             All differences in behavior between these extensions and the corresponding Vulkan 1.2 functionality are summarized below.
 
             <h3>Differences relative to {@code VK_KHR_8bit_storage}</h3> 
-            
+
             If the {@code VK_KHR_8bit_storage} extension is not supported, support for the SPIR-V {@code StorageBuffer8BitAccess} capability in shader modules
             is optional. Support for this feature is defined by ##VkPhysicalDeviceVulkan12Features{@code ::storageBuffer8BitAccess} when queried via
             #GetPhysicalDeviceFeatures2().
-            
+
             <h3>Differences relative to {@code VK_KHR_draw_indirect_count}</h3>
-            
+
             If the {@code VK_KHR_draw_indirect_count} extension is not supported, support for the entry points #CmdDrawIndirectCount() and
             #CmdDrawIndexedIndirectCount() is optional. Support for this feature is defined by ##VkPhysicalDeviceVulkan12Features{@code ::drawIndirectCount}
             when queried via #GetPhysicalDeviceFeatures2().
-            
+
             <h3>Differences relative to {@code VK_KHR_sampler_mirror_clamp_to_edge}</h3> 
-            
+
             If the {@code VK_KHR_sampler_mirror_clamp_to_edge} extension is not supported, support for the {@code VkSamplerAddressMode}
             #SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE is optional. Support for this feature is defined by
             ##VkPhysicalDeviceVulkan12Features{@code ::samplerMirrorClampToEdge} when queried via #GetPhysicalDeviceFeatures2().
-            
+
             <h3>Differences relative to {@code VK_EXT_descriptor_indexing}</h3> 
-            
+
             If the {@code VK_EXT_descriptor_indexing} extension is not supported, support for the {@code descriptorIndexing} feature is optional. Support for
             this feature is defined by ##VkPhysicalDeviceVulkan12Features{@code ::descriptorIndexing} when queried via #GetPhysicalDeviceFeatures2().
-            
+
             <h3>Differences relative to {@code VK_EXT_scalar_block_layout}</h3>
-            
+
             If the {@code VK_EXT_scalar_block_layout} extension is not supported, support for the {@code scalarBlockLayout} feature is optional. Support for
             this feature is defined by ##VkPhysicalDeviceVulkan12Features{@code ::scalarBlockLayout} when queried via #GetPhysicalDeviceFeatures2().
-            
+
             <h3>Differences relative to {@code VK_EXT_shader_viewport_index_layer}</h3>
-            
+
             If the {@code VK_EXT_shader_viewport_index_layer} extension is not supported, support for the {@code ShaderViewportIndexLayerEXT} SPIR-V capability
             is optional. Support for this feature is defined by ##VkPhysicalDeviceVulkan12Features{@code ::shaderOutputViewportIndex} and
             ##VkPhysicalDeviceVulkan12Features{@code ::shaderOutputLayer} when queried via #GetPhysicalDeviceFeatures2().
-            
+
             <h3>Additional Vulkan 1.2 Feature Support</h3>
-            
+
             In addition to the promoted extensions described above, Vulkan 1.2 added support for:
             ${ul(
                 "SPIR-V version 1.4.",
@@ -348,28 +413,99 @@ fun templateCustomization() {
 
         IntConstant(
             "The API version number for Vulkan 1.2.",
-            "API_VERSION_1_2".."VK10.VK_MAKE_VERSION(1, 2, 0)"
+            "API_VERSION_1_2".."VK_MAKE_API_VERSION(0, 1, 2, 0)"
         )
+    }
+
+    VK13.apply {
+        documentation =
+            """
+            The core Vulkan 1.3 functionality.
+
+            Vulkan Version 1.3 <em>promoted</em> a number of key extensions into the core API:
+
+            ${ul(
+                KHR_copy_commands2.link,
+                KHR_dynamic_rendering.link,
+                KHR_format_feature_flags2.link,
+                KHR_maintenance4.link,
+                KHR_shader_integer_dot_product.link,
+                KHR_shader_non_semantic_info.link,
+                KHR_shader_terminate_invocation.link,
+                KHR_synchronization2.link,
+                KHR_zero_initialize_workgroup_memory.link,
+                EXT_4444_formats.link,
+                EXT_extended_dynamic_state.link,
+                EXT_extended_dynamic_state2.link,
+                EXT_image_robustness.link,
+                EXT_inline_uniform_block.link,
+                EXT_pipeline_creation_cache_control.link,
+                EXT_pipeline_creation_feedback.link,
+                EXT_private_data.link,
+                EXT_shader_demote_to_helper_invocation.link,
+                EXT_subgroup_size_control.link,
+                EXT_texel_buffer_alignment.link,
+                EXT_texture_compression_astc_hdr.link,
+                EXT_tooling_info.link,
+                EXT_ycbcr_2plane_444_formats.link                
+            )}
+
+            All differences in behavior between these extensions and the corresponding Vulkan 1.3 functionality are summarized below.
+
+            <h3>Differences relative to {@code VK_EXT_4444_formats}</h3>
+
+            If the {@code VK_EXT_4444_formats} extension is not supported, support for all formats defined by it are optional in Vulkan 1.3. There are no
+            members in the ##VkPhysicalDeviceVulkan13Features structure corresponding to the ##VkPhysicalDevice4444FormatsFeaturesEXT structure.
+
+            <h3>Differences relative to {@code VK_EXT_extended_dynamic_state}</h3>
+
+            All dynamic state enumerants and entry points defined by {@code VK_EXT_extended_dynamic_state} are required in Vulkan 1.3. There are no members in
+            the ##VkPhysicalDeviceVulkan13Features structure corresponding to the ##VkPhysicalDeviceExtendedDynamicStateFeaturesEXT structure.
+
+            <h3>Differences relative to {@code VK_EXT_extended_dynamic_state2}</h3>
+
+            The optional dynamic state enumerants and entry points defined by {@code VK_EXT_extended_dynamic_state2} for patch control points and logic op are
+            not promoted in Vulkan 1.3. There are no members in the ##VkPhysicalDeviceVulkan13Features structure corresponding to the
+            ##VkPhysicalDeviceExtendedDynamicState2FeaturesEXT structure.
+
+            <h3>Differences relative to {@code VK_EXT_texel_buffer_alignment}</h3>
+
+            The more specific alignment requirements defined by ##VkPhysicalDeviceTexelBufferAlignmentProperties are required in Vulkan 1.3. There are no
+            members in the ##VkPhysicalDeviceVulkan13Features structure corresponding to the ##VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT structure.
+
+            <h3>Differences relative to {@code VK_EXT_texture_compression_astc_hdr}</h3>
+
+            If the {@code VK_EXT_texture_compression_astc_hdr} extension is not supported, support for all formats defined by it are optional in Vulkan 1.3.
+            The {@code textureCompressionASTC_HDR} member of ##VkPhysicalDeviceVulkan13Features indicates whether a Vulkan 1.3 implementation supports these
+            formats.
+
+            <h3>Differences relative to {@code VK_EXT_ycbcr_2plane_444_formats}</h3>
+
+            If the {@code VK_EXT_ycbcr_2plane_444_formats} extension is not supported, support for all formats defined by it are optional in Vulkan 1.3. There
+            are no members in the ##VkPhysicalDeviceVulkan13Features structure corresponding to the ##VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT
+            structure.
+
+            <h3>Additional Vulkan 1.3 Feature Support</h3>
+
+            In addition to the promoted extensions described above, Vulkan 1.3 added required support for:
+            ${ul(
+                "SPIR-V version 1.6. SPIR-V 1.6 deprecates (but does not remove) the WorkgroupSize decoration.",
+                """
+                The {@code bufferDeviceAddress} feature which indicates support for accessing memory in shaders as storage buffers via
+                #GetBufferDeviceAddress().
+                """,
+                """
+                The {@code vulkanMemoryModel}, {@code vulkanMemoryModelDeviceScope}, and {@code vulkanMemoryModelAvailabilityVisibilityChains} features, which
+                indicate support for the corresponding Vulkan Memory Model capabilities.
+                """,
+                "The {@code maxInlineUniformTotalSize} limit is added to provide the total size of all inline uniform block bindings in a pipeline layout."
+            )}
+            """
 
         IntConstant(
-            "API Constants",
-
-            "MAX_DRIVER_NAME_SIZE".."256",
-            "MAX_DRIVER_INFO_SIZE".."256"
+            "The API version number for Vulkan 1.3.",
+            "API_VERSION_1_3".."VK_MAKE_API_VERSION(0, 1, 3, 0)"
         )
-    }
-
-    VkDeviceGroupPresentCapabilitiesKHR.definition.apply {
-        javaImport("static org.lwjgl.vulkan.VK11.*")
-    }
-
-    VkPhysicalDeviceGroupProperties.definition.apply {
-        javaImport("static org.lwjgl.vulkan.VK11.*")
-    }
-
-    VkPhysicalDeviceIDProperties.definition.apply {
-        javaImport("static org.lwjgl.vulkan.VK10.*")
-        javaImport("static org.lwjgl.vulkan.VK11.*")
     }
 
     NV_ray_tracing.apply {

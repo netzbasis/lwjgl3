@@ -16,17 +16,11 @@ import static org.lwjgl.system.MemoryUtil.*;
 import static org.lwjgl.system.MemoryStack.*;
 
 /**
- * <h3>Member documentation</h3>
- * 
- * <ul>
- * <li>{@code Name[32]} &ndash; camera identifier: vid + pid + serial number etc.</li>
- * </ul>
- * 
  * <h3>Layout</h3>
  * 
  * <pre><code>
  * struct ovrExternalCamera {
- *     char Name[32];
+ *     char {@link #Name}[32];
  *     {@link OVRCameraIntrinsics ovrCameraIntrinsics} Intrinsics;
  *     {@link OVRCameraExtrinsics ovrCameraExtrinsics} Extrinsics;
  * }</code></pre>
@@ -74,16 +68,16 @@ public class OVRExternalCamera extends Struct implements NativeResource {
     @Override
     public int sizeof() { return SIZEOF; }
 
-    /** Returns a {@link ByteBuffer} view of the {@code Name} field. */
+    /** camera identifier: vid + pid + serial number etc. */
     @NativeType("char[32]")
     public ByteBuffer Name() { return nName(address()); }
-    /** Decodes the null-terminated string stored in the {@code Name} field. */
+    /** camera identifier: vid + pid + serial number etc. */
     @NativeType("char[32]")
     public String NameString() { return nNameString(address()); }
-    /** Returns a {@link OVRCameraIntrinsics} view of the {@code Intrinsics} field. */
+    /** @return a {@link OVRCameraIntrinsics} view of the {@code Intrinsics} field. */
     @NativeType("ovrCameraIntrinsics")
     public OVRCameraIntrinsics Intrinsics() { return nIntrinsics(address()); }
-    /** Returns a {@link OVRCameraExtrinsics} view of the {@code Extrinsics} field. */
+    /** @return a {@link OVRCameraExtrinsics} view of the {@code Extrinsics} field. */
     @NativeType("ovrCameraExtrinsics")
     public OVRCameraExtrinsics Extrinsics() { return nExtrinsics(address()); }
 
@@ -162,22 +156,29 @@ public class OVRExternalCamera extends Struct implements NativeResource {
 
     // -----------------------------------
 
-    /** Returns a new {@code OVRExternalCamera} instance allocated on the thread-local {@link MemoryStack}. */
-    public static OVRExternalCamera mallocStack() {
-        return mallocStack(stackGet());
-    }
-
-    /** Returns a new {@code OVRExternalCamera} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero. */
-    public static OVRExternalCamera callocStack() {
-        return callocStack(stackGet());
-    }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRExternalCamera mallocStack() { return malloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRExternalCamera callocStack() { return calloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRExternalCamera mallocStack(MemoryStack stack) { return malloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRExternalCamera callocStack(MemoryStack stack) { return calloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRExternalCamera.Buffer mallocStack(int capacity) { return malloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRExternalCamera.Buffer callocStack(int capacity) { return calloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRExternalCamera.Buffer mallocStack(int capacity, MemoryStack stack) { return malloc(capacity, stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRExternalCamera.Buffer callocStack(int capacity, MemoryStack stack) { return calloc(capacity, stack); }
 
     /**
      * Returns a new {@code OVRExternalCamera} instance allocated on the specified {@link MemoryStack}.
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRExternalCamera mallocStack(MemoryStack stack) {
+    public static OVRExternalCamera malloc(MemoryStack stack) {
         return wrap(OVRExternalCamera.class, stack.nmalloc(ALIGNOF, SIZEOF));
     }
 
@@ -186,45 +187,27 @@ public class OVRExternalCamera extends Struct implements NativeResource {
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRExternalCamera callocStack(MemoryStack stack) {
+    public static OVRExternalCamera calloc(MemoryStack stack) {
         return wrap(OVRExternalCamera.class, stack.ncalloc(ALIGNOF, 1, SIZEOF));
-    }
-
-    /**
-     * Returns a new {@link OVRExternalCamera.Buffer} instance allocated on the thread-local {@link MemoryStack}.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRExternalCamera.Buffer mallocStack(int capacity) {
-        return mallocStack(capacity, stackGet());
-    }
-
-    /**
-     * Returns a new {@link OVRExternalCamera.Buffer} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRExternalCamera.Buffer callocStack(int capacity) {
-        return callocStack(capacity, stackGet());
     }
 
     /**
      * Returns a new {@link OVRExternalCamera.Buffer} instance allocated on the specified {@link MemoryStack}.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRExternalCamera.Buffer mallocStack(int capacity, MemoryStack stack) {
+    public static OVRExternalCamera.Buffer malloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.nmalloc(ALIGNOF, capacity * SIZEOF), capacity);
     }
 
     /**
      * Returns a new {@link OVRExternalCamera.Buffer} instance allocated on the specified {@link MemoryStack} and initializes all its bits to zero.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRExternalCamera.Buffer callocStack(int capacity, MemoryStack stack) {
+    public static OVRExternalCamera.Buffer calloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.ncalloc(ALIGNOF, capacity, SIZEOF), capacity);
     }
 
@@ -277,16 +260,16 @@ public class OVRExternalCamera extends Struct implements NativeResource {
             return ELEMENT_FACTORY;
         }
 
-        /** Returns a {@link ByteBuffer} view of the {@code Name} field. */
+        /** @return a {@link ByteBuffer} view of the {@link OVRExternalCamera#Name} field. */
         @NativeType("char[32]")
         public ByteBuffer Name() { return OVRExternalCamera.nName(address()); }
-        /** Decodes the null-terminated string stored in the {@code Name} field. */
+        /** @return the null-terminated string stored in the {@link OVRExternalCamera#Name} field. */
         @NativeType("char[32]")
         public String NameString() { return OVRExternalCamera.nNameString(address()); }
-        /** Returns a {@link OVRCameraIntrinsics} view of the {@code Intrinsics} field. */
+        /** @return a {@link OVRCameraIntrinsics} view of the {@code Intrinsics} field. */
         @NativeType("ovrCameraIntrinsics")
         public OVRCameraIntrinsics Intrinsics() { return OVRExternalCamera.nIntrinsics(address()); }
-        /** Returns a {@link OVRCameraExtrinsics} view of the {@code Extrinsics} field. */
+        /** @return a {@link OVRCameraExtrinsics} view of the {@code Extrinsics} field. */
         @NativeType("ovrCameraExtrinsics")
         public OVRCameraExtrinsics Extrinsics() { return OVRExternalCamera.nExtrinsics(address()); }
 

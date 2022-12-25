@@ -9,14 +9,16 @@ import org.lwjgl.generator.*
 val Int.NK_FLAG: String
     get() = "1 << $this"
 
+val nk_byte = typedef(uint8_t, "nk_byte")
 val nk_ushort = typedef(uint16_t, "nk_ushort")
 val nk_int = typedef(int32_t, "nk_int")
 val nk_uint = typedef(uint32_t, "nk_uint")
-val nk_hash = typedef(nk_uint, "nk_hash")
 val nk_size = typedef(uintptr_t, "nk_size")
+val nk_bool = typedef(bool, "nk_bool")
+
+val nk_hash = typedef(nk_uint, "nk_hash")
 val nk_flags = typedef(uint32_t, "nk_flags")
 val nk_rune = typedef(uint32_t, "nk_rune")
-val nk_byte = typedef(uint8_t, "nk_byte")
 
 val nk_handle = union(Module.NUKLEAR, "NkHandle", nativeName = "nk_handle") {
     nullable..opaque_p("ptr", "")
@@ -85,9 +87,17 @@ val nk_rect = struct(Module.NUKLEAR, "NkRect", nativeName = "struct nk_rect") {
 
 val nk_image = struct(Module.NUKLEAR, "NkImage", nativeName = "struct nk_image") {
     nk_handle("handle", "")
-    unsigned_short("w", "")
-    unsigned_short("h", "")
-    unsigned_short("region", "")[4]
+    nk_ushort("w", "")
+    nk_ushort("h", "")
+    nk_ushort("region", "")[4]
+}
+
+val nk_nine_slice = struct(Module.NUKLEAR, "NkNineSlice", nativeName = "struct nk_nine_slice") {
+    nk_image("img", "")
+    nk_ushort("l", "")
+    nk_ushort("t", "")
+    nk_ushort("r", "")
+    nk_ushort("b", "")
 }
 
 val nk_cursor = struct(Module.NUKLEAR, "NkCursor", nativeName = "struct nk_cursor") {
@@ -179,7 +189,7 @@ val nk_memory_status = struct(Module.NUKLEAR, "NkMemoryStatus", nativeName = "st
 }
 
 val nk_buffer_marker = struct(Module.NUKLEAR, "NkBufferMarker", nativeName = "struct nk_buffer_marker", mutable = false) {
-    int("active", "")
+    nk_bool("active", "")
     nk_size("offset", "")
 }
 
@@ -219,7 +229,7 @@ val nk_str = struct(Module.NUKLEAR, "NkStr", nativeName = "struct nk_str", mutab
 
 private val _nk_text_edit = struct(Module.NUKLEAR, "NkTextEdit", nativeName = "struct nk_text_edit")
 val nk_plugin_filter = Module.NUKLEAR.callback {
-    int(
+    nk_bool(
         "NkPluginFilter",
         "",
 
@@ -562,7 +572,7 @@ val nk_command_buffer = struct(Module.NUKLEAR, "NkCommandBuffer", nativeName = "
 // INPUT
 
 val nk_mouse_button = struct(Module.NUKLEAR, "NkMouseButton", nativeName = "struct nk_mouse_button", mutable = false) {
-    int("down", "")
+    nk_bool("down", "")
     unsigned_int("clicked", "")
     nk_vec2("clicked_pos", "")
 }
@@ -581,7 +591,7 @@ val nk_mouse = struct(Module.NUKLEAR, "NkMouse", nativeName = "struct nk_mouse",
 }
 
 val nk_key = struct(Module.NUKLEAR, "NkKey", nativeName = "struct nk_key", mutable = false) {
-    int("down", "")
+    nk_bool("down", "")
     unsigned_int("clicked", "")
 }
 
@@ -636,8 +646,9 @@ val nk_draw_list = struct(Module.NUKLEAR, "NkDrawList", nativeName = "struct nk_
 // GUI
 
 val nk_style_item_data = union(Module.NUKLEAR, "NkStyleItemData", nativeName = "union nk_style_item_data") {
-    nk_image("image", "")
     nk_color("color", "")
+    nk_image("image", "")
+    nk_nine_slice("slice", "")
 }
 
 val nk_style_item = struct(Module.NUKLEAR, "NkStyleItem", nativeName = "struct nk_style_item") {
@@ -1135,7 +1146,7 @@ val nk_popup_buffer = struct(Module.NUKLEAR, "NkPopupBuffer", nativeName = "stru
     nk_size("parent", "")
     nk_size("last", "")
     nk_size("end", "")
-    int("active", "")
+    nk_bool("active", "")
 }
 
 val nk_menu_state = struct(Module.NUKLEAR, "NkMenuState", nativeName = "struct nk_menu_state", mutable = false) {
@@ -1176,7 +1187,7 @@ val nk_popup_state = struct(Module.NUKLEAR, "NkPopupState", nativeName = "struct
     nk_panel_type("type", "").links("PANEL_\\w+")
     nk_popup_buffer("buf", "")
     nk_hash("name", "")
-    int("active", "")
+    nk_bool("active", "")
     unsigned("combo_count", "")
     unsigned("con_count", "")
     unsigned("con_old", "")

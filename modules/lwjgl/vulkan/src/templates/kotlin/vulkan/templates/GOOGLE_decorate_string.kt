@@ -8,11 +8,12 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val GOOGLE_decorate_string = "GOOGLEDecorateString".nativeClassVK("GOOGLE_decorate_string", type = "device", postfix = GOOGLE) {
+val GOOGLE_decorate_string = "GOOGLEDecorateString".nativeClassVK("GOOGLE_decorate_string", type = "device", postfix = "GOOGLE") {
     documentation =
         """
         The {@code VK_GOOGLE_decorate_string} extension allows use of the {@code SPV_GOOGLE_decorate_string} extension in SPIR-V shader modules.
 
+        <h5>VK_GOOGLE_decorate_string</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_GOOGLE_decorate_string}</dd>
@@ -33,9 +34,12 @@ val GOOGLE_decorate_string = "GOOGLEDecorateString".nativeClassVK("GOOGLE_decora
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Hai Nguyen <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_GOOGLE_decorate_string:%20&amp;body=@chaoticbob%20">chaoticbob</a></li>
+                <li>Hai Nguyen <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_GOOGLE_decorate_string]%20@chaoticbob%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_GOOGLE_decorate_string%20extension%3E%3E">chaoticbob</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2018-07-09</dd>
 
@@ -44,7 +48,7 @@ val GOOGLE_decorate_string = "GOOGLEDecorateString".nativeClassVK("GOOGLE_decora
 
             <dt><b>Interactions and External Dependencies</b></dt>
             <dd><ul>
-                <li>Requires the <a target="_blank" href="https://htmlpreview.github.io/?https://github.com/KhronosGroup/SPIRV-Registry/blob/master/extensions/GOOGLE/SPV_GOOGLE_decorate_string.html">{@code SPV_GOOGLE_decorate_string}</a> SPIR-V extension.</li>
+                <li>This extension requires <a target="_blank" href="https://htmlpreview.github.io/?https://github.com/KhronosGroup/SPIRV-Registry/blob/master/extensions/GOOGLE/SPV_GOOGLE_decorate_string.html">{@code SPV_GOOGLE_decorate_string}</a></li>
             </ul></dd>
 
             <dt><b>Contributors</b></dt>

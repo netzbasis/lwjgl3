@@ -8,13 +8,14 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val NV_device_diagnostic_checkpoints = "NVDeviceDiagnosticCheckpoints".nativeClassVK("NV_device_diagnostic_checkpoints", type = "device", postfix = NV) {
+val NV_device_diagnostic_checkpoints = "NVDeviceDiagnosticCheckpoints".nativeClassVK("NV_device_diagnostic_checkpoints", type = "device", postfix = "NV") {
     documentation =
         """
         This extension allows applications to insert markers in the command stream and associate them with custom data.
 
         If a device lost error occurs, the application <b>may</b> then query the implementation for the last markers to cross specific implementation-defined pipeline stages, in order to narrow down which commands were executing at the time and might have caused the failure.
 
+        <h5>VK_NV_device_diagnostic_checkpoints</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_NV_device_diagnostic_checkpoints}</dd>
@@ -36,9 +37,12 @@ val NV_device_diagnostic_checkpoints = "NVDeviceDiagnosticCheckpoints".nativeCla
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Nuno Subtil <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_NV_device_diagnostic_checkpoints:%20&amp;body=@nsubtil%20">nsubtil</a></li>
+                <li>Nuno Subtil <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_NV_device_diagnostic_checkpoints]%20@nsubtil%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_NV_device_diagnostic_checkpoints%20extension%3E%3E">nsubtil</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2018-07-16</dd>
 
@@ -75,7 +79,7 @@ val NV_device_diagnostic_checkpoints = "NVDeviceDiagnosticCheckpoints".nativeCla
     void(
         "CmdSetCheckpointNV",
         """
-        insert diagnostic checkpoint in command stream.
+        Insert diagnostic checkpoint in command stream.
 
         <h5>C Specification</h5>
         Device diagnostic checkpoints are inserted into the command stream by calling #CmdSetCheckpointNV().
@@ -88,30 +92,31 @@ val NV_device_diagnostic_checkpoints = "NVDeviceDiagnosticCheckpoints".nativeCla
         <h5>Valid Usage (Implicit)</h5>
         <ul>
             <li>{@code commandBuffer} <b>must</b> be a valid {@code VkCommandBuffer} handle</li>
-            <li>{@code commandBuffer} <b>must</b> be in the <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#commandbuffers-lifecycle">recording state</a></li>
+            <li>{@code commandBuffer} <b>must</b> be in the <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#commandbuffers-lifecycle">recording state</a></li>
             <li>The {@code VkCommandPool} that {@code commandBuffer} was allocated from <b>must</b> support graphics, compute, or transfer operations</li>
         </ul>
 
         <h5>Host Synchronization</h5>
         <ul>
+            <li>Host access to {@code commandBuffer} <b>must</b> be externally synchronized</li>
             <li>Host access to the {@code VkCommandPool} that {@code commandBuffer} was allocated from <b>must</b> be externally synchronized</li>
         </ul>
 
         <h5>Command Properties</h5>
         <table class="lwjgl">
-            <thead><tr><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#VkCommandBufferLevel">Command Buffer Levels</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#vkCmdBeginRenderPass">Render Pass Scope</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#VkQueueFlagBits">Supported Queue Types</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#synchronization-pipeline-stages-types">Pipeline Type</a></th></tr></thead>
-            <tbody><tr><td>Primary Secondary</td><td>Both</td><td>Graphics Compute Transfer</td><td></td></tr></tbody>
+            <thead><tr><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#VkCommandBufferLevel">Command Buffer Levels</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#vkCmdBeginRenderPass">Render Pass Scope</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#VkQueueFlagBits">Supported Queue Types</a></th></tr></thead>
+            <tbody><tr><td>Primary Secondary</td><td>Both</td><td>Graphics Compute Transfer</td></tr></tbody>
         </table>
         """,
 
         VkCommandBuffer("commandBuffer", "the command buffer that will receive the marker"),
-        opaque_const_p("pCheckpointMarker", "an opaque application-provided value that will be associated with the checkpoint.")
+        nullable..opaque_const_p("pCheckpointMarker", "an opaque application-provided value that will be associated with the checkpoint.")
     )
 
     void(
         "GetQueueCheckpointDataNV",
         """
-        retrieve diagnostic checkpoint data.
+        Retrieve diagnostic checkpoint data.
 
         <h5>C Specification</h5>
         If the device encounters an error during execution, the implementation will return a #ERROR_DEVICE_LOST error to the application at a certain point during host execution. When this happens, the application <b>can</b> call #GetQueueCheckpointDataNV() to retrieve information on the most recent diagnostic checkpoints that were executed by the device.

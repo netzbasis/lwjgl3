@@ -8,11 +8,12 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val EXT_display_surface_counter = "EXTDisplaySurfaceCounter".nativeClassVK("EXT_display_surface_counter", type = "instance", postfix = EXT) {
+val EXT_display_surface_counter = "EXTDisplaySurfaceCounter".nativeClassVK("EXT_display_surface_counter", type = "instance", postfix = "EXT") {
     documentation =
         """
-        This is extension defines a vertical blanking period counter associated with display surfaces. It provides a mechanism to query support for such a counter from a {@code VkSurfaceKHR} object.
+        This extension defines a vertical blanking period counter associated with display surfaces. It provides a mechanism to query support for such a counter from a {@code VkSurfaceKHR} object.
 
+        <h5>VK_EXT_display_surface_counter</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_EXT_display_surface_counter}</dd>
@@ -34,9 +35,12 @@ val EXT_display_surface_counter = "EXTDisplaySurfaceCounter".nativeClassVK("EXT_
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>James Jones <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_EXT_display_surface_counter:%20&amp;body=@cubanismo%20">cubanismo</a></li>
+                <li>James Jones <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_EXT_display_surface_counter]%20@cubanismo%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_EXT_display_surface_counter%20extension%3E%3E">cubanismo</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2016-12-13</dd>
 
@@ -79,13 +83,14 @@ val EXT_display_surface_counter = "EXTDisplaySurfaceCounter".nativeClassVK("EXT_
 
         <h5>Description</h5>
         <ul>
-            <li>#SURFACE_COUNTER_VBLANK_EXT specifies a counter incrementing once every time a vertical blanking period occurs on the display associated with the surface.</li>
+            <li>#SURFACE_COUNTER_VBLANK_BIT_EXT specifies a counter incrementing once every time a vertical blanking period occurs on the display associated with the surface.</li>
         </ul>
 
         <h5>See Also</h5>
-        {@code VkSurfaceCounterFlagsEXT}, #GetSwapchainCounterEXT()
+        #GetSwapchainCounterEXT()
         """,
 
+        "SURFACE_COUNTER_VBLANK_BIT_EXT".enum(0x00000001),
         "SURFACE_COUNTER_VBLANK_EXT".enum(0x00000001)
     )
 
@@ -104,7 +109,13 @@ val EXT_display_surface_counter = "EXTDisplaySurfaceCounter".nativeClassVK("EXT_
 ￿    VkSurfaceCapabilities2EXT*                  pSurfaceCapabilities);</code></pre>
 
         <h5>Description</h5>
-        {@code vkGetPhysicalDeviceSurfaceCapabilities2EXT} behaves similarly to #GetPhysicalDeviceSurfaceCapabilitiesKHR(), with the ability to return extended information by adding extension structures to the {@code pNext} chain of its {@code pSurfaceCapabilities} parameter.
+        {@code vkGetPhysicalDeviceSurfaceCapabilities2EXT} behaves similarly to #GetPhysicalDeviceSurfaceCapabilitiesKHR(), with the ability to return extended information by adding extending structures to the {@code pNext} chain of its {@code pSurfaceCapabilities} parameter.
+
+        <h5>Valid Usage</h5>
+        <ul>
+            <li>{@code surface} <b>must</b> be a valid {@code VkSurfaceKHR} handle</li>
+            <li>{@code surface} <b>must</b> be supported by {@code physicalDevice}, as reported by #GetPhysicalDeviceSurfaceSupportKHR() or an equivalent platform-specific mechanism</li>
+        </ul>
 
         <h5>Valid Usage (Implicit)</h5>
         <ul>

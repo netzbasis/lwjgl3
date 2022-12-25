@@ -7,10 +7,7 @@ package core.macos.templates
 import org.lwjgl.generator.*
 
 val dlfcn = "DynamicLinkLoader".nativeClass(Module.CORE_MACOS, nativeSubPath = "macos") {
-    nativeImport(
-        "macOSLWJGL.h",
-        "<dlfcn.h>"
-    )
+    nativeImport("<dlfcn.h>")
 
     documentation = "Native bindings to &lt;dlfcn.h&gt;."
 
@@ -71,7 +68,7 @@ val dlfcn = "DynamicLinkLoader".nativeClass(Module.CORE_MACOS, nativeSubPath = "
         )}
         """,
 
-        nullable..charASCII.const.p("path", "path to the image to open"),
+        nullable..charUTF8.const.p("path", "path to the image to open"),
         int(
             "mode",
             """

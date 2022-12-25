@@ -8,13 +8,14 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val EXT_fragment_density_map = "EXTFragmentDensityMap".nativeClassVK("EXT_fragment_density_map", type = "device", postfix = EXT) {
+val EXT_fragment_density_map = "EXTFragmentDensityMap".nativeClassVK("EXT_fragment_density_map", type = "device", postfix = "EXT") {
     documentation =
         """
         This extension allows an application to specify areas of the render target where the fragment shader may be invoked fewer times. These fragments are broadcasted out to multiple pixels to cover the render target.
 
-        The primary use of this extension is to reduce workloads in areas where lower quality may not be perceived such as the distorted edges of a lens or the periphery of a user's gaze.
+        The primary use of this extension is to reduce workloads in areas where lower quality may not be perceived such as the distorted edges of a lens or the periphery of a user’s gaze.
 
+        <h5>VK_EXT_fragment_density_map</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_EXT_fragment_density_map}</dd>
@@ -26,7 +27,7 @@ val EXT_fragment_density_map = "EXTFragmentDensityMap".nativeClassVK("EXT_fragme
             <dd>219</dd>
 
             <dt><b>Revision</b></dt>
-            <dd>1</dd>
+            <dd>2</dd>
 
             <dt><b>Extension and Version Dependencies</b></dt>
             <dd><ul>
@@ -36,15 +37,19 @@ val EXT_fragment_density_map = "EXTFragmentDensityMap".nativeClassVK("EXT_fragme
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Matthew Netsch <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_EXT_fragment_density_map:%20&amp;body=@mnetsch%20">mnetsch</a></li>
+                <li>Matthew Netsch <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_EXT_fragment_density_map]%20@mnetsch%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_EXT_fragment_density_map%20extension%3E%3E">mnetsch</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
-            <dd>2018-09-25</dd>
+            <dd>2021-09-30</dd>
 
             <dt><b>Interactions and External Dependencies</b></dt>
             <dd><ul>
-                <li>This extension requires the <a target="_blank" href="https://htmlpreview.github.io/?https://github.com/KhronosGroup/SPIRV-Registry/blob/master/extensions/EXT/SPV_EXT_fragment_invocation_density.html">{@code SPV_EXT_fragment_invocation_density}</a> SPIR-V extension.</li>
+                <li>This extension requires <a target="_blank" href="https://htmlpreview.github.io/?https://github.com/KhronosGroup/SPIRV-Registry/blob/master/extensions/EXT/SPV_EXT_fragment_invocation_density.html">{@code SPV_EXT_fragment_invocation_density}</a></li>
+                <li>This extension provides API support for <a target="_blank" href="https://github.com/KhronosGroup/GLSL/blob/master/extensions/ext/GLSL_EXT_fragment_invocation_density.txt">{@code GL_EXT_fragment_invocation_density}</a></li>
             </ul></dd>
 
             <dt><b>Contributors</b></dt>
@@ -67,7 +72,7 @@ val EXT_fragment_density_map = "EXTFragmentDensityMap".nativeClassVK("EXT_fragme
     IntConstant(
         "The extension specification version.",
 
-        "EXT_FRAGMENT_DENSITY_MAP_SPEC_VERSION".."1"
+        "EXT_FRAGMENT_DENSITY_MAP_SPEC_VERSION".."2"
     )
 
     StringConstant(
@@ -131,5 +136,11 @@ val EXT_fragment_density_map = "EXTFragmentDensityMap".nativeClassVK("EXT_fragme
 
         "SAMPLER_CREATE_SUBSAMPLED_BIT_EXT".enum(0x00000001),
         "SAMPLER_CREATE_SUBSAMPLED_COARSE_RECONSTRUCTION_BIT_EXT".enum(0x00000002)
+    )
+
+    EnumConstantLong(
+        "Extends {@code VkFormatFeatureFlagBits2}.",
+
+        "FORMAT_FEATURE_2_FRAGMENT_DENSITY_MAP_BIT_EXT".enum(0x01000000L)
     )
 }

@@ -9,9 +9,9 @@ import java.lang.reflect.*
 import java.nio.*
 import java.nio.file.*
 import java.nio.file.attribute.*
+import java.util.*
 import java.util.concurrent.*
 import java.util.concurrent.atomic.*
-import java.util.function.*
 import kotlin.math.*
 
 /*
@@ -32,6 +32,9 @@ import kotlin.math.*
     - Target source (C)     -> <module>/src/generated/c/opengl/org_lwjgl_opengl_ARBImaging.c
 */
 fun main(args: Array<String>) {
+    System.setProperty("file.encoding", "UTF8")
+    System.setProperty("line.separator", "\n")
+
     require(args.isNotEmpty()) {
         "Module root path not specified"
     }
@@ -129,13 +132,22 @@ class Generator(private val moduleRoot: String) {
         internal val functions = ConcurrentHashMap<Module, MutableMap<String, String>>()
 
         internal val structs = ConcurrentLinkedQueue<Struct>()
+        internal val structChildren = ConcurrentHashMap<Module, MutableMap<String, MutableList<Struct>>>()
+
         internal val callbacks = ConcurrentLinkedQueue<CallbackFunction>()
         internal val customClasses = ConcurrentLinkedQueue<GeneratorTarget>()
 
         /** Registers a struct definition. */
         fun register(struct: Struct): Struct {
-            if (struct.module.enabled)
+            if (struct.module.enabled) {
                 structs.add(struct)
+                if (struct.parentStruct != null) {
+                    structChildren
+                        .getOrPut(struct.module) { HashMap() }
+                        .getOrPut(struct.parentStruct.nativeName) { ArrayList() }
+                        .add(struct)
+                }
+            }
             return struct
         }
 
@@ -210,7 +222,7 @@ class Generator(private val moduleRoot: String) {
         }
 
         // Find the template methods
-        val templates = java.util.TreeSet<Method> { o1, o2 -> o1.name.compareTo(o2.name) }
+        val templates = TreeSet<Method> { o1, o2 -> o1.name.compareTo(o2.name) }
         apply("$pathKotlin/templates", "$packageKotlin.templates") {
             this.filterTo(templates) {
                 methodFilter(it, NativeClass::class.java)
@@ -350,7 +362,7 @@ internal fun Path.lastModified(
     }
 
     return Files
-        .find(this, maxDepth, BiPredicate { path, _ -> matcher.matches(path) })
+        .find(this, maxDepth, { path, _ -> matcher.matches(path) })
         .mapToLong(Path::lastModified)
         .reduce(0L, Math::max)
 }
@@ -449,6 +461,6 @@ internal fun <T> Sequence<T>.forEachWithMore(moreOverride: Boolean = false, appl
 /** Returns the string with the first letter uppercase. */
 internal val String.upperCaseFirst
     get() = if (this.length <= 1)
-        this.toUpperCase()
+        this.uppercase()
     else
         "${Character.toUpperCase(this[0])}${this.substring(1)}"

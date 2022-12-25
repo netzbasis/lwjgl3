@@ -43,7 +43,7 @@ abstract class APIBinding(
 
     fun getClasses(corePrefix: String): List<NativeClass> {
         val classes = ArrayList(_classes)
-        classes.sortWith(Comparator { o1, o2 ->
+        classes.sortWith { o1, o2 ->
             // Core functionality first, extensions after
             val isCore1 = o1.templateName.startsWith(corePrefix)
             val isCore2 = o2.templateName.startsWith(corePrefix)
@@ -52,14 +52,14 @@ abstract class APIBinding(
                 (if (isCore1) -1 else 1)
             else
                 o1.templateName.compareTo(o2.templateName, ignoreCase = true)
-        })
+        }
         return classes
     }
 
-    protected fun List<NativeClass>.getFunctionPointers() = this.asSequence()
-        .filter { it.hasNativeFunctions }
+    protected fun List<NativeClass>.getFunctionPointers(predicate: (NativeClass) -> Boolean = { it.hasNativeFunctions }) = this.asSequence()
+        .filter(predicate)
         .flatMap { it.functions.asSequence() }
-        .filter { !it.has<Reuse>() }
+        .filter { !it.has<Reuse>() && !it.has<Macro>() }
         .toList()
 
     fun addClass(clazz: NativeClass) {
@@ -73,14 +73,12 @@ abstract class APIBinding(
 
     abstract fun generateFunctionAddress(writer: PrintWriter, function: Func)
 
-    abstract fun PrintWriter.generateFunctionSetup(nativeClass: NativeClass)
-
     // OVERRIDES
 
     open fun getFunctionOrdinal(function: Func): Int = 0
 
     /** Can be overridden to generate binding-specific alternative methods. */
-    open fun generateAlternativeMethods(
+    internal open fun generateAlternativeMethods(
         writer: PrintWriter,
         function: Func,
         transforms: MutableMap<QualifiedType, Transform>
@@ -112,6 +110,8 @@ abstract class SimpleBinding(
         writer.println("$t${t}long ${if (function has Address) RESULT else FUNCTION_ADDRESS} = Functions.${function.simpleName};")
     }
 
+    abstract fun PrintWriter.generateFunctionSetup(nativeClass: NativeClass)
+
     protected fun PrintWriter.generateFunctionsClass(nativeClass: NativeClass, javadoc: String) {
         val bindingFunctions = nativeClass.functions.filter { !it.hasExplicitFunctionAddress && !it.has<Macro>() }
         if (bindingFunctions.none())
@@ -119,7 +119,7 @@ abstract class SimpleBinding(
 
         print(javadoc)
 
-        val alignment = bindingFunctions.map { it.simpleName.length }.max()!!
+        val alignment = bindingFunctions.map { it.simpleName.length }.maxOrNull()!!
 
         println("""
     public static final class Functions {
@@ -138,16 +138,18 @@ abstract class SimpleBinding(
     }""")
     }
 }
+// TODO: Remove if KT-7859 is fixed.
+private fun SimpleBinding.generateFunctionSetup(writer: PrintWriter, nativeClass: NativeClass) = writer.generateFunctionSetup(nativeClass)
 
 /** Creates a simple APIBinding that stores the shared library and function pointers inside the binding class. The shared library is never unloaded. */
 fun simpleBinding(
     module: Module,
-    libraryName: String = module.name.toLowerCase(),
+    libraryName: String = module.name.lowercase(),
     libraryExpression: String = "\"$libraryName\"",
     bundledWithLWJGL: Boolean = false
-) = object : SimpleBinding(module, libraryName.toUpperCase()) {
+) = object : SimpleBinding(module, libraryName.uppercase()) {
     override fun PrintWriter.generateFunctionSetup(nativeClass: NativeClass) {
-        val libraryReference = libraryName.toUpperCase()
+        val libraryReference = libraryName.uppercase()
 
         println("\n${t}private static final SharedLibrary $libraryReference = Library.loadNative(${nativeClass.className}.class, \"${module.java}\", $libraryExpression${if (bundledWithLWJGL) ", true" else ""});")
         generateFunctionsClass(nativeClass, "\n$t/** Contains the function pointers loaded from the $libraryName {@link SharedLibrary}. */")
@@ -167,9 +169,6 @@ fun APIBinding.delegate(
         generateFunctionsClass(nativeClass, "\n$t/** Contains the function pointers loaded from {@code $libraryExpression}. */")
     }
 }
-
-// TODO: Remove if KT-7859 is fixed.
-private fun APIBinding.generateFunctionSetup(writer: PrintWriter, nativeClass: NativeClass) = writer.generateFunctionSetup(nativeClass)
 
 class NativeClass internal constructor(
     module: Module,
@@ -199,7 +198,7 @@ class NativeClass internal constructor(
 
     // same as above + array overloads
     private val genFunctions: MutableList<Func> by lazy(LazyThreadSafetyMode.NONE) {
-        ArrayList<Func>(_functions.values)
+        ArrayList(_functions.values)
     }
 
     private val customMethods = ArrayList<String>()
@@ -270,7 +269,7 @@ class NativeClass internal constructor(
                         name = func.name,
                         documentation = documentation,
                         nativeClass = this@NativeClass,
-                        parameters = *func.parameters.asSequence().map {
+                        parameters = func.parameters.asSequence().map {
                             if (it.isArrayParameter(autoSizeResultOutParams))
                                 it
                                     .copy(ArrayType(it.nativeType as PointerType<*>))
@@ -305,7 +304,7 @@ class NativeClass internal constructor(
                             name = func.name,
                             documentation = documentation,
                             nativeClass = this@NativeClass,
-                            parameters = *func.parameters.asSequence().map {
+                            parameters = func.parameters.asSequence().map {
                                 if (it.isArrayParameter(autoSizeResultOutParams))
                                     it
                                         .copy(ArrayType(it.nativeType as PointerType<*>))
@@ -447,7 +446,8 @@ class NativeClass internal constructor(
             val functions = this@NativeClass.functions
                 .filter { !it.has<Reuse>() }
 
-            val hasMemoryStack = hasBuffers && functions.any { func ->
+            val hasLibFFI = skipNative && functions.any { it.returns.isStructValue || it.parameters.any { param -> param.nativeType is StructType }}
+            val hasMemoryStack = (hasBuffers && functions.any { func ->
                 func.hasParam {
                     it.nativeType is PointerType<*> &&
                     (
@@ -458,41 +458,55 @@ class NativeClass internal constructor(
                         (it.nativeType is CharSequenceType && it.isInput)
                     )
                 }
-            }
+            }) || hasLibFFI
 
             if ((hasFunctions || binding != null) && module !== Module.CORE) {
-                println("import org.lwjgl.system.*;\n")
+                println("import org.lwjgl.system.*;")
             }
 
-            if (hasFunctions && (binding is SimpleBinding || (binding != null && functions.any { it.has<MapPointer>() })))
-                println("import static org.lwjgl.system.APIUtil.*;")
-            if (hasFunctions && ((binding != null && binding !is SimpleBinding) || functions.any { func ->
-                func.hasParam { param ->
-                    param.nativeType is PointerType<*> && func.getReferenceParam<AutoSize>(param.name).let {
-                        if (it == null)
-                            !param.has<Nullable>() && param.nativeType.elementType !is StructType
-                        else
-                            it.get<AutoSize>().reference != param.name // dependent auto-size
-                    }
-                }
-            }))
-                println("import static org.lwjgl.system.Checks.*;")
+            val staticImports = ArrayList<String>()
+
+            if (hasFunctions) {
+                if (binding is SimpleBinding || (binding != null && functions.any { it.has<MapPointer>() }) || hasLibFFI)
+                    staticImports.add("org.lwjgl.system.APIUtil.*")
+                if ((binding != null && binding.apiCapabilities.ordinal >= 2) || functions.any { func ->
+                        func.hasParam { param ->
+                            param.nativeType is PointerType<*> && func.getReferenceParam<AutoSize>(param.name).let {
+                                if (it == null)
+                                    !param.has<Nullable>() && param.nativeType.elementType !is StructType
+                                else
+                                    it.get<AutoSize>().reference != param.name // dependent auto-size
+                            }
+                        } || (module.arrayOverloads && func.hasArrayOverloads) || (func.has<IgnoreMissing>() && binding?.apiCapabilities != APICapabilities.JNI_CAPABILITIES)
+                    })
+                    staticImports.add("org.lwjgl.system.Checks.*")
+            }
             if (binding != null && functions.any { !it.hasCustomJNI || it.hasArrayOverloads })
-                println("import static org.lwjgl.system.JNI.*;")
+                staticImports.add("org.lwjgl.system.JNI.*")
+            if (hasLibFFI) {
+                println("import org.lwjgl.system.libffi.*;")
+                staticImports.add("org.lwjgl.system.libffi.LibFFI.*")
+            }
             if (hasMemoryStack)
-                println("import static org.lwjgl.system.MemoryStack.*;")
-            if (hasBuffers && functions.any {
+                staticImports.add("org.lwjgl.system.MemoryStack.*")
+            if ((hasBuffers && functions.any {
                 it.returns.isBufferPointer || it.hasParam { param ->
                     param.nativeType.let { type -> type is PointerType<*> && type.mapping !== PointerMapping.OPAQUE_POINTER && (type.elementType !is StructType || param.has<Nullable>()) }
                 }
-            }) {
-                println("import static org.lwjgl.system.MemoryUtil.*;")
-                if (functions.any { func ->
+            }) || hasLibFFI) {
+                staticImports.add("org.lwjgl.system.MemoryUtil.*")
+                if (!hasMemoryStack && functions.any { func ->
                     func.hasParam {
                         it.has<MultiType> { types.contains(PointerMapping.DATA_POINTER) } && func.hasAutoSizeFor(it)
                     }
                 })
-                    println("import static org.lwjgl.system.Pointer.*;")
+                    staticImports.add("org.lwjgl.system.Pointer.*")
+            }
+            if (staticImports.isNotEmpty()) {
+                println()
+                for (import in staticImports) {
+                    println("import static $import;")
+                }
             }
             println()
         }
@@ -510,54 +524,39 @@ class NativeClass internal constructor(
         }
         println(" {")
 
+        if (hasFunctions && (binding == null || functions.any(Func::hasCustomJNI)) && (module.library != null || binding !is SimpleBinding)) {
+            println(if (module.library == null)
+                "\n${t}static { Library.initialize(); }"
+            else
+                module.library.expression(module)
+                    .let { library ->
+                        if (library.contains('\n'))
+                            """
+    static {
+        ${library.trim()}
+    }"""
+                        else if (library.endsWith(");"))
+                            "\n${t}static { $library }"
+                        else
+                            "\n${t}static { Library.loadSystem(System::load, System::loadLibrary, $className.class, \"${module.java}\", Platform.mapLibraryNameBundled(\"$library\")); }"
+                    })
+        }
+        if (binding is SimpleBinding) {
+            binding.generateFunctionSetup(this, this@NativeClass)
+        }
+
         constantBlocks.forEach {
             it.generate(this)
         }
 
-        fun PrintWriter.libraryInit() {
-            if (module.library != null || binding !is SimpleBinding) {
-                println(if (module.library == null)
-                    "\n${t}static { Library.initialize(); }"
-                else
-                    module.library.expression(module)
-                        .let { library ->
-                            if (library.contains('\n'))
-                                """
-    static {
-        ${library.trim()}
-    }"""
-                            else if (library.endsWith(");"))
-                                "\n${t}static { $library }"
-                            else
-                                "\n${t}static { Library.loadSystem(System::load, System::loadLibrary, $className.class, \"${module.java}\", Platform.mapLibraryNameBundled(\"$library\")); }"
-                        })
-            }
-        }
-
         if (hasFunctions || binding is SimpleBinding) {
-            if (binding != null) {
-                if (functions.any(Func::hasCustomJNI))
-                    libraryInit()
+            printCustomMethods(static = true)
 
-                if (binding is SimpleBinding || functions.any { !it.hasExplicitFunctionAddress }) {
-                    println("""
+            // This allows binding classes to be "statically" extended. Not a good practice, but usable with static imports.
+            println("""
     ${if (isOpen) "protected" else "private"} $className() {
         throw new UnsupportedOperationException();
     }""")
-                    binding.generateFunctionSetup(this, this@NativeClass)
-                }
-                printCustomMethods(static = true)
-            } else {
-                libraryInit()
-
-                printCustomMethods(static = true)
-
-                // This allows binding classes to be "statically" extended. Not a good practice, but usable with static imports.
-                println("""
-    ${if (isOpen) "protected" else "private"} $className() {
-        throw new UnsupportedOperationException();
-    }""")
-            }
         } else {
             println("\n$t${if (isOpen) "protected" else "private"} $className() {}")
         }
@@ -613,7 +612,7 @@ class NativeClass internal constructor(
     ) {
         out.print("\n$t$t$t")
 
-        val functions = _functions.values.let { if (filter == null) it else it.filter(filter) }
+        val functions = _functions.values.let { if (filter == null) it.filter { func -> !func.has<Macro>() } else it.filter(filter) }
 
         var lineSize = 12
         functions.forEachWithMore { func, more ->
@@ -653,17 +652,33 @@ class NativeClass internal constructor(
     infix fun String.expr(expression: String): Constant<String> = ConstantExpression(this, expression, true)
 
     /** Adds a new enum constant. */
-    val String.enum get() = Constant(this, EnumValue())
-
+    val String.enum get() = Constant(this, EnumIntValue())
     infix fun String.enum(documentation: String) =
-        Constant(this, EnumValue({ if (documentation.isEmpty()) null else processDocumentation(documentation) }))
-
-    infix fun String.enum(value: Int) = Constant(this, EnumValue(value = value))
+        Constant(this, EnumIntValue({ if (documentation.isEmpty()) null else processDocumentation(documentation) }))
+    infix fun String.enum(value: Int) = Constant(this, EnumIntValue(value = value))
     fun String.enum(documentation: String, value: Int) =
-        Constant(this, EnumValue({ if (documentation.isEmpty()) null else processDocumentation(documentation) }, value))
-
+        Constant(this, EnumIntValue({ if (documentation.isEmpty()) null else processDocumentation(documentation) }, value))
     fun String.enum(documentation: String, expression: String) =
-        Constant(this, EnumValueExpression({ if (documentation.isEmpty()) null else processDocumentation(documentation) }, expression))
+        Constant(this, EnumIntValueExpression({ if (documentation.isEmpty()) null else processDocumentation(documentation) }, expression))
+
+    // TODO: this is ugly, try new DSL?
+    val String.enumByte get() = Constant(this, EnumByteValue())
+    infix fun String.enumByte(documentation: String) =
+        Constant(this, EnumByteValue({ if (documentation.isEmpty()) null else processDocumentation(documentation) }))
+    infix fun String.enum(value: Byte) = Constant(this, EnumByteValue(value = value))
+    fun String.enum(documentation: String, value: Byte) =
+        Constant(this, EnumByteValue({ if (documentation.isEmpty()) null else processDocumentation(documentation) }, value))
+    fun String.enumByte(documentation: String, expression: String) =
+        Constant(this, EnumByteValueExpression({ if (documentation.isEmpty()) null else processDocumentation(documentation) }, expression))
+
+    val String.enumLong get() = Constant(this, EnumLongValue())
+    infix fun String.enumLong(documentation: String) =
+        Constant(this, EnumLongValue({ if (documentation.isEmpty()) null else processDocumentation(documentation) }))
+    infix fun String.enum(value: Long) = Constant(this, EnumLongValue(value = value))
+    fun String.enum(documentation: String, value: Long) =
+        Constant(this, EnumLongValue({ if (documentation.isEmpty()) null else processDocumentation(documentation) }, value))
+    fun String.enumLong(documentation: String, expression: String) =
+        Constant(this, EnumLongValueExpression({ if (documentation.isEmpty()) null else processDocumentation(documentation) }, expression))
 
     operator fun DataType.invoke(name: String, javadoc: String, links: String = "", linkMode: LinkMode = LinkMode.SINGLE) =
         if (links.isEmpty() || !links.contains('+'))
@@ -729,7 +744,7 @@ class NativeClass internal constructor(
             div < 1                    -> throw IllegalArgumentException()
             div == 1                   -> AutoSize(reference, *dependent)
             Integer.bitCount(div) == 1 -> AutoSizeShr(Integer.numberOfTrailingZeros(div).toString(), reference, *dependent)
-            else                       -> AutoSizeDiv(div.toString(), reference, dependent = *dependent)
+            else                       -> AutoSizeDiv(div.toString(), reference, dependent = dependent)
         }
 
     fun AutoSizeDiv(expression: String, reference: String, vararg dependent: String) =
@@ -799,7 +814,7 @@ class NativeClass internal constructor(
                 )
             },
             nativeClass = this@NativeClass,
-            parameters = *params
+            parameters = params
         )
 
         require(_functions.put(name, func) == null) {
@@ -831,7 +846,7 @@ class NativeClass internal constructor(
             name = reference.name,
             documentation = { this@NativeClass.convertDocumentation(this, reference.name, reference.documentation(it)) },
             nativeClass = this@NativeClass,
-            parameters = *reference.parameters
+            parameters = reference.parameters
         ).copyModifiers(reference)
 
         this@NativeClass._functions[functionName] = func
@@ -878,7 +893,7 @@ fun String.nativeClass(
     templateName: String = this,
     nativeSubPath: String = "",
     prefix: String = "",
-    prefixMethod: String = prefix.toLowerCase(),
+    prefixMethod: String = prefix.lowercase(),
     prefixConstant: String = if (prefix.isEmpty() || prefix.endsWith('_')) prefix else "${prefix}_",
     prefixTemplate: String = prefix,
     postfix: String = "",

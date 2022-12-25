@@ -150,7 +150,7 @@ public final class CL {
                 return false;
             }
 
-            APIVersion apiVersion = apiParseVersion(memASCII(version, bytes - 1), "OpenCL");
+            APIVersion apiVersion = apiParseVersion(memASCII(version, bytes - 1));
             return 1 < apiVersion.major || 2 <= apiVersion.minor;
         }
 
@@ -216,14 +216,22 @@ public final class CL {
         icd = null;
     }
 
+    static <T> T check(@Nullable T t) {
+        if (t == null) {
+            throw new IllegalStateException("OpenCL library has not been loaded.");
+        }
+        return t;
+    }
+
     /** Returns the {@link FunctionProviderLocal} for the OpenCL native library. */
-    @Nullable
     public static FunctionProviderLocal getFunctionProvider() {
-        return functionProvider;
+        return check(functionProvider);
     }
 
     /** Returns the {@link CLCapabilities} of the ICD. */
-    @Nullable public static CLCapabilities getICD() { return icd; }
+    public static CLCapabilities getICD() {
+        return check(icd);
+    }
 
     /**
      * Creates a {@link CLCapabilities} instance for the specified OpenCL platform.
@@ -260,8 +268,10 @@ public final class CL {
         }
 
         // Parse PLATFORM_VERSION string
-        APIVersion version = apiParseVersion(getPlatformInfoStringASCII(cl_platform_id, CL_PLATFORM_VERSION), "OpenCL");
+        APIVersion version = apiParseVersion(getPlatformInfoStringASCII(cl_platform_id, CL_PLATFORM_VERSION));
         CL.addCLVersions(version.major, version.minor, supportedExtensions);
+
+        apiFilterExtensions(supportedExtensions, Configuration.OPENCL_EXTENSION_FILTER);
 
         return new CLCapabilities(functionName -> getFunctionProvider().getFunctionAddress(cl_platform_id, functionName), supportedExtensions);
     }
@@ -283,7 +293,7 @@ public final class CL {
         CL.addExtensions(extensionsString, supportedExtensions);
 
         // Parse DEVICE_VERSION string
-        APIVersion version = apiParseVersion(getDeviceInfoStringASCII(cl_device_id, CL_DEVICE_VERSION), "OpenCL");
+        APIVersion version = apiParseVersion(getDeviceInfoStringASCII(cl_device_id, CL_DEVICE_VERSION));
         CL.addCLVersions(version.major, version.minor, supportedExtensions);
 
         return new CLCapabilities(platformCapabilities, supportedExtensions);
@@ -303,6 +313,7 @@ public final class CL {
             new int[][] {
                 {0, 1, 2}, // 10, 11, 12
                 {0, 1, 2}, // 20, 21, 22
+                {0}        // 30
             }
         );
 
@@ -311,8 +322,7 @@ public final class CL {
             addCLVersions(
                 MAJOR, MINOR, supportedExtensions, "GL",
                 new int[][] {
-                    {0, 2},    // 10GL, 12GL
-                    {}
+                    {0, 2} // 10GL, 12GL
                 }
             );
         }
@@ -330,14 +340,6 @@ public final class CL {
         }
     }
 
-    static boolean checkExtension(String extension, boolean supported) {
-        if (supported) {
-            return true;
-        }
-
-        apiLog("[CL] " + extension + " was reported as available but an entry point is missing.");
-        return false;
-    }
 
     private static String getPlatformInfoStringASCII(long cl_platform_id, int param_name) {
         try (MemoryStack stack = stackPush()) {

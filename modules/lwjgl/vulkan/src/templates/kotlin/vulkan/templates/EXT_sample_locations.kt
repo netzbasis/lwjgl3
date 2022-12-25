@@ -8,7 +8,7 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val EXT_sample_locations = "EXTSampleLocations".nativeClassVK("EXT_sample_locations", type = "device", postfix = EXT) {
+val EXT_sample_locations = "EXTSampleLocations".nativeClassVK("EXT_sample_locations", type = "device", postfix = "EXT") {
     documentation =
         """
         This extension allows an application to modify the locations of samples within a pixel used in rasterization. Additionally, it allows applications to specify different sample locations for each pixel in a group of adjacent pixels, which <b>can</b> increase antialiasing quality (particularly if a custom resolve shader is used that takes advantage of these different locations).
@@ -17,6 +17,7 @@ val EXT_sample_locations = "EXTSampleLocations".nativeClassVK("EXT_sample_locati
 
         Some implementations <b>may</b> need to evaluate depth image values while performing image layout transitions. To accommodate this, instances of the ##VkSampleLocationsInfoEXT structure <b>can</b> be specified for each situation where an explicit or automatic layout transition has to take place. ##VkSampleLocationsInfoEXT <b>can</b> be chained from ##VkImageMemoryBarrier structures to provide sample locations for layout transitions performed by #CmdWaitEvents() and #CmdPipelineBarrier() calls, and ##VkRenderPassSampleLocationsBeginInfoEXT <b>can</b> be chained from ##VkRenderPassBeginInfo to provide sample locations for layout transitions performed implicitly by a render pass instance.
 
+        <h5>VK_EXT_sample_locations</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_EXT_sample_locations}</dd>
@@ -38,9 +39,12 @@ val EXT_sample_locations = "EXTSampleLocations".nativeClassVK("EXT_sample_locati
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Daniel Rakos <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_EXT_sample_locations:%20&amp;body=@drakos-amd%20">drakos-amd</a></li>
+                <li>Daniel Rakos <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_EXT_sample_locations]%20@drakos-amd%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_EXT_sample_locations%20extension%3E%3E">drakos-amd</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2017-08-02</dd>
 
@@ -94,21 +98,21 @@ val EXT_sample_locations = "EXTSampleLocations".nativeClassVK("EXT_sample_locati
     void(
         "CmdSetSampleLocationsEXT",
         """
-        Set the dynamic sample locations state.
+        Set sample locations dynamically for a command buffer.
 
         <h5>C Specification</h5>
-        The custom sample locations used for rasterization when ##VkPipelineSampleLocationsStateCreateInfoEXT{@code ::sampleLocationsEnable} is #TRUE are specified by the ##VkPipelineSampleLocationsStateCreateInfoEXT{@code ::sampleLocationsInfo} property of the bound graphics pipeline, if the pipeline was not created with #DYNAMIC_STATE_SAMPLE_LOCATIONS_EXT enabled.
-
-        Otherwise, the sample locations used for rasterization are set by calling {@code vkCmdSetSampleLocationsEXT}:
+        To <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#pipelines-dynamic-state">dynamically set</a> the sample locations used for rasterization, call:
 
         <pre><code>
 ￿void vkCmdSetSampleLocationsEXT(
 ￿    VkCommandBuffer                             commandBuffer,
 ￿    const VkSampleLocationsInfoEXT*             pSampleLocationsInfo);</code></pre>
 
+        <h5>Description</h5>
+        This command sets the custom sample locations for subsequent drawing commands when the graphics pipeline is created with #DYNAMIC_STATE_SAMPLE_LOCATIONS_EXT set in ##VkPipelineDynamicStateCreateInfo{@code ::pDynamicStates}, and when the ##VkPipelineSampleLocationsStateCreateInfoEXT{@code ::sampleLocationsEnable} property of the bound graphics pipeline is #TRUE. Otherwise, this state is specified by the ##VkPipelineSampleLocationsStateCreateInfoEXT{@code ::sampleLocationsInfo} values used to create the currently active pipeline.
+
         <h5>Valid Usage</h5>
         <ul>
-            <li>The bound graphics pipeline <b>must</b> have been created with the #DYNAMIC_STATE_SAMPLE_LOCATIONS_EXT dynamic state enabled</li>
             <li>The {@code sampleLocationsPerPixel} member of {@code pSampleLocationsInfo} <b>must</b> equal the {@code rasterizationSamples} member of the ##VkPipelineMultisampleStateCreateInfo structure the bound graphics pipeline has been created with</li>
             <li>If ##VkPhysicalDeviceSampleLocationsPropertiesEXT{@code ::variableSampleLocations} is #FALSE then the current render pass <b>must</b> have been begun by specifying a ##VkRenderPassSampleLocationsBeginInfoEXT structure whose {@code pPostSubpassSampleLocations} member contains an element with a {@code subpassIndex} matching the current subpass index and the {@code sampleLocationsInfo} member of that element <b>must</b> match the sample locations state pointed to by {@code pSampleLocationsInfo}</li>
         </ul>
@@ -117,7 +121,7 @@ val EXT_sample_locations = "EXTSampleLocations".nativeClassVK("EXT_sample_locati
         <ul>
             <li>{@code commandBuffer} <b>must</b> be a valid {@code VkCommandBuffer} handle</li>
             <li>{@code pSampleLocationsInfo} <b>must</b> be a valid pointer to a valid ##VkSampleLocationsInfoEXT structure</li>
-            <li>{@code commandBuffer} <b>must</b> be in the <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#commandbuffers-lifecycle">recording state</a></li>
+            <li>{@code commandBuffer} <b>must</b> be in the <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#commandbuffers-lifecycle">recording state</a></li>
             <li>The {@code VkCommandPool} that {@code commandBuffer} was allocated from <b>must</b> support graphics operations</li>
         </ul>
 
@@ -129,8 +133,8 @@ val EXT_sample_locations = "EXTSampleLocations".nativeClassVK("EXT_sample_locati
 
         <h5>Command Properties</h5>
         <table class="lwjgl">
-            <thead><tr><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#VkCommandBufferLevel">Command Buffer Levels</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#vkCmdBeginRenderPass">Render Pass Scope</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#VkQueueFlagBits">Supported Queue Types</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#synchronization-pipeline-stages-types">Pipeline Type</a></th></tr></thead>
-            <tbody><tr><td>Primary Secondary</td><td>Both</td><td>Graphics</td><td></td></tr></tbody>
+            <thead><tr><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#VkCommandBufferLevel">Command Buffer Levels</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#vkCmdBeginRenderPass">Render Pass Scope</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#VkQueueFlagBits">Supported Queue Types</a></th></tr></thead>
+            <tbody><tr><td>Primary Secondary</td><td>Both</td><td>Graphics</td></tr></tbody>
         </table>
 
         <h5>See Also</h5>
@@ -147,9 +151,7 @@ val EXT_sample_locations = "EXTSampleLocations".nativeClassVK("EXT_sample_locati
         Report sample count specific multisampling capabilities of a physical device.
 
         <h5>C Specification</h5>
-        In addition to the minimum capabilities described for (<a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#limits">Limits</a>) above, implementations <b>may</b> support additional multisampling capabilities specific to a particular sample count.
-
-        To query additional sample count specific multisampling capabilities, call:
+        To query additional multisampling capabilities which <b>may</b> be supported for a specific sample count, beyond the minimum capabilities described for <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#limits">Limits</a> above, call:
 
         <pre><code>
 ￿void vkGetPhysicalDeviceMultisamplePropertiesEXT(
@@ -169,7 +171,7 @@ val EXT_sample_locations = "EXTSampleLocations".nativeClassVK("EXT_sample_locati
         """,
 
         VkPhysicalDevice("physicalDevice", "the physical device from which to query the additional multisampling capabilities."),
-        VkSampleCountFlagBits("samples", "the sample count to query the capabilities for."),
-        VkMultisamplePropertiesEXT.p("pMultisampleProperties", "a pointer to a ##VkMultisamplePropertiesEXT structure in which information about the additional multisampling capabilities specific to the sample count is returned.")
+        VkSampleCountFlagBits("samples", "a {@code VkSampleCountFlagBits} value specifying the sample count to query capabilities for."),
+        VkMultisamplePropertiesEXT.p("pMultisampleProperties", "a pointer to a ##VkMultisamplePropertiesEXT structure in which information about additional multisampling capabilities specific to the sample count is returned.")
     )
 }

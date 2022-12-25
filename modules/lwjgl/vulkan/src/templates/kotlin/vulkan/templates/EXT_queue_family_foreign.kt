@@ -8,7 +8,7 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val EXT_queue_family_foreign = "EXTQueueFamilyForeign".nativeClassVK("EXT_queue_family_foreign", type = "device", postfix = EXT) {
+val EXT_queue_family_foreign = "EXTQueueFamilyForeign".nativeClassVK("EXT_queue_family_foreign", type = "device", postfix = "EXT") {
     documentation =
         """
         This extension defines a special queue family, #QUEUE_FAMILY_FOREIGN_EXT, which can be used to transfer ownership of resources backed by external memory to foreign, external queues. This is similar to #QUEUE_FAMILY_EXTERNAL_KHR, defined in {@link KHRExternalMemory VK_KHR_external_memory}. The key differences between the two are:
@@ -19,6 +19,7 @@ val EXT_queue_family_foreign = "EXTQueueFamilyForeign".nativeClassVK("EXT_queue_
             <li>Applications should expect transitions to/from #QUEUE_FAMILY_FOREIGN_EXT to be more expensive than transitions to/from #QUEUE_FAMILY_EXTERNAL_KHR.</li>
         </ul>
 
+        <h5>VK_EXT_queue_family_foreign</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_EXT_queue_family_foreign}</dd>
@@ -40,9 +41,12 @@ val EXT_queue_family_foreign = "EXTQueueFamilyForeign".nativeClassVK("EXT_queue_
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Chad Versace <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_EXT_queue_family_foreign:%20&amp;body=@chadversary%20">chadversary</a></li>
+                <li>Chad Versace <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_EXT_queue_family_foreign]%20@chadversary%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_EXT_queue_family_foreign%20extension%3E%3E">chadversary</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2017-11-01</dd>
 
@@ -76,6 +80,6 @@ val EXT_queue_family_foreign = "EXTQueueFamilyForeign".nativeClassVK("EXT_queue_
     EnumConstant(
         "VK_QUEUE_FAMILY_FOREIGN_EXT",
 
-        "QUEUE_FAMILY_FOREIGN_EXT".."(~0-2)"
+        "QUEUE_FAMILY_FOREIGN_EXT".."(~2)"
     )
 }

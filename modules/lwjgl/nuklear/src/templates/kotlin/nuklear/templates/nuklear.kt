@@ -13,6 +13,7 @@ val nuklear = "Nuklear".nativeClass(Module.NUKLEAR, prefix = "NK", prefixMethod 
 #define NK_PRIVATE
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_STANDARD_IO
+#define NK_INCLUDE_STANDARD_BOOL
 #define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
 #define NK_INCLUDE_COMMAND_USERDATA
 #ifdef LWJGL_WINDOWS
@@ -23,7 +24,7 @@ val nuklear = "Nuklear".nativeClass(Module.NUKLEAR, prefix = "NK", prefixMethod 
 #define NK_IMPLEMENTATION
 #define NK_MEMSET memset
 #define NK_MEMCPY memcpy
-#define NK_SQRT sqrt
+#define NK_INV_SQRT(expr) (1.0f / sqrt(expr))
 #define NK_SIN sinf
 #define NK_COS cosf
 #include <math.h>
@@ -357,11 +358,11 @@ nk_style_pop_vec2(ctx);""")}
     EnumConstant(
         "nk_convert_result",
 
-        "CONVERT_SUCCESS".enum("", 0),
-        "CONVERT_INVALID_PARAM".enum("", 1),
-        "CONVERT_COMMAND_BUFFER_FULL".enum("", 1.NK_FLAG),
-        "CONVERT_VERTEX_BUFFER_FULL".enum("", 2.NK_FLAG),
-        "CONVERT_ELEMENT_BUFFER_FULL".enum("", 3.NK_FLAG)
+        "CONVERT_SUCCESS".enum("Signals a successful draw command to vertex buffer conversion.", 0),
+        "CONVERT_INVALID_PARAM".enum("An invalid argument was passed in the function call.", 1),
+        "CONVERT_COMMAND_BUFFER_FULL".enum("The provided buffer for storing draw commands is full or failed to allocate more memory.", 1.NK_FLAG),
+        "CONVERT_VERTEX_BUFFER_FULL".enum("The provided buffer for storing vertices is full or failed to allocate more memory.", 2.NK_FLAG),
+        "CONVERT_ELEMENT_BUFFER_FULL".enum("The provided buffer for storing indices is full or failed to allocate more memory.", 3.NK_FLAG)
     )
 
     val SymbolTypes = EnumConstant(
@@ -691,7 +692,8 @@ nk_style_pop_vec2(ctx);""")}
         "nk_style_item_type",
 
         "STYLE_ITEM_COLOR".enum,
-        "STYLE_ITEM_IMAGE".enum
+        "STYLE_ITEM_IMAGE".enum,
+        "STYLE_ITEM_NINE_SLICE".enum
     )
 
     EnumConstant(
@@ -753,7 +755,7 @@ nk_style_pop_vec2(ctx);""")}
     val cctx = nk_context.const.p("ctx", "the nuklear context");
 
     {
-        intb(
+        nk_bool(
             "init_fixed",
             """
             Initializes context from single fixed size memory block.
@@ -771,7 +773,7 @@ nk_style_pop_vec2(ctx);""")}
             nullable..nk_user_font.const.p("font", "must point to a previously initialized font handle")
         )
 
-        intb(
+        nk_bool(
             "init",
             """
             Initializes context with memory allocator callbacks for alloc and free.
@@ -785,7 +787,7 @@ nk_style_pop_vec2(ctx);""")}
             nullable..nk_user_font.const.p("font", "must point to a previously initialized font handle")
         )
 
-        intb(
+        nk_bool(
             "init_custom",
             "Initializes context from two buffers. One for draw commands the other for window/panel/table allocations.",
 
@@ -826,7 +828,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_handle("handle", "handle with either pointer or index to be passed into every draw commands")
         )
 
-        intb(
+        nk_bool(
             "begin",
             "Starts a new window; needs to be called every frame for every window (unless hidden) or otherwise the window gets removed.",
 
@@ -836,7 +838,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("flags", "", WindowFlags, LinkMode.BITFIELD)
         )
 
-        intb(
+        nk_bool(
             "begin_titled",
             "Extended window start with separated title and identifier to allow multiple windows with same title but not name.",
 
@@ -891,9 +893,9 @@ nk_style_pop_vec2(ctx);""")}
             nullable..Check(1)..nk_uint.p("offset_y", "a pointer to the y offset output (or #NULL to ignore)")
         )
 
-        intb("window_has_focus", "Returns if the currently processed window is currently active.", cctx)
+        nk_bool("window_has_focus", "Returns if the currently processed window is currently active.", cctx)
 
-        intb(
+        nk_bool(
             "window_is_collapsed",
             "Returns if the window with given name is currently minimized/collapsed.",
 
@@ -901,7 +903,7 @@ nk_style_pop_vec2(ctx);""")}
             charUTF8.const.p("name", "")
         )
 
-        intb(
+        nk_bool(
             "window_is_closed",
             "Returns if the currently processed window was closed.",
 
@@ -909,7 +911,7 @@ nk_style_pop_vec2(ctx);""")}
             charUTF8.const.p("name", "")
         )
 
-        intb(
+        nk_bool(
             "window_is_hidden",
             "Returns if the currently processed window was hidden.",
 
@@ -917,7 +919,7 @@ nk_style_pop_vec2(ctx);""")}
             charUTF8.const.p("name", "")
         )
 
-        intb(
+        nk_bool(
             "window_is_active",
             "Same as #window_has_focus() for some reason.",
 
@@ -925,11 +927,11 @@ nk_style_pop_vec2(ctx);""")}
             charUTF8.const.p("name", "")
         )
 
-        intb("window_is_hovered", "Returns if the currently processed window is currently being hovered by mouse.", ctx)
+        nk_bool("window_is_hovered", "Returns if the currently processed window is currently being hovered by mouse.", ctx)
 
-        intb("window_is_any_hovered", "Return if any window currently hovered.", ctx)
+        nk_bool("window_is_any_hovered", "Return if any window currently hovered.", ctx)
 
-        intb("item_is_any_active", "Returns if any window or widgets is currently hovered or active.", ctx)
+        nk_bool("item_is_any_active", "Returns if any window or widgets is currently hovered or active.", ctx)
 
         void(
             "window_set_bounds",
@@ -1003,7 +1005,7 @@ nk_style_pop_vec2(ctx);""")}
             ctx,
             charUTF8.const.p("name", ""),
             nk_collapse_states("c", "", CollapseStates),
-            intb("cond", "")
+            nk_bool("cond", "")
         )
 
         void(
@@ -1022,7 +1024,7 @@ nk_style_pop_vec2(ctx);""")}
             ctx,
             charUTF8.const.p("name", ""),
             nk_show_states("s", "", ShowStates),
-            intb("cond", "")
+            nk_bool("cond", "")
         )
 
         void(
@@ -1105,7 +1107,7 @@ nk_style_pop_vec2(ctx);""")}
         void(
             "layout_row_end",
             "Finishes previously started row",
-            
+
             ctx
         )
         void(
@@ -1129,7 +1131,7 @@ nk_style_pop_vec2(ctx);""")}
         void(
             "layout_row_template_push_dynamic",
             "Adds a dynamic column that dynamically grows and can go to zero if not enough space.",
-            
+
             ctx
         )
         void(
@@ -1173,14 +1175,14 @@ nk_style_pop_vec2(ctx);""")}
         void(
             "layout_space_end",
             "Marks the end of the layout space.",
-            
+
             ctx
         )
 
         nk_rect(
             "layout_space_bounds",
             "Returns total space allocated for {@code nk_layout_space}.",
-            
+
             ctx
         )
 
@@ -1216,17 +1218,24 @@ nk_style_pop_vec2(ctx);""")}
             ReturnParam..nk_rect("ret", "rectangle to convert from screen space into layout space")
         )
 
-        intb(
+        void(
+            "spacer",
+            "Spacer is a dummy widget that consumes space as usual but doesn't draw anything.",
+
+            ctx
+        )
+
+        nk_bool(
             "group_begin",
-            "",
+            "Start a new group with internal scrollbar handling.",
 
             ctx,
             charUTF8.const.p("title", ""),
             nk_flags("flags", "")
         )
-        intb(
+        nk_bool(
             "group_begin_titled",
-            "",
+            "Start a new group with separated name and title and internal scrollbar handling.",
 
             ctx,
             charUTF8.const.p("name", "must be an unique identifier for this group"),
@@ -1239,10 +1248,10 @@ nk_style_pop_vec2(ctx);""")}
 
             returnDoc = "{@code true} if visible and fillable with widgets or {@code false} otherwise"
         )
-        void("group_end", "", ctx)
-        intb(
+        void("group_end", "Ends a group. Should only be called if #group_begin() returned non-zero.", ctx)
+        nk_bool(
             "group_scrolled_offset_begin",
-            "",
+            "Start a new group with manual separated handling of scrollbar x- and y-offset.",
 
             ctx,
             Check(1)..nk_uint.p("x_offset", ""),
@@ -1250,19 +1259,19 @@ nk_style_pop_vec2(ctx);""")}
             charUTF8.const.p("title", ""),
             nk_flags("flags", "")
         )
-        intb(
+        nk_bool(
             "group_scrolled_begin",
-            "",
+            "Start a new group with manual scrollbar handling.",
 
             ctx,
             nk_scroll.p("scroll", ""),
             charUTF8.const.p("title", ""),
             nk_flags("flags", "")
         )
-        void("group_scrolled_end", "", ctx)
+        void("group_scrolled_end", "Ends a group with manual scrollbar handling. Should only be called if #group_scrolled_begin() returned non-zero.", ctx)
         void(
             "group_get_scroll",
-            "Gets the scroll position of the given group.",
+            "Gets the scroll offset for the given group.",
 
             ctx,
             charUTF8.const.p("id", "the id of the group to get the scroll position of"),
@@ -1271,7 +1280,7 @@ nk_style_pop_vec2(ctx);""")}
         )
         void(
             "group_set_scroll",
-            "Sets the scroll position of the given group.",
+            "Sets the scroll offset for the given group.",
 
             ctx,
             charUTF8.const.p("id", "the id of the group to scroll"),
@@ -1279,7 +1288,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_uint("y_offset", "the y offset to scroll to")
         )
 
-        intb(
+        nk_bool(
             "list_view_begin",
             "",
 
@@ -1297,9 +1306,9 @@ nk_style_pop_vec2(ctx);""")}
             nk_list_view.p("view", "")
         )
 
-        val tree_push_hashed = intb(
+        val tree_push_hashed = nk_bool(
             "tree_push_hashed",
-            "Start a collapsable UI section with internal state management with full control over internal unique ID used to store state.",
+            "Start a collapsible UI section with internal state management with full control over internal unique ID used to store state.",
 
             ctx,
             nk_tree_type(
@@ -1313,9 +1322,9 @@ nk_style_pop_vec2(ctx);""")}
             AutoSize("hash")..nk_int("len", "size of passed memory block or string in {@code hash}"),
             nk_int("seed", "seeding value if this function is called in a loop or default to 0")
         )
-        intb(
+        nk_bool(
             "tree_image_push_hashed",
-            "Start a collapsable UI section with internal state management with full control over internal unique ID used to store state.",
+            "Start a collapsible UI section with internal state management with full control over internal unique ID used to store state.",
 
             ctx,
             tree_push_hashed["type"],
@@ -1326,20 +1335,20 @@ nk_style_pop_vec2(ctx);""")}
             tree_push_hashed["len"],
             tree_push_hashed["seed"]
         )
-        void("tree_pop", "Ends a collapsable UI section", ctx)
+        void("tree_pop", "Ends a collapsible UI section", ctx)
 
-        intb(
+        nk_bool(
             "tree_state_push",
-            "Start a collapsable UI section with external state management.",
+            "Start a collapsible UI section with external state management.",
 
             ctx,
             tree_push_hashed["type"],
             tree_push_hashed["title"],
             Check(1)..nk_collapse_states.p("state", "persistent state to update")
         )
-        intb(
+        nk_bool(
             "tree_state_image_push",
-            "Start a collapsable UI section with image and label header and external state management.",
+            "Start a collapsible UI section with image and label header and external state management.",
 
             ctx,
             tree_push_hashed["type"],
@@ -1347,9 +1356,9 @@ nk_style_pop_vec2(ctx);""")}
             tree_push_hashed["title"],
             Check(1)..nk_collapse_states.p("state", "")
         )
-        void("tree_state_pop", "Ends a collapsable UI section.", ctx)
+        void("tree_state_pop", "Ends a collapsible UI section.", ctx)
 
-        intb(
+        nk_bool(
             "tree_element_push_hashed",
             "",
 
@@ -1357,12 +1366,12 @@ nk_style_pop_vec2(ctx);""")}
             tree_push_hashed["type"],
             tree_push_hashed["title"],
             nk_collapse_states("initial_state", ""),
-            Check(1)..intb.p("selected", ""),
+            Check(1)..nk_bool.p("selected", ""),
             char.const.p("hash", ""),
             AutoSize("hash")..int("len", ""),
             int("seed", "")
         )
-        intb(
+        nk_bool(
             "tree_element_image_push_hashed",
             "",
 
@@ -1371,7 +1380,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_image("img", ""),
             tree_push_hashed["title"],
             nk_collapse_states("initial_state", ""),
-            Check(1)..intb.p("selected", ""),
+            Check(1)..nk_bool.p("selected", ""),
             char.const.p("hash", ""),
             AutoSize("hash")..int("len", ""),
             int("seed", "")
@@ -1479,7 +1488,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_button_behavior("behavior", "", ButtonBehaviors)
         )
 
-        intb(
+        nk_bool(
             "button_push_behavior",
             "",
 
@@ -1487,14 +1496,14 @@ nk_style_pop_vec2(ctx);""")}
             nk_button_behavior("behavior", "", ButtonBehaviors)
         )
 
-        intb(
+        nk_bool(
             "button_pop_behavior",
             "",
 
             ctx
         )
 
-        intb(
+        nk_bool(
             "button_text",
             "",
 
@@ -1503,7 +1512,7 @@ nk_style_pop_vec2(ctx);""")}
             AutoSize("title")..nk_int("len", "")
         )
 
-        intb(
+        nk_bool(
             "button_label",
             "",
 
@@ -1511,7 +1520,7 @@ nk_style_pop_vec2(ctx);""")}
             charUTF8.const.p("title", "")
         )
 
-        intb(
+        nk_bool(
             "button_color",
             "",
 
@@ -1519,7 +1528,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_color("color", "")
         )
 
-        intb(
+        nk_bool(
             "button_symbol",
             "",
 
@@ -1527,7 +1536,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_symbol_type("symbol", "", SymbolTypes)
         )
 
-        intb(
+        nk_bool(
             "button_image",
             "",
 
@@ -1535,7 +1544,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_image("img", "")
         )
 
-        intb(
+        nk_bool(
             "button_symbol_label",
             "",
 
@@ -1545,7 +1554,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("text_alignment", "", TextAlignments)
         )
 
-        intb(
+        nk_bool(
             "button_symbol_text",
             "",
 
@@ -1556,7 +1565,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("alignment", "", TextAlignments)
         )
 
-        intb(
+        nk_bool(
             "button_image_label",
             "",
 
@@ -1566,7 +1575,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("text_alignment", "", TextAlignments)
         )
 
-        intb(
+        nk_bool(
             "button_image_text",
             "",
 
@@ -1577,7 +1586,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("alignment", "", TextAlignments)
         )
 
-        intb(
+        nk_bool(
             "button_text_styled",
             "",
 
@@ -1587,7 +1596,7 @@ nk_style_pop_vec2(ctx);""")}
             int("len", "")
         )
 
-        intb(
+        nk_bool(
             "button_label_styled",
             "",
 
@@ -1596,7 +1605,7 @@ nk_style_pop_vec2(ctx);""")}
             charUTF8.const.p("title", "")
         )
 
-        intb(
+        nk_bool(
             "button_symbol_styled",
             "",
 
@@ -1605,7 +1614,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_symbol_type("symbol", "")
         )
 
-        intb(
+        nk_bool(
             "button_image_styled",
             "",
 
@@ -1614,7 +1623,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_image("img", "")
         )
 
-        intb(
+        nk_bool(
             "button_symbol_text_styled",
             "",
 
@@ -1626,7 +1635,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("alignment", "")
         )
 
-        intb(
+        nk_bool(
             "button_symbol_label_styled",
             "",
 
@@ -1637,7 +1646,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("text_alignment", "")
         )
 
-        intb(
+        nk_bool(
             "button_image_label_styled",
             "",
 
@@ -1648,7 +1657,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("text_alignment", "")
         )
 
-        intb(
+        nk_bool(
             "button_image_text_styled",
             "",
 
@@ -1660,23 +1669,23 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("alignment", "")
         )
 
-        intb(
+        nk_bool(
             "check_label",
             "",
 
             ctx,
             charUTF8.const.p("str", ""),
-            intb("active", "")
+            nk_bool("active", "")
         )
 
-        intb(
+        nk_bool(
             "check_text",
             "",
 
             ctx,
             charUTF8.const.p("str", ""),
             AutoSize("str")..int("len", ""),
-            intb("active", "")
+            nk_bool("active", "")
         )
 
         unsigned_int(
@@ -1700,26 +1709,26 @@ nk_style_pop_vec2(ctx);""")}
             unsigned_int("value", "")
         )
 
-        intb(
+        nk_bool(
             "checkbox_label",
             "",
 
             ctx,
             charUTF8.const.p("str", ""),
-            Check(1)..int.p("active", "")
+            Check(1)..nk_bool.p("active", "")
         )
 
-        intb(
+        nk_bool(
             "checkbox_text",
             "",
 
             ctx,
             charUTF8.const.p("str", ""),
             AutoSize("str")..int("len", ""),
-            Check(1)..int.p("active", "")
+            Check(1)..nk_bool.p("active", "")
         )
 
-        intb(
+        nk_bool(
             "checkbox_flags_label",
             "",
 
@@ -1729,7 +1738,7 @@ nk_style_pop_vec2(ctx);""")}
             unsigned_int("value", "")
         )
 
-        intb(
+        nk_bool(
             "checkbox_flags_text",
             "",
 
@@ -1740,55 +1749,55 @@ nk_style_pop_vec2(ctx);""")}
             unsigned_int("value", "")
         )
 
-        intb(
+        nk_bool(
             "radio_label",
             "",
 
             ctx,
             charUTF8.const.p("str", ""),
-            Check(1)..int.p("active", "")
+            Check(1)..nk_bool.p("active", "")
         )
 
-        intb(
+        nk_bool(
             "radio_text",
             "",
 
             ctx,
             charUTF8.const.p("str", ""),
             AutoSize("str")..int("len", ""),
-            Check(1)..int.p("active", "")
+            Check(1)..nk_bool.p("active", "")
         )
 
-        intb(
+        nk_bool(
             "option_label",
             "",
 
             ctx,
             charUTF8.const.p("str", ""),
-            intb("active", "")
+            nk_bool("active", "")
         )
 
-        intb(
+        nk_bool(
             "option_text",
             "",
 
             ctx,
             charUTF8.const.p("str", ""),
             AutoSize("str")..int("len", ""),
-            intb("active", "")
+            nk_bool("active", "")
         )
 
-        intb(
+        nk_bool(
             "selectable_label",
             "",
 
             ctx,
             charUTF8.const.p("str", ""),
             nk_flags("align", "", TextAlignments),
-            Check(1)..int.p("value", "")
+            Check(1)..nk_bool.p("value", "")
         )
 
-        intb(
+        nk_bool(
             "selectable_text",
             "",
 
@@ -1796,10 +1805,10 @@ nk_style_pop_vec2(ctx);""")}
             charUTF8.const.p("str", ""),
             AutoSize("str")..int("len", ""),
             nk_flags("align", "", TextAlignments),
-            Check(1)..int.p("value", "")
+            Check(1)..nk_bool.p("value", "")
         )
 
-        intb(
+        nk_bool(
             "selectable_image_label",
             "",
 
@@ -1807,10 +1816,10 @@ nk_style_pop_vec2(ctx);""")}
             nk_image("img", ""),
             charUTF8.const.p("str", ""),
             nk_flags("align", "", TextAlignments),
-            Check(1)..int.p("value", "")
+            Check(1)..nk_bool.p("value", "")
         )
 
-        intb(
+        nk_bool(
             "selectable_image_text",
             "",
 
@@ -1819,10 +1828,10 @@ nk_style_pop_vec2(ctx);""")}
             charUTF8.const.p("str", ""),
             AutoSize("str")..int("len", ""),
             nk_flags("align", "", TextAlignments),
-            Check(1)..int.p("value", "")
+            Check(1)..nk_bool.p("value", "")
         )
 
-        intb(
+        nk_bool(
             "selectable_symbol_label",
             "",
 
@@ -1830,10 +1839,10 @@ nk_style_pop_vec2(ctx);""")}
             nk_symbol_type("symbol", "", SymbolTypes),
             charUTF8.const.p("str", ""),
             nk_flags("align", "", TextAlignments),
-            Check(1)..int.p("value", "")
+            Check(1)..nk_bool.p("value", "")
         )
 
-        intb(
+        nk_bool(
             "selectable_symbol_text",
             "",
 
@@ -1842,20 +1851,20 @@ nk_style_pop_vec2(ctx);""")}
             charUTF8.const.p("str", ""),
             AutoSize("str")..int("len", ""),
             nk_flags("align", "", TextAlignments),
-            Check(1)..int.p("value", "")
+            Check(1)..nk_bool.p("value", "")
         )
 
-        intb(
+        nk_bool(
             "select_label",
             "",
 
             ctx,
             charUTF8.const.p("str", ""),
             nk_flags("align", "", TextAlignments),
-            intb("value", "")
+            nk_bool("value", "")
         )
 
-        intb(
+        nk_bool(
             "select_text",
             "",
 
@@ -1863,10 +1872,10 @@ nk_style_pop_vec2(ctx);""")}
             charUTF8.const.p("str", ""),
             AutoSize("str")..int("len", ""),
             nk_flags("align", "", TextAlignments),
-            intb("value", "")
+            nk_bool("value", "")
         )
 
-        intb(
+        nk_bool(
             "select_image_label",
             "",
 
@@ -1874,10 +1883,10 @@ nk_style_pop_vec2(ctx);""")}
             nk_image("img", ""),
             charUTF8.const.p("str", ""),
             nk_flags("align", "", TextAlignments),
-            intb("value", "")
+            nk_bool("value", "")
         )
 
-        intb(
+        nk_bool(
             "select_image_text",
             "",
 
@@ -1886,10 +1895,10 @@ nk_style_pop_vec2(ctx);""")}
             charUTF8.const.p("str", ""),
             AutoSize("str")..int("len", ""),
             nk_flags("align", "", TextAlignments),
-            intb("value", "")
+            nk_bool("value", "")
         )
 
-        intb(
+        nk_bool(
             "select_symbol_label",
             "",
 
@@ -1897,10 +1906,10 @@ nk_style_pop_vec2(ctx);""")}
             nk_symbol_type("symbol", "", SymbolTypes),
             charUTF8.const.p("str", ""),
             nk_flags("align", "", TextAlignments),
-            intb("value", "")
+            nk_bool("value", "")
         )
 
-        intb(
+        nk_bool(
             "select_symbol_text",
             "",
 
@@ -1909,7 +1918,7 @@ nk_style_pop_vec2(ctx);""")}
             charUTF8.const.p("str", ""),
             AutoSize("str")..int("len", ""),
             nk_flags("align", "", TextAlignments),
-            intb("value", "")
+            nk_bool("value", "")
         )
 
         float(
@@ -1934,7 +1943,7 @@ nk_style_pop_vec2(ctx);""")}
             int("step", "")
         )
 
-        int(
+        nk_bool(
             "slider_float",
             "",
 
@@ -1945,7 +1954,7 @@ nk_style_pop_vec2(ctx);""")}
             float("step", "")
         )
 
-        int(
+        nk_bool(
             "slider_int",
             "",
 
@@ -1956,14 +1965,14 @@ nk_style_pop_vec2(ctx);""")}
             int("step", "")
         )
 
-        intb(
+        nk_bool(
             "progress",
             "",
 
             ctx,
             Check(1)..nk_size.p("cur", ""),
             nk_size("max", ""),
-            intb("modifyable", "")
+            nk_bool("modifyable", "")
         )
 
         nk_size(
@@ -1973,7 +1982,7 @@ nk_style_pop_vec2(ctx);""")}
             ctx,
             nk_size("cur", ""),
             nk_size("max", ""),
-            intb("modifyable", "")
+            nk_bool("modifyable", "")
         )
 
         nk_colorf(
@@ -1985,7 +1994,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_color_format("fmt", "", ColorFormats)
         )
 
-        intb(
+        nk_bool(
             "color_pick",
             "",
 
@@ -1996,7 +2005,7 @@ nk_style_pop_vec2(ctx);""")}
 
         void(
             "property_int",
-            "",
+            "Integer property directly modifying a passed in value.",
 
             ctx,
             charUTF8.const.p("name", ""),
@@ -2009,7 +2018,7 @@ nk_style_pop_vec2(ctx);""")}
 
         void(
             "property_float",
-            "",
+            "Float property directly modifying a passed in value.",
 
             ctx,
             charUTF8.const.p("name", ""),
@@ -2022,7 +2031,7 @@ nk_style_pop_vec2(ctx);""")}
 
         void(
             "property_double",
-            "",
+            "Double property directly modifying a passed in value.",
 
             ctx,
             charUTF8.const.p("name", ""),
@@ -2035,7 +2044,7 @@ nk_style_pop_vec2(ctx);""")}
 
         int(
             "propertyi",
-            "",
+            "Integer property returning the modified int value.",
 
             ctx,
             charUTF8.const.p("name", ""),
@@ -2048,7 +2057,7 @@ nk_style_pop_vec2(ctx);""")}
 
         float(
             "propertyf",
-            "",
+            "Float property returning the modified float value.",
 
             ctx,
             charUTF8.const.p("name", ""),
@@ -2061,7 +2070,7 @@ nk_style_pop_vec2(ctx);""")}
 
         double(
             "propertyd",
-            "",
+            "Double property returning the modified double value.",
 
             ctx,
             charUTF8.const.p("name", ""),
@@ -2122,7 +2131,7 @@ nk_style_pop_vec2(ctx);""")}
     }();
 
     {
-        intb(
+        nk_bool(
             "chart_begin",
             "",
 
@@ -2133,7 +2142,7 @@ nk_style_pop_vec2(ctx);""")}
             float("max", "")
         )
 
-        intb(
+        nk_bool(
             "chart_begin_colored",
             "",
 
@@ -2212,7 +2221,7 @@ nk_style_pop_vec2(ctx);""")}
             int("offset", "")
         )
 
-        intb(
+        nk_bool(
             "popup_begin",
             "",
 
@@ -2241,51 +2250,51 @@ nk_style_pop_vec2(ctx);""")}
             nk_uint("offset_y", "")
         )
 
-        intb(
+        int(
             "combo",
             "",
 
             ctx,
             charUTF8.const.p.p("items", ""),
             AutoSize("items")..int("count", ""),
-            intb("selected", ""),
+            int("selected", ""),
             int("item_height", ""),
             nk_vec2("size", "")
         )
 
-        intb(
+        int(
             "combo_separator",
             "",
 
             ctx,
             charUTF8.const.p("items_separated_by_separator", ""),
             int("separator", ""),
-            intb("selected", ""),
+            int("selected", ""),
             int("count", ""),
             int("item_height", ""),
             nk_vec2("size", "")
         )
 
-        intb(
+        int(
             "combo_string",
             "",
 
             ctx,
             charUTF8.const.p("items_separated_by_zeros", ""),
-            intb("selected", ""),
+            int("selected", ""),
             int("count", ""),
             int("item_height", ""),
             nk_vec2("size", "")
         )
 
-        intb(
+        int(
             "combo_callback",
             "",
 
             ctx,
             nk_item_getter("item_getter", ""),
             opaque_p("userdata", ""),
-            intb("selected", ""),
+            int("selected", ""),
             int("count", ""),
             int("item_height", ""),
             nk_vec2("size", "")
@@ -2341,7 +2350,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_vec2("size", "")
         )
 
-        intb(
+        nk_bool(
             "combo_begin_text",
             "",
 
@@ -2351,7 +2360,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_vec2("size", "")
         )
 
-        intb(
+        nk_bool(
             "combo_begin_label",
             "",
 
@@ -2360,7 +2369,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_vec2("size", "")
         )
 
-        intb(
+        nk_bool(
             "combo_begin_color",
             "",
 
@@ -2369,7 +2378,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_vec2("size", "")
         )
 
-        intb(
+        nk_bool(
             "combo_begin_symbol",
             "",
 
@@ -2378,7 +2387,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_vec2("size", "")
         )
 
-        intb(
+        nk_bool(
             "combo_begin_symbol_label",
             "",
 
@@ -2388,7 +2397,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_vec2("size", "")
         )
 
-        intb(
+        nk_bool(
             "combo_begin_symbol_text",
             "",
 
@@ -2399,7 +2408,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_vec2("size", "")
         )
 
-        intb(
+        nk_bool(
             "combo_begin_image",
             "",
 
@@ -2408,7 +2417,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_vec2("size", "")
         )
 
-        intb(
+        nk_bool(
             "combo_begin_image_label",
             "",
 
@@ -2418,7 +2427,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_vec2("size", "")
         )
 
-        intb(
+        nk_bool(
             "combo_begin_image_text",
             "",
 
@@ -2429,7 +2438,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_vec2("size", "")
         )
 
-        intb(
+        nk_bool(
             "combo_item_label",
             "",
 
@@ -2438,7 +2447,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("alignment", "", TextAlignments)
         )
 
-        intb(
+        nk_bool(
             "combo_item_text",
             "",
 
@@ -2448,7 +2457,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("alignment", "", TextAlignments)
         )
 
-        intb(
+        nk_bool(
             "combo_item_image_label",
             "",
 
@@ -2458,7 +2467,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("alignment", "", TextAlignments)
         )
 
-        intb(
+        nk_bool(
             "combo_item_image_text",
             "",
 
@@ -2469,7 +2478,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("alignment", "", TextAlignments)
         )
 
-        intb(
+        nk_bool(
             "combo_item_symbol_label",
             "",
 
@@ -2479,7 +2488,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("alignment", "", TextAlignments)
         )
 
-        intb(
+        nk_bool(
             "combo_item_symbol_text",
             "",
 
@@ -2493,7 +2502,7 @@ nk_style_pop_vec2(ctx);""")}
         void("combo_close", "", ctx)
         void("combo_end", "", ctx)
 
-        intb(
+        nk_bool(
             "contextual_begin",
             "",
 
@@ -2503,7 +2512,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_rect("trigger_bounds", "")
         )
 
-        intb(
+        nk_bool(
             "contextual_item_text",
             "",
 
@@ -2513,7 +2522,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("align", "", TextAlignments)
         )
 
-        intb(
+        nk_bool(
             "contextual_item_label",
             "",
 
@@ -2522,7 +2531,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("align", "", TextAlignments)
         )
 
-        intb(
+        nk_bool(
             "contextual_item_image_label",
             "",
 
@@ -2532,7 +2541,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("alignment", "", TextAlignments)
         )
 
-        intb(
+        nk_bool(
             "contextual_item_image_text",
             "",
 
@@ -2543,7 +2552,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("alignment", "", TextAlignments)
         )
 
-        intb(
+        nk_bool(
             "contextual_item_symbol_label",
             "",
 
@@ -2553,7 +2562,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("alignment", "", TextAlignments)
         )
 
-        intb(
+        nk_bool(
             "contextual_item_symbol_text",
             "",
 
@@ -2575,7 +2584,7 @@ nk_style_pop_vec2(ctx);""")}
             charUTF8.const.p("text", "")
         )
 
-        intb(
+        nk_bool(
             "tooltip_begin",
             "",
 
@@ -2588,7 +2597,7 @@ nk_style_pop_vec2(ctx);""")}
         void("menubar_begin", "", ctx)
         void("menubar_end", "", ctx)
 
-        intb(
+        nk_bool(
             "menu_begin_text",
             "",
 
@@ -2599,7 +2608,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_vec2("size", "")
         )
 
-        intb(
+        nk_bool(
             "menu_begin_label",
             "",
 
@@ -2609,7 +2618,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_vec2("size", "")
         )
 
-        intb(
+        nk_bool(
             "menu_begin_image",
             "",
 
@@ -2619,7 +2628,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_vec2("size", "")
         )
 
-        intb(
+        nk_bool(
             "menu_begin_image_text",
             "",
 
@@ -2631,7 +2640,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_vec2("size", "")
         )
 
-        intb(
+        nk_bool(
             "menu_begin_image_label",
             "",
 
@@ -2642,7 +2651,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_vec2("size", "")
         )
 
-        intb(
+        nk_bool(
             "menu_begin_symbol",
             "",
 
@@ -2652,7 +2661,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_vec2("size", "")
         )
 
-        intb(
+        nk_bool(
             "menu_begin_symbol_text",
             "",
 
@@ -2664,7 +2673,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_vec2("size", "")
         )
 
-        intb(
+        nk_bool(
             "menu_begin_symbol_label",
             "",
 
@@ -2675,7 +2684,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_vec2("size", "")
         )
 
-        intb(
+        nk_bool(
             "menu_item_text",
             "",
 
@@ -2685,7 +2694,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("align", "", TextAlignments)
         )
 
-        intb(
+        nk_bool(
             "menu_item_label",
             "",
 
@@ -2694,7 +2703,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("alignment", "", TextAlignments)
         )
 
-        intb(
+        nk_bool(
             "menu_item_image_label",
             "",
 
@@ -2704,7 +2713,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("alignment", "", TextAlignments)
         )
 
-        intb(
+        nk_bool(
             "menu_item_image_text",
             "",
 
@@ -2715,7 +2724,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("alignment", "", TextAlignments)
         )
 
-        intb(
+        nk_bool(
             "menu_item_symbol_text",
             "",
 
@@ -2726,7 +2735,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("alignment", "", TextAlignments)
         )
 
-        intb(
+        nk_bool(
             "menu_item_symbol_label",
             "",
 
@@ -2774,7 +2783,7 @@ nk_style_pop_vec2(ctx);""")}
 
             ctx,
             nk_keys("key", "", Keys),
-            intb("down", "")
+            nk_bool("down", "")
         )
 
         void(
@@ -2785,7 +2794,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_buttons("id", "", Buttons),
             int("x", ""),
             int("y", ""),
-            intb("down", "")
+            nk_bool("down", "")
         )
 
         void(
@@ -2872,7 +2881,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_user_font.const.p("font", "")
         )
 
-        int(
+        nk_bool(
             "style_set_cursor",
             "",
 
@@ -2883,7 +2892,7 @@ nk_style_pop_vec2(ctx);""")}
         void("style_show_cursor", "", ctx)
         void("style_hide_cursor", "", ctx)
 
-        int(
+        nk_bool(
             "style_push_font",
             "",
 
@@ -2891,7 +2900,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_user_font.const.p("font", "")
         )
 
-        int(
+        nk_bool(
             "style_push_float",
             "",
 
@@ -2900,7 +2909,7 @@ nk_style_pop_vec2(ctx);""")}
             float("value", "")
         )
 
-        int(
+        nk_bool(
             "style_push_vec2",
             "",
 
@@ -2909,7 +2918,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_vec2("value", "")
         )
 
-        int(
+        nk_bool(
             "style_push_style_item",
             "",
 
@@ -2918,7 +2927,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_style_item("value", "")
         )
 
-        int(
+        nk_bool(
             "style_push_flags",
             "",
 
@@ -2927,7 +2936,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_flags("value", "")
         )
 
-        int(
+        nk_bool(
             "style_push_color",
             "",
 
@@ -2936,12 +2945,12 @@ nk_style_pop_vec2(ctx);""")}
             nk_color("value", "")
         )
 
-        int("style_pop_font", "", ctx)
-        int("style_pop_float", "", ctx)
-        int("style_pop_vec2", "", ctx)
-        int("style_pop_style_item", "", ctx)
-        int("style_pop_flags", "", ctx)
-        int("style_pop_color", "", ctx)
+        nk_bool("style_pop_font", "", ctx)
+        nk_bool("style_pop_float", "", ctx)
+        nk_bool("style_pop_vec2", "", ctx)
+        nk_bool("style_pop_style_item", "", ctx)
+        nk_bool("style_pop_flags", "", ctx)
+        nk_bool("style_pop_color", "", ctx)
 
         nk_rect("widget_bounds", "", ctx)
 
@@ -2952,9 +2961,9 @@ nk_style_pop_vec2(ctx);""")}
         float("widget_width", "", ctx)
         float("widget_height", "", ctx)
 
-        intb("widget_is_hovered", "", ctx)
+        nk_bool("widget_is_hovered", "", ctx)
 
-        intb(
+        nk_bool(
             "widget_is_mouse_clicked",
             "",
 
@@ -2962,13 +2971,13 @@ nk_style_pop_vec2(ctx);""")}
             nk_buttons("btn", "")
         )
 
-        intb(
+        nk_bool(
             "widget_has_mouse_click_down",
             "",
 
             ctx,
             nk_buttons("btn", "", Buttons),
-            intb("down", "")
+            nk_bool("down", "")
         )
 
         void(
@@ -3441,7 +3450,7 @@ nk_style_pop_vec2(ctx);""")}
             int("id", "")
         )
 
-        intb(
+        nk_bool(
             "image_is_subimage",
             "",
 
@@ -3453,8 +3462,8 @@ nk_style_pop_vec2(ctx);""")}
             "",
 
             opaque_p("ptr", ""),
-            unsigned_short("w", ""),
-            unsigned_short("h", ""),
+            nk_ushort("w", ""),
+            nk_ushort("h", ""),
             nk_rect("sub_region", "")
         )
 
@@ -3463,8 +3472,8 @@ nk_style_pop_vec2(ctx);""")}
             "",
 
             int("id", ""),
-            unsigned_short("w", ""),
-            unsigned_short("h", ""),
+            nk_ushort("w", ""),
+            nk_ushort("h", ""),
             nk_rect("sub_region", "")
         )
 
@@ -3473,9 +3482,85 @@ nk_style_pop_vec2(ctx);""")}
             "",
 
             nk_handle("handle", ""),
-            unsigned_short("w", ""),
-            unsigned_short("h", ""),
+            nk_ushort("w", ""),
+            nk_ushort("h", ""),
             nk_rect("sub_region", "")
+        )
+
+        nk_nine_slice(
+            "nine_slice_handle",
+            "",
+
+            nk_handle("handle", ""),
+            nk_ushort("l", ""),
+            nk_ushort("t", ""),
+            nk_ushort("r", ""),
+            nk_ushort("b", "")
+        )
+        nk_nine_slice(
+            "nine_slice_ptr",
+            "",
+
+            opaque_p("ptr", ""),
+            nk_ushort("l", ""),
+            nk_ushort("t", ""),
+            nk_ushort("r", ""),
+            nk_ushort("b", "")
+        )
+        nk_nine_slice(
+            "nine_slice_id",
+            "",
+
+            int("id", ""),
+            nk_ushort("l", ""),
+            nk_ushort("t", ""),
+            nk_ushort("r", ""),
+            nk_ushort("b", "")
+        )
+        intb(
+            "nine_slice_is_sub9slice",
+            "",
+
+            nk_nine_slice.const.p("img", "")
+        )
+        nk_nine_slice(
+            "sub9slice_ptr",
+            "",
+
+            opaque_p("ptr", ""),
+            nk_ushort("w", ""),
+            nk_ushort("h", ""),
+            nk_rect("sub_region", ""),
+            nk_ushort("l", ""),
+            nk_ushort("t", ""),
+            nk_ushort("r", ""),
+            nk_ushort("b", "")
+        )
+        nk_nine_slice(
+            "sub9slice_id",
+            "",
+
+            int("id", ""),
+            nk_ushort("w", ""),
+            nk_ushort("h", ""),
+            nk_rect("sub_region", ""),
+            nk_ushort("l", ""),
+            nk_ushort("t", ""),
+            nk_ushort("r", ""),
+            nk_ushort("b", "")
+        )
+        nk_nine_slice(
+            "sub9slice_handle",
+            "",
+
+            nk_handle("handle", ""),
+            nk_ushort("w", ""),
+            nk_ushort("h", ""),
+            nk_rect("sub_region", ""),
+            nk_ushort("l", ""),
+            nk_ushort("t", ""),
+            nk_ushort("r", ""),
+            nk_ushort("b", "")
         )
 
         nk_hash(
@@ -3636,7 +3721,7 @@ nk_style_pop_vec2(ctx);""")}
             Check(1)..charUTF8.const.p.p("endptr", "")
         )
 
-        intb(
+        nk_bool(
             "strfilter",
             """
             ${ul(
@@ -3652,7 +3737,7 @@ nk_style_pop_vec2(ctx);""")}
             charUTF8.const.p("regexp", "")
         )
 
-        intb(
+        nk_bool(
             "strmatch_fuzzy_string",
             """
             Returns true if each character in {@code pattern} is found sequentially within {@code str} if found then {@code out_score} is also set. Score value
@@ -4066,7 +4151,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_str.p("s", "")
         )
 
-        intb(
+        nk_bool(
             "filter_default",
             "",
 
@@ -4074,7 +4159,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_rune("unicode", "")
         )
 
-        intb(
+        nk_bool(
             "filter_ascii",
             "",
 
@@ -4082,7 +4167,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_rune("unicode", "")
         )
 
-        intb(
+        nk_bool(
             "filter_float",
             "",
 
@@ -4090,7 +4175,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_rune("unicode", "")
         )
 
-        intb(
+        nk_bool(
             "filter_decimal",
             "",
 
@@ -4098,7 +4183,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_rune("unicode", "")
         )
 
-        intb(
+        nk_bool(
             "filter_hex",
             "",
 
@@ -4106,7 +4191,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_rune("unicode", "")
         )
 
-        intb(
+        nk_bool(
             "filter_oct",
             "",
 
@@ -4114,7 +4199,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_rune("unicode", "")
         )
 
-        intb(
+        nk_bool(
             "filter_binary",
             "",
 
@@ -4179,14 +4264,14 @@ nk_style_pop_vec2(ctx);""")}
             nk_text_edit.p("box", "")
         )
 
-        intb(
+        nk_bool(
             "textedit_cut",
             "",
 
             nk_text_edit.p("box", "")
         )
 
-        intb(
+        nk_bool(
             "textedit_paste",
             "",
 
@@ -4393,6 +4478,16 @@ nk_style_pop_vec2(ctx);""")}
         )
 
         void(
+            "draw_nine_slice",
+            "",
+
+            cmd,
+            nk_rect("rect", ""),
+            nk_nine_slice.const.p("slc", ""),
+            nk_color("color", "")
+        )
+
+        void(
             "draw_text",
             "",
 
@@ -4438,7 +4533,7 @@ nk_style_pop_vec2(ctx);""")}
             ctx
         )
 
-        intb(
+        nk_bool(
             "input_has_mouse_click",
             "",
 
@@ -4446,7 +4541,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_buttons("id", "", Buttons)
         )
 
-        intb(
+        nk_bool(
             "input_has_mouse_click_in_rect",
             "",
 
@@ -4455,17 +4550,17 @@ nk_style_pop_vec2(ctx);""")}
             nk_rect("rect", "")
         )
 
-        intb(
+        nk_bool(
             "input_has_mouse_click_down_in_rect",
             "",
 
             nk_input.const.p("i", ""),
             nk_buttons("id", "", Buttons),
             nk_rect("rect", ""),
-            int("down", "")
+            nk_bool("down", "")
         )
 
-        intb(
+        nk_bool(
             "input_is_mouse_click_in_rect",
             "",
 
@@ -4474,17 +4569,17 @@ nk_style_pop_vec2(ctx);""")}
             nk_rect("rect", "")
         )
 
-        intb(
+        nk_bool(
             "input_is_mouse_click_down_in_rect",
             "",
 
             nk_input.const.p("i", ""),
             nk_buttons("id", "", Buttons),
             nk_rect("b", ""),
-            int("down", "")
+            nk_bool("down", "")
         )
 
-        intb(
+        nk_bool(
             "input_any_mouse_click_in_rect",
             "",
 
@@ -4492,7 +4587,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_rect("rect", "")
         )
 
-        intb(
+        nk_bool(
             "input_is_mouse_prev_hovering_rect",
             "",
 
@@ -4500,7 +4595,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_rect("rect", "")
         )
 
-        intb(
+        nk_bool(
             "input_is_mouse_hovering_rect",
             "",
 
@@ -4508,7 +4603,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_rect("rect", "")
         )
 
-        intb(
+        nk_bool(
             "input_mouse_clicked",
             "",
 
@@ -4517,7 +4612,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_rect("rect", "")
         )
 
-        intb(
+        nk_bool(
             "input_is_mouse_down",
             "",
 
@@ -4525,7 +4620,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_buttons("id", "", Buttons)
         )
 
-        intb(
+        nk_bool(
             "input_is_mouse_pressed",
             "",
 
@@ -4533,7 +4628,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_buttons("id", "", Buttons)
         )
 
-        intb(
+        nk_bool(
             "input_is_mouse_released",
             "",
 
@@ -4541,7 +4636,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_buttons("id", "", Buttons)
         )
 
-        intb(
+        nk_bool(
             "input_is_key_pressed",
             "",
 
@@ -4549,7 +4644,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_keys("key", "", Keys)
         )
 
-        intb(
+        nk_bool(
             "input_is_key_released",
             "",
 
@@ -4557,7 +4652,7 @@ nk_style_pop_vec2(ctx);""")}
             nk_keys("key", "", Keys)
         )
 
-        intb(
+        nk_bool(
             "input_is_key_down",
             "",
 
@@ -4866,6 +4961,13 @@ nk_style_pop_vec2(ctx);""")}
         )
 
         nk_style_item(
+            "style_item_color",
+            "",
+
+            nk_color("color", "")
+        )
+
+        nk_style_item(
             "style_item_image",
             "",
 
@@ -4873,10 +4975,10 @@ nk_style_pop_vec2(ctx);""")}
         )
 
         nk_style_item(
-            "style_item_color",
+            "style_item_nine_slice",
             "",
 
-            nk_color("color", "")
+            nk_nine_slice("slice", "")
         )
 
         nk_style_item(

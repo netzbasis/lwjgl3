@@ -8,7 +8,7 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val KHR_performance_query = "KHRPerformanceQuery".nativeClassVK("KHR_performance_query", type = "device", postfix = KHR) {
+val KHR_performance_query = "KHRPerformanceQuery".nativeClassVK("KHR_performance_query", type = "device", postfix = "KHR") {
     documentation =
         """
         The {@code VK_KHR_performance_query} extension adds a mechanism to allow querying of performance counters for use in applications and by profiling tools.
@@ -210,7 +210,7 @@ val KHR_performance_query = "KHRPerformanceQuery".nativeClassVK("KHR_performance
 ￿  sizeof(VkPerformanceCounterResultKHR),
 ￿  NULL);
 ￿
-￿// recordedCounters is filled with our counters, we'll look at one for posterity
+￿// recordedCounters is filled with our counters, we will look at one for posterity
 ￿switch (counters[0].storage) {
 ￿  case VK_PERFORMANCE_COUNTER_STORAGE_INT32:
 ￿    // use recordCounters[0].int32 to get at the counter result!
@@ -232,6 +232,7 @@ val KHR_performance_query = "KHRPerformanceQuery".nativeClassVK("KHR_performance
 ￿    break;
 ￿}</code></pre>
 
+        <h5>VK_KHR_performance_query</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_KHR_performance_query}</dd>
@@ -251,11 +252,19 @@ val KHR_performance_query = "KHRPerformanceQuery".nativeClassVK("KHR_performance
                 <li>Requires {@link KHRGetPhysicalDeviceProperties2 VK_KHR_get_physical_device_properties2}</li>
             </ul></dd>
 
-            <dt><b>Contact</b></dt>
+            <dt><b>Special Use</b></dt>
             <dd><ul>
-                <li>Alon Or-bach <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_KHR_performance_query:%20&amp;body=@alonorbach%20">alonorbach</a></li>
+                <li><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#extendingvulkan-compatibility-specialuse">Developer tools</a></li>
             </ul></dd>
 
+            <dt><b>Contact</b></dt>
+            <dd><ul>
+                <li>Alon Or-bach <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_KHR_performance_query]%20@alonorbach%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_KHR_performance_query%20extension%3E%3E">alonorbach</a></li>
+            </ul></dd>
+        </dl>
+
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2019-10-08</dd>
 
@@ -403,15 +412,14 @@ val KHR_performance_query = "KHRPerformanceQuery".nativeClassVK("KHR_performance
 
         <h5>Description</h5>
         <ul>
-            <li>#PERFORMANCE_COUNTER_DESCRIPTION_PERFORMANCE_IMPACTING_KHR specifies that recording the counter <b>may</b> have a noticable performance impact.</li>
-            <li>#PERFORMANCE_COUNTER_DESCRIPTION_CONCURRENTLY_IMPACTED_KHR specifies that concurrently recording the counter while other submitted command buffers are running <b>may</b> impact the accuracy of the recording.</li>
+            <li>#PERFORMANCE_COUNTER_DESCRIPTION_PERFORMANCE_IMPACTING_BIT_KHR specifies that recording the counter <b>may</b> have a noticeable performance impact.</li>
+            <li>#PERFORMANCE_COUNTER_DESCRIPTION_CONCURRENTLY_IMPACTED_BIT_KHR specifies that concurrently recording the counter while other submitted command buffers are running <b>may</b> impact the accuracy of the recording.</li>
         </ul>
-
-        <h5>See Also</h5>
-        {@code VkPerformanceCounterDescriptionFlagsKHR}
         """,
 
+        "PERFORMANCE_COUNTER_DESCRIPTION_PERFORMANCE_IMPACTING_BIT_KHR".enum(0x00000001),
         "PERFORMANCE_COUNTER_DESCRIPTION_PERFORMANCE_IMPACTING_KHR".enum(0x00000001),
+        "PERFORMANCE_COUNTER_DESCRIPTION_CONCURRENTLY_IMPACTED_BIT_KHR".enum(0x00000002),
         "PERFORMANCE_COUNTER_DESCRIPTION_CONCURRENTLY_IMPACTED_KHR".enum(0x00000002)
     )
 
@@ -432,7 +440,7 @@ val KHR_performance_query = "KHRPerformanceQuery".nativeClassVK("KHR_performance
 ￿    VkPerformanceCounterDescriptionKHR*         pCounterDescriptions);</code></pre>
 
         <h5>Description</h5>
-        If {@code pCounters} is {@code NULL} and {@code pCounterDescriptions} is {@code NULL}, then the number of counters available is returned in {@code pCounterCount}. Otherwise, {@code pCounterCount} <b>must</b> point to a variable set by the user to the number of elements in the {@code pCounters}, {@code pCounterDescriptions}, or both arrays and on return the variable is overwritten with the number of structures actually written out. If {@code pCounterCount} is less than the number of counters available, at most {@code pCounterCount} structures will be written and #INCOMPLETE will be returned instead of #SUCCESS.
+        If {@code pCounters} is {@code NULL} and {@code pCounterDescriptions} is {@code NULL}, then the number of counters available is returned in {@code pCounterCount}. Otherwise, {@code pCounterCount} <b>must</b> point to a variable set by the user to the number of elements in the {@code pCounters}, {@code pCounterDescriptions}, or both arrays and on return the variable is overwritten with the number of structures actually written out. If {@code pCounterCount} is less than the number of counters available, at most {@code pCounterCount} structures will be written, and #INCOMPLETE will be returned instead of #SUCCESS, to indicate that not all the available counters were returned.
 
         <h5>Valid Usage (Implicit)</h5>
         <ul>
@@ -508,7 +516,7 @@ val KHR_performance_query = "KHRPerformanceQuery".nativeClassVK("KHR_performance
         Acquires the profiling lock.
 
         <h5>C Specification</h5>
-        To record and submit a command buffer that contains a performance query pool the profiling lock <b>must</b> be held. The profiling lock <b>must</b> be acquired prior to any call to #BeginCommandBuffer() that will be using a performance query pool. The profiling lock <b>must</b> be held while any command buffer that contains a performance query pool is in the <em>recording</em>, <em>executable</em>, or <em>pending state</em>. To acquire the profiling lock, call:
+        To record and submit a command buffer containing a performance query pool the profiling lock <b>must</b> be held. The profiling lock <b>must</b> be acquired prior to any call to #BeginCommandBuffer() that will be using a performance query pool. The profiling lock <b>must</b> be held while any command buffer containing a performance query pool is in the <em>recording</em>, <em>executable</em>, or <em>pending state</em>. To acquire the profiling lock, call:
 
         <pre><code>
 ￿VkResult vkAcquireProfilingLockKHR(
@@ -533,6 +541,7 @@ val KHR_performance_query = "KHRPerformanceQuery".nativeClassVK("KHR_performance
 
             <dt>On failure, this command returns</dt>
             <dd><ul>
+                <li>#ERROR_OUT_OF_HOST_MEMORY</li>
                 <li>#TIMEOUT</li>
             </ul></dd>
         </dl>
@@ -542,7 +551,7 @@ val KHR_performance_query = "KHRPerformanceQuery".nativeClassVK("KHR_performance
         """,
 
         VkDevice("device", "the logical device to profile."),
-        VkAcquireProfilingLockInfoKHR.const.p("pInfo", "a pointer to a ##VkAcquireProfilingLockInfoKHR structure which contains information about how the profiling is to be acquired.")
+        VkAcquireProfilingLockInfoKHR.const.p("pInfo", "a pointer to a ##VkAcquireProfilingLockInfoKHR structure containing information about how the profiling is to be acquired.")
     )
 
     void(

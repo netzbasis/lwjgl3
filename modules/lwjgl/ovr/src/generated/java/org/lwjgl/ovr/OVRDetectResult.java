@@ -18,27 +18,12 @@ import static org.lwjgl.system.MemoryStack.*;
 /**
  * Return values for {@link OVRUtil#ovr_Detect _Detect}.
  * 
- * <h3>Member documentation</h3>
- * 
- * <ul>
- * <li>{@code IsOculusServiceRunning} &ndash; 
- * is {@link OVR#ovrFalse False} when the Oculus Service is not running. This means that the Oculus Service is either uninstalled or stopped.
- * {@code IsOculusHMDConnected} will be {@link OVR#ovrFalse False} in this case.
- * 
- * <p>is {@link OVR#ovrTrue True} when the Oculus Service is running. This means that the Oculus Service is installed and running. {@code IsOculusHMDConnected} will
- * reflect the state of the HMD.</p></li>
- * <li>{@code IsOculusHMDConnected} &ndash; 
- * is {@link OVR#ovrFalse False} when an Oculus HMD is not detected. If the Oculus Service is not running, this will be {@link OVR#ovrFalse False}.
- * 
- * <p>is {@link OVR#ovrTrue True} when an Oculus HMD is detected. This implies that the Oculus Service is also installed and running.</p></li>
- * </ul>
- * 
  * <h3>Layout</h3>
  * 
  * <pre><code>
  * struct ovrDetectResult {
- *     ovrBool IsOculusServiceRunning;
- *     ovrBool IsOculusHMDConnected;
+ *     ovrBool {@link #IsOculusServiceRunning};
+ *     ovrBool {@link #IsOculusHMDConnected};
  *     char[6];
  * }</code></pre>
  */
@@ -83,10 +68,20 @@ public class OVRDetectResult extends Struct implements NativeResource {
     @Override
     public int sizeof() { return SIZEOF; }
 
-    /** Returns the value of the {@code IsOculusServiceRunning} field. */
+    /**
+     * is {@link OVR#ovrFalse False} when the Oculus Service is not running. This means that the Oculus Service is either uninstalled or stopped.
+     * {@code IsOculusHMDConnected} will be {@link OVR#ovrFalse False} in this case.
+     * 
+     * <p>is {@link OVR#ovrTrue True} when the Oculus Service is running. This means that the Oculus Service is installed and running. {@code IsOculusHMDConnected} will
+     * reflect the state of the HMD.</p>
+     */
     @NativeType("ovrBool")
     public boolean IsOculusServiceRunning() { return nIsOculusServiceRunning(address()); }
-    /** Returns the value of the {@code IsOculusHMDConnected} field. */
+    /**
+     * is {@link OVR#ovrFalse False} when an Oculus HMD is not detected. If the Oculus Service is not running, this will be {@link OVR#ovrFalse False}.
+     * 
+     * <p>is {@link OVR#ovrTrue True} when an Oculus HMD is detected. This implies that the Oculus Service is also installed and running.</p>
+     */
     @NativeType("ovrBool")
     public boolean IsOculusHMDConnected() { return nIsOculusHMDConnected(address()); }
 
@@ -165,22 +160,29 @@ public class OVRDetectResult extends Struct implements NativeResource {
 
     // -----------------------------------
 
-    /** Returns a new {@code OVRDetectResult} instance allocated on the thread-local {@link MemoryStack}. */
-    public static OVRDetectResult mallocStack() {
-        return mallocStack(stackGet());
-    }
-
-    /** Returns a new {@code OVRDetectResult} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero. */
-    public static OVRDetectResult callocStack() {
-        return callocStack(stackGet());
-    }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRDetectResult mallocStack() { return malloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRDetectResult callocStack() { return calloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRDetectResult mallocStack(MemoryStack stack) { return malloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRDetectResult callocStack(MemoryStack stack) { return calloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRDetectResult.Buffer mallocStack(int capacity) { return malloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRDetectResult.Buffer callocStack(int capacity) { return calloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRDetectResult.Buffer mallocStack(int capacity, MemoryStack stack) { return malloc(capacity, stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRDetectResult.Buffer callocStack(int capacity, MemoryStack stack) { return calloc(capacity, stack); }
 
     /**
      * Returns a new {@code OVRDetectResult} instance allocated on the specified {@link MemoryStack}.
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRDetectResult mallocStack(MemoryStack stack) {
+    public static OVRDetectResult malloc(MemoryStack stack) {
         return wrap(OVRDetectResult.class, stack.nmalloc(ALIGNOF, SIZEOF));
     }
 
@@ -189,45 +191,27 @@ public class OVRDetectResult extends Struct implements NativeResource {
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRDetectResult callocStack(MemoryStack stack) {
+    public static OVRDetectResult calloc(MemoryStack stack) {
         return wrap(OVRDetectResult.class, stack.ncalloc(ALIGNOF, 1, SIZEOF));
-    }
-
-    /**
-     * Returns a new {@link OVRDetectResult.Buffer} instance allocated on the thread-local {@link MemoryStack}.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRDetectResult.Buffer mallocStack(int capacity) {
-        return mallocStack(capacity, stackGet());
-    }
-
-    /**
-     * Returns a new {@link OVRDetectResult.Buffer} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRDetectResult.Buffer callocStack(int capacity) {
-        return callocStack(capacity, stackGet());
     }
 
     /**
      * Returns a new {@link OVRDetectResult.Buffer} instance allocated on the specified {@link MemoryStack}.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRDetectResult.Buffer mallocStack(int capacity, MemoryStack stack) {
+    public static OVRDetectResult.Buffer malloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.nmalloc(ALIGNOF, capacity * SIZEOF), capacity);
     }
 
     /**
      * Returns a new {@link OVRDetectResult.Buffer} instance allocated on the specified {@link MemoryStack} and initializes all its bits to zero.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRDetectResult.Buffer callocStack(int capacity, MemoryStack stack) {
+    public static OVRDetectResult.Buffer calloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.ncalloc(ALIGNOF, capacity, SIZEOF), capacity);
     }
 
@@ -276,10 +260,10 @@ public class OVRDetectResult extends Struct implements NativeResource {
             return ELEMENT_FACTORY;
         }
 
-        /** Returns the value of the {@code IsOculusServiceRunning} field. */
+        /** @return the value of the {@link OVRDetectResult#IsOculusServiceRunning} field. */
         @NativeType("ovrBool")
         public boolean IsOculusServiceRunning() { return OVRDetectResult.nIsOculusServiceRunning(address()); }
-        /** Returns the value of the {@code IsOculusHMDConnected} field. */
+        /** @return the value of the {@link OVRDetectResult#IsOculusHMDConnected} field. */
         @NativeType("ovrBool")
         public boolean IsOculusHMDConnected() { return OVRDetectResult.nIsOculusHMDConnected(address()); }
 

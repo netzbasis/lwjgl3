@@ -8,7 +8,7 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val AMD_shader_core_properties = "AMDShaderCoreProperties".nativeClassVK("AMD_shader_core_properties", type = "device", postfix = AMD) {
+val AMD_shader_core_properties = "AMDShaderCoreProperties".nativeClassVK("AMD_shader_core_properties", type = "device", postfix = "AMD") {
     documentation =
         """
         This extension exposes shader core properties for a target physical device through the {@link KHRGetPhysicalDeviceProperties2 VK_KHR_get_physical_device_properties2} extension. Please refer to the example below for proper usage.
@@ -78,6 +78,7 @@ val AMD_shader_core_properties = "AMDShaderCoreProperties".nativeClassVK("AMD_sh
 ￿    m_shader_core_properties.vgpr_allocation_granularity =
 ￿    shader_core_properties.vgprAllocationGranularity;</code></pre>
 
+        <h5>VK_AMD_shader_core_properties</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_AMD_shader_core_properties}</dd>
@@ -99,9 +100,12 @@ val AMD_shader_core_properties = "AMDShaderCoreProperties".nativeClassVK("AMD_sh
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Martin Dinkov <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_AMD_shader_core_properties:%20&amp;body=@mdinkov%20">mdinkov</a></li>
+                <li>Martin Dinkov <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_AMD_shader_core_properties]%20@mdinkov%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_AMD_shader_core_properties%20extension%3E%3E">mdinkov</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2019-06-25</dd>
 

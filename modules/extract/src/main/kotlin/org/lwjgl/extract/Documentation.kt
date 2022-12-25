@@ -29,15 +29,16 @@ internal class Documentation(
         return doc.toString().trim()
             .let { if (it.startsWith("-")) it.substring(1).trim() else it }
             .let {
-                /*if (it.isEmpty())
+                if (it.isEmpty()) {
                     ""
-                else*/
-                "${it[0].let { f ->
-                    if (it.length < 2 || !it[1].isUpperCase())
-                        f.toLowerCase()
-                    else
-                        f
-                }}${it.substring(1, if (it.endsWith('.') && it.indexOf('.') == it.lastIndex) it.lastIndex else it.length)}"
+                } else {
+                    "${it[0].let { f ->
+                        if (it.length < 2 || !it[1].isUpperCase())
+                            f.lowercase()
+                        else
+                            f
+                    }}${it.substring(1, if (it.endsWith('.') && it.indexOf('.') == it.lastIndex) it.lastIndex else it.length)}"
+                }
             }
     }
 }
@@ -67,7 +68,7 @@ private fun CXComment.parseChildren(doc: Documentation, builder: StringBuilder, 
     for (i in 0 until clang_Comment_getNumChildren(this)) {
         stackPush().use { frame ->
             context.pushFirst(i)
-            clang_Comment_getChild(this, i, CXComment.mallocStack(frame)).parse(doc, builder, context)
+            clang_Comment_getChild(this, i, CXComment.malloc(frame)).parse(doc, builder, context)
             context.popFirst()
         }
     }
@@ -108,7 +109,7 @@ private fun CXComment.parse(doc: Documentation, builder: StringBuilder, context:
                             builder.append("&gt;")
                         }
                         else -> {
-                            if (!context.first && builder.isNotEmpty()) {
+                            if (!context.first && builder.isNotEmpty() && text.isNotEmpty()) {
                                 if (text[0].let { it == '-' || it == '*' }) {
                                     if (builder.last() == ':') {
                                         builder.append("\n")
@@ -228,10 +229,19 @@ private fun CXComment.parse(doc: Documentation, builder: StringBuilder, context:
                         parseChildren(doc, builder, context)
                         builder.append("</h3>")
                     }
+                    "pre" -> {
+                        builder.append("Precondition: ")
+                        parseChildren(doc, builder, context)
+                    }
                     "return",
                     "returns",
                     "result"     -> {
                         parseChildren(doc, doc.returnDoc, context)
+                    }
+                    "retval" -> {
+                        doc.returnDoc.append(" {@code ")
+                        parseChildren(doc, doc.returnDoc, context)
+                        doc.returnDoc.append("}")
                     }
                     "sa"         -> {
                         for (i in 0 until clang_Comment_getNumChildren(this)) {
@@ -239,7 +249,7 @@ private fun CXComment.parse(doc: Documentation, builder: StringBuilder, context:
                                 val saBuilder = StringBuilder()
                                 doc.see.add(saBuilder)
                                 context.pushFirst(i)
-                                clang_Comment_getChild(this, i, CXComment.mallocStack(frame)).parse(doc, saBuilder, context)
+                                clang_Comment_getChild(this, i, CXComment.malloc(frame)).parse(doc, saBuilder, context)
                                 context.popFirst()
                             }
                         }
@@ -250,6 +260,10 @@ private fun CXComment.parse(doc: Documentation, builder: StringBuilder, context:
                     }
                     "todo"       -> {
                         builder.append("TODO: ")
+                        parseChildren(doc, builder, context)
+                    }
+                    "warning" -> {
+                        builder.append("Warning: ")
                         parseChildren(doc, builder, context)
                     }
                     else         -> {

@@ -19,25 +19,15 @@ import static org.lwjgl.system.MemoryStack.*;
  * rendering information for each eye. Computed by either {@link OVR#ovr_GetRenderDesc GetRenderDesc} based on the specified FOV. Note that the rendering viewport is not
  * included here as it can be specified separately and modified per frame by passing different viewport values in the layer structure.
  * 
- * <h3>Member documentation</h3>
- * 
- * <ul>
- * <li>{@code Eye} &ndash; the eye index this instance corresponds to. One of:<br><table><tr><td>{@link OVR#ovrEye_Left Eye_Left}</td><td>{@link OVR#ovrEye_Right Eye_Right}</td></tr></table></li>
- * <li>{@code Fov} &ndash; the field of view</li>
- * <li>{@code DistortedViewport} &ndash; distortion viewport</li>
- * <li>{@code PixelsPerTanAngleAtCenter} &ndash; wow many display pixels will fit in tan(angle) = 1</li>
- * <li>{@code HmdToEyePose} &ndash; transform of eye from the HMD center, in meters</li>
- * </ul>
- * 
  * <h3>Layout</h3>
  * 
  * <pre><code>
  * struct ovrEyeRenderDesc {
- *     ovrEyeType Eye;
- *     {@link OVRFovPort ovrFovPort} Fov;
- *     {@link OVRRecti ovrRecti} DistortedViewport;
- *     {@link OVRVector2f ovrVector2f} PixelsPerTanAngleAtCenter;
- *     {@link OVRPosef ovrPosef} HmdToEyePose;
+ *     ovrEyeType {@link #Eye};
+ *     {@link OVRFovPort ovrFovPort} {@link #Fov};
+ *     {@link OVRRecti ovrRecti} {@link #DistortedViewport};
+ *     {@link OVRVector2f ovrVector2f} {@link #PixelsPerTanAngleAtCenter};
+ *     {@link OVRPosef ovrPosef} {@link #HmdToEyePose};
  * }</code></pre>
  */
 @NativeType("struct ovrEyeRenderDesc")
@@ -89,19 +79,19 @@ public class OVREyeRenderDesc extends Struct implements NativeResource {
     @Override
     public int sizeof() { return SIZEOF; }
 
-    /** Returns the value of the {@code Eye} field. */
+    /** the eye index this instance corresponds to. One of:<br><table><tr><td>{@link OVR#ovrEye_Left Eye_Left}</td><td>{@link OVR#ovrEye_Right Eye_Right}</td></tr></table> */
     @NativeType("ovrEyeType")
     public int Eye() { return nEye(address()); }
-    /** Returns a {@link OVRFovPort} view of the {@code Fov} field. */
+    /** the field of view */
     @NativeType("ovrFovPort")
     public OVRFovPort Fov() { return nFov(address()); }
-    /** Returns a {@link OVRRecti} view of the {@code DistortedViewport} field. */
+    /** distortion viewport */
     @NativeType("ovrRecti")
     public OVRRecti DistortedViewport() { return nDistortedViewport(address()); }
-    /** Returns a {@link OVRVector2f} view of the {@code PixelsPerTanAngleAtCenter} field. */
+    /** wow many display pixels will fit in tan(angle) = 1 */
     @NativeType("ovrVector2f")
     public OVRVector2f PixelsPerTanAngleAtCenter() { return nPixelsPerTanAngleAtCenter(address()); }
-    /** Returns a {@link OVRPosef} view of the {@code HmdToEyePose} field. */
+    /** transform of eye from the HMD center, in meters */
     @NativeType("ovrPosef")
     public OVRPosef HmdToEyePose() { return nHmdToEyePose(address()); }
 
@@ -180,22 +170,29 @@ public class OVREyeRenderDesc extends Struct implements NativeResource {
 
     // -----------------------------------
 
-    /** Returns a new {@code OVREyeRenderDesc} instance allocated on the thread-local {@link MemoryStack}. */
-    public static OVREyeRenderDesc mallocStack() {
-        return mallocStack(stackGet());
-    }
-
-    /** Returns a new {@code OVREyeRenderDesc} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero. */
-    public static OVREyeRenderDesc callocStack() {
-        return callocStack(stackGet());
-    }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVREyeRenderDesc mallocStack() { return malloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVREyeRenderDesc callocStack() { return calloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVREyeRenderDesc mallocStack(MemoryStack stack) { return malloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVREyeRenderDesc callocStack(MemoryStack stack) { return calloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVREyeRenderDesc.Buffer mallocStack(int capacity) { return malloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVREyeRenderDesc.Buffer callocStack(int capacity) { return calloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVREyeRenderDesc.Buffer mallocStack(int capacity, MemoryStack stack) { return malloc(capacity, stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVREyeRenderDesc.Buffer callocStack(int capacity, MemoryStack stack) { return calloc(capacity, stack); }
 
     /**
      * Returns a new {@code OVREyeRenderDesc} instance allocated on the specified {@link MemoryStack}.
      *
      * @param stack the stack from which to allocate
      */
-    public static OVREyeRenderDesc mallocStack(MemoryStack stack) {
+    public static OVREyeRenderDesc malloc(MemoryStack stack) {
         return wrap(OVREyeRenderDesc.class, stack.nmalloc(ALIGNOF, SIZEOF));
     }
 
@@ -204,45 +201,27 @@ public class OVREyeRenderDesc extends Struct implements NativeResource {
      *
      * @param stack the stack from which to allocate
      */
-    public static OVREyeRenderDesc callocStack(MemoryStack stack) {
+    public static OVREyeRenderDesc calloc(MemoryStack stack) {
         return wrap(OVREyeRenderDesc.class, stack.ncalloc(ALIGNOF, 1, SIZEOF));
-    }
-
-    /**
-     * Returns a new {@link OVREyeRenderDesc.Buffer} instance allocated on the thread-local {@link MemoryStack}.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVREyeRenderDesc.Buffer mallocStack(int capacity) {
-        return mallocStack(capacity, stackGet());
-    }
-
-    /**
-     * Returns a new {@link OVREyeRenderDesc.Buffer} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVREyeRenderDesc.Buffer callocStack(int capacity) {
-        return callocStack(capacity, stackGet());
     }
 
     /**
      * Returns a new {@link OVREyeRenderDesc.Buffer} instance allocated on the specified {@link MemoryStack}.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVREyeRenderDesc.Buffer mallocStack(int capacity, MemoryStack stack) {
+    public static OVREyeRenderDesc.Buffer malloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.nmalloc(ALIGNOF, capacity * SIZEOF), capacity);
     }
 
     /**
      * Returns a new {@link OVREyeRenderDesc.Buffer} instance allocated on the specified {@link MemoryStack} and initializes all its bits to zero.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVREyeRenderDesc.Buffer callocStack(int capacity, MemoryStack stack) {
+    public static OVREyeRenderDesc.Buffer calloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.ncalloc(ALIGNOF, capacity, SIZEOF), capacity);
     }
 
@@ -297,19 +276,19 @@ public class OVREyeRenderDesc extends Struct implements NativeResource {
             return ELEMENT_FACTORY;
         }
 
-        /** Returns the value of the {@code Eye} field. */
+        /** @return the value of the {@link OVREyeRenderDesc#Eye} field. */
         @NativeType("ovrEyeType")
         public int Eye() { return OVREyeRenderDesc.nEye(address()); }
-        /** Returns a {@link OVRFovPort} view of the {@code Fov} field. */
+        /** @return a {@link OVRFovPort} view of the {@link OVREyeRenderDesc#Fov} field. */
         @NativeType("ovrFovPort")
         public OVRFovPort Fov() { return OVREyeRenderDesc.nFov(address()); }
-        /** Returns a {@link OVRRecti} view of the {@code DistortedViewport} field. */
+        /** @return a {@link OVRRecti} view of the {@link OVREyeRenderDesc#DistortedViewport} field. */
         @NativeType("ovrRecti")
         public OVRRecti DistortedViewport() { return OVREyeRenderDesc.nDistortedViewport(address()); }
-        /** Returns a {@link OVRVector2f} view of the {@code PixelsPerTanAngleAtCenter} field. */
+        /** @return a {@link OVRVector2f} view of the {@link OVREyeRenderDesc#PixelsPerTanAngleAtCenter} field. */
         @NativeType("ovrVector2f")
         public OVRVector2f PixelsPerTanAngleAtCenter() { return OVREyeRenderDesc.nPixelsPerTanAngleAtCenter(address()); }
-        /** Returns a {@link OVRPosef} view of the {@code HmdToEyePose} field. */
+        /** @return a {@link OVRPosef} view of the {@link OVREyeRenderDesc#HmdToEyePose} field. */
         @NativeType("ovrPosef")
         public OVRPosef HmdToEyePose() { return OVREyeRenderDesc.nHmdToEyePose(address()); }
 

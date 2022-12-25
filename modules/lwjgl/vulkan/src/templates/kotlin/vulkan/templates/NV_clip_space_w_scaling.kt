@@ -8,10 +8,10 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val NV_clip_space_w_scaling = "NVClipSpaceWScaling".nativeClassVK("NV_clip_space_w_scaling", type = "device", postfix = NV) {
+val NV_clip_space_w_scaling = "NVClipSpaceWScaling".nativeClassVK("NV_clip_space_w_scaling", type = "device", postfix = "NV") {
     documentation =
         """
-        Virtual Reality (VR) applications often involve a post-processing step to apply a "{@code barrel}" distortion to the rendered image to correct the "{@code pincushion}" distortion introduced by the optics in a VR device. The barrel distorted image has lower resolution along the edges compared to the center. Since the original image is rendered at high resolution, which is uniform across the complete image, a lot of pixels towards the edges do not make it to the final post-processed image.
+        Virtual Reality (VR) applications often involve a post-processing step to apply a “{@code barrel}” distortion to the rendered image to correct the “{@code pincushion}” distortion introduced by the optics in a VR device. The barrel distorted image has lower resolution along the edges compared to the center. Since the original image is rendered at high resolution, which is uniform across the complete image, a lot of pixels towards the edges do not make it to the final post-processed image.
 
         This extension provides a mechanism to render VR scenes at a non-uniform resolution, in particular a resolution that falls linearly from the center towards the edges. This is achieved by scaling the <code>w</code> coordinate of the vertices in the clip space before perspective divide. The clip space <code>w</code> coordinate of the vertices <b>can</b> be offset as of a function of <code>x</code> and <code>y</code> coordinates as follows:
 
@@ -100,6 +100,7 @@ val NV_clip_space_w_scaling = "NVClipSpaceWScaling".nativeClassVK("NV_clip_space
 ￿    Color = texture(tex, P * 0.5 + 0.5);
 ￿}</code></pre>
 
+        <h5>VK_NV_clip_space_w_scaling</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_NV_clip_space_w_scaling}</dd>
@@ -120,9 +121,12 @@ val NV_clip_space_w_scaling = "NVClipSpaceWScaling".nativeClassVK("NV_clip_space
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Eric Werness <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_NV_clip_space_w_scaling:%20&amp;body=@ewerness-nv%20">ewerness-nv</a></li>
+                <li>Eric Werness <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_NV_clip_space_w_scaling]%20@ewerness-nv%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_NV_clip_space_w_scaling%20extension%3E%3E">ewerness-nv</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2017-02-15</dd>
 
@@ -161,10 +165,10 @@ val NV_clip_space_w_scaling = "NVClipSpaceWScaling".nativeClassVK("NV_clip_space
     void(
         "CmdSetViewportWScalingNV",
         """
-        Set the viewport W scaling on a command buffer.
+        Set the viewport W scaling dynamically for a command buffer.
 
         <h5>C Specification</h5>
-        If the bound pipeline state object was not created with the #DYNAMIC_STATE_VIEWPORT_W_SCALING_NV dynamic state enabled, viewport <b>W</b> scaling parameters are specified using the {@code pViewportWScalings} member of ##VkPipelineViewportWScalingStateCreateInfoNV in the pipeline state object. If the pipeline state object was created with the #DYNAMIC_STATE_VIEWPORT_W_SCALING_NV dynamic state enabled, the viewport transformation parameters are dynamically set and changed with the command:
+        To <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#pipelines-dynamic-state">dynamically set</a> the viewport <b>W</b> scaling parameters, call:
 
         <pre><code>
 ￿void vkCmdSetViewportWScalingNV(
@@ -176,10 +180,10 @@ val NV_clip_space_w_scaling = "NVClipSpaceWScaling".nativeClassVK("NV_clip_space
         <h5>Description</h5>
         The viewport parameters taken from element <code>i</code> of {@code pViewportWScalings} replace the current state for the viewport index <code>firstViewport + i</code>, for <code>i</code> in <code>[0, viewportCount)</code>.
 
+        This command sets the viewport <b>W</b> scaling for subsequent drawing commands when the graphics pipeline is created with #DYNAMIC_STATE_VIEWPORT_W_SCALING_NV set in ##VkPipelineDynamicStateCreateInfo{@code ::pDynamicStates}. Otherwise, this state is specified by the ##VkPipelineViewportWScalingStateCreateInfoNV{@code ::pViewportWScalings} values used to create the currently active pipeline.
+
         <h5>Valid Usage</h5>
         <ul>
-            <li>The bound graphics pipeline <b>must</b> have been created with the #DYNAMIC_STATE_VIEWPORT_W_SCALING_NV dynamic state enabled</li>
-            <li>{@code firstViewport} <b>must</b> be less than ##VkPhysicalDeviceLimits{@code ::maxViewports}</li>
             <li>The sum of {@code firstViewport} and {@code viewportCount} <b>must</b> be between 1 and ##VkPhysicalDeviceLimits{@code ::maxViewports}, inclusive</li>
         </ul>
 
@@ -187,7 +191,7 @@ val NV_clip_space_w_scaling = "NVClipSpaceWScaling".nativeClassVK("NV_clip_space
         <ul>
             <li>{@code commandBuffer} <b>must</b> be a valid {@code VkCommandBuffer} handle</li>
             <li>{@code pViewportWScalings} <b>must</b> be a valid pointer to an array of {@code viewportCount} ##VkViewportWScalingNV structures</li>
-            <li>{@code commandBuffer} <b>must</b> be in the <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#commandbuffers-lifecycle">recording state</a></li>
+            <li>{@code commandBuffer} <b>must</b> be in the <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#commandbuffers-lifecycle">recording state</a></li>
             <li>The {@code VkCommandPool} that {@code commandBuffer} was allocated from <b>must</b> support graphics operations</li>
             <li>{@code viewportCount} <b>must</b> be greater than 0</li>
         </ul>
@@ -200,8 +204,8 @@ val NV_clip_space_w_scaling = "NVClipSpaceWScaling".nativeClassVK("NV_clip_space
 
         <h5>Command Properties</h5>
         <table class="lwjgl">
-            <thead><tr><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#VkCommandBufferLevel">Command Buffer Levels</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#vkCmdBeginRenderPass">Render Pass Scope</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#VkQueueFlagBits">Supported Queue Types</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#synchronization-pipeline-stages-types">Pipeline Type</a></th></tr></thead>
-            <tbody><tr><td>Primary Secondary</td><td>Both</td><td>Graphics</td><td></td></tr></tbody>
+            <thead><tr><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#VkCommandBufferLevel">Command Buffer Levels</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#vkCmdBeginRenderPass">Render Pass Scope</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#VkQueueFlagBits">Supported Queue Types</a></th></tr></thead>
+            <tbody><tr><td>Primary Secondary</td><td>Both</td><td>Graphics</td></tr></tbody>
         </table>
 
         <h5>See Also</h5>

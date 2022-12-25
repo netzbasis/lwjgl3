@@ -18,21 +18,13 @@ import static org.lwjgl.system.MemoryStack.*;
 /**
  * A 3D vector with float components.
  * 
- * <h3>Member documentation</h3>
- * 
- * <ul>
- * <li>{@code x} &ndash; the vector x component</li>
- * <li>{@code y} &ndash; the vector y component</li>
- * <li>{@code z} &ndash; the vector z component</li>
- * </ul>
- * 
  * <h3>Layout</h3>
  * 
  * <pre><code>
  * struct ovrVector3f {
- *     float x;
- *     float y;
- *     float z;
+ *     float {@link #x};
+ *     float {@link #y};
+ *     float {@link #z};
  * }</code></pre>
  */
 @NativeType("struct ovrVector3f")
@@ -78,18 +70,18 @@ public class OVRVector3f extends Struct implements NativeResource {
     @Override
     public int sizeof() { return SIZEOF; }
 
-    /** Returns the value of the {@code x} field. */
+    /** the vector x component */
     public float x() { return nx(address()); }
-    /** Returns the value of the {@code y} field. */
+    /** the vector y component */
     public float y() { return ny(address()); }
-    /** Returns the value of the {@code z} field. */
+    /** the vector z component */
     public float z() { return nz(address()); }
 
-    /** Sets the specified value to the {@code x} field. */
+    /** Sets the specified value to the {@link #x} field. */
     public OVRVector3f x(float value) { nx(address(), value); return this; }
-    /** Sets the specified value to the {@code y} field. */
+    /** Sets the specified value to the {@link #y} field. */
     public OVRVector3f y(float value) { ny(address(), value); return this; }
-    /** Sets the specified value to the {@code z} field. */
+    /** Sets the specified value to the {@link #z} field. */
     public OVRVector3f z(float value) { nz(address(), value); return this; }
 
     /** Initializes this struct with the specified values. */
@@ -192,22 +184,29 @@ public class OVRVector3f extends Struct implements NativeResource {
 
     // -----------------------------------
 
-    /** Returns a new {@code OVRVector3f} instance allocated on the thread-local {@link MemoryStack}. */
-    public static OVRVector3f mallocStack() {
-        return mallocStack(stackGet());
-    }
-
-    /** Returns a new {@code OVRVector3f} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero. */
-    public static OVRVector3f callocStack() {
-        return callocStack(stackGet());
-    }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRVector3f mallocStack() { return malloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRVector3f callocStack() { return calloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRVector3f mallocStack(MemoryStack stack) { return malloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRVector3f callocStack(MemoryStack stack) { return calloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRVector3f.Buffer mallocStack(int capacity) { return malloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRVector3f.Buffer callocStack(int capacity) { return calloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRVector3f.Buffer mallocStack(int capacity, MemoryStack stack) { return malloc(capacity, stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRVector3f.Buffer callocStack(int capacity, MemoryStack stack) { return calloc(capacity, stack); }
 
     /**
      * Returns a new {@code OVRVector3f} instance allocated on the specified {@link MemoryStack}.
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRVector3f mallocStack(MemoryStack stack) {
+    public static OVRVector3f malloc(MemoryStack stack) {
         return wrap(OVRVector3f.class, stack.nmalloc(ALIGNOF, SIZEOF));
     }
 
@@ -216,45 +215,27 @@ public class OVRVector3f extends Struct implements NativeResource {
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRVector3f callocStack(MemoryStack stack) {
+    public static OVRVector3f calloc(MemoryStack stack) {
         return wrap(OVRVector3f.class, stack.ncalloc(ALIGNOF, 1, SIZEOF));
-    }
-
-    /**
-     * Returns a new {@link OVRVector3f.Buffer} instance allocated on the thread-local {@link MemoryStack}.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRVector3f.Buffer mallocStack(int capacity) {
-        return mallocStack(capacity, stackGet());
-    }
-
-    /**
-     * Returns a new {@link OVRVector3f.Buffer} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRVector3f.Buffer callocStack(int capacity) {
-        return callocStack(capacity, stackGet());
     }
 
     /**
      * Returns a new {@link OVRVector3f.Buffer} instance allocated on the specified {@link MemoryStack}.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRVector3f.Buffer mallocStack(int capacity, MemoryStack stack) {
+    public static OVRVector3f.Buffer malloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.nmalloc(ALIGNOF, capacity * SIZEOF), capacity);
     }
 
     /**
      * Returns a new {@link OVRVector3f.Buffer} instance allocated on the specified {@link MemoryStack} and initializes all its bits to zero.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRVector3f.Buffer callocStack(int capacity, MemoryStack stack) {
+    public static OVRVector3f.Buffer calloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.ncalloc(ALIGNOF, capacity, SIZEOF), capacity);
     }
 
@@ -312,18 +293,18 @@ public class OVRVector3f extends Struct implements NativeResource {
             return ELEMENT_FACTORY;
         }
 
-        /** Returns the value of the {@code x} field. */
+        /** @return the value of the {@link OVRVector3f#x} field. */
         public float x() { return OVRVector3f.nx(address()); }
-        /** Returns the value of the {@code y} field. */
+        /** @return the value of the {@link OVRVector3f#y} field. */
         public float y() { return OVRVector3f.ny(address()); }
-        /** Returns the value of the {@code z} field. */
+        /** @return the value of the {@link OVRVector3f#z} field. */
         public float z() { return OVRVector3f.nz(address()); }
 
-        /** Sets the specified value to the {@code x} field. */
+        /** Sets the specified value to the {@link OVRVector3f#x} field. */
         public OVRVector3f.Buffer x(float value) { OVRVector3f.nx(address(), value); return this; }
-        /** Sets the specified value to the {@code y} field. */
+        /** Sets the specified value to the {@link OVRVector3f#y} field. */
         public OVRVector3f.Buffer y(float value) { OVRVector3f.ny(address(), value); return this; }
-        /** Sets the specified value to the {@code z} field. */
+        /** Sets the specified value to the {@link OVRVector3f#z} field. */
         public OVRVector3f.Buffer z(float value) { OVRVector3f.nz(address(), value); return this; }
 
     }

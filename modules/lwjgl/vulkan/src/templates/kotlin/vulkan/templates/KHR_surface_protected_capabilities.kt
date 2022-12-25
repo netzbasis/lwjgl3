@@ -8,7 +8,7 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val KHR_surface_protected_capabilities = "KHRSurfaceProtectedCapabilities".nativeClassVK("KHR_surface_protected_capabilities", type = "instance", postfix = KHR) {
+val KHR_surface_protected_capabilities = "KHRSurfaceProtectedCapabilities".nativeClassVK("KHR_surface_protected_capabilities", type = "instance", postfix = "KHR") {
     documentation =
         """
         This extension extends ##VkSurfaceCapabilities2KHR, providing applications a way to query whether swapchains <b>can</b> be created with the #SWAPCHAIN_CREATE_PROTECTED_BIT_KHR flag set.
@@ -17,6 +17,7 @@ val KHR_surface_protected_capabilities = "KHRSurfaceProtectedCapabilities".nativ
 
         This extension provides a way to query if a protected swapchain created for a surface (and thus a specific windowing system) <b>can</b> be displayed on screen. It extends the existing ##VkSurfaceCapabilities2KHR structure with a new ##VkSurfaceProtectedCapabilitiesKHR structure from which the application <b>can</b> obtain information about support for protected swapchain creation through #GetPhysicalDeviceSurfaceCapabilities2KHR().
 
+        <h5>VK_KHR_surface_protected_capabilities</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_KHR_surface_protected_capabilities}</dd>
@@ -38,9 +39,12 @@ val KHR_surface_protected_capabilities = "KHRSurfaceProtectedCapabilities".nativ
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Sandeep Shinde <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_KHR_surface_protected_capabilities:%20&amp;body=@sashinde%20">sashinde</a></li>
+                <li>Sandeep Shinde <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_KHR_surface_protected_capabilities]%20@sashinde%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_KHR_surface_protected_capabilities%20extension%3E%3E">sashinde</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2018-12-18</dd>
 

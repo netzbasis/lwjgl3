@@ -14,19 +14,14 @@ This script is included in /config/build-definitions.xml.
 
     <!-- // ========== BINDING FLAGS ======== // -->
 
-    <local name="notARM"/>
-    <condition property="notARM">
-        <or>
-            <isset property="build.arch.x64"/>
-            <isset property="build.arch.x86"/>
-        </or>
-    </condition>
-
     <property name="binding.assimp" value="true"/>
-    <property name="binding.bgfx" value="true"/>
-    <property name="binding.bullet" value="true"/>
+    <condition property="binding.bgfx" value="false" else="true">
+        <and>
+            <isset property="platform.windows"/>
+            <isset property="build.arch.arm"/>
+        </and>
+    </condition>
     <property name="binding.cuda" value="true"/>
-    <property name="binding.driftfx" value="false"/>
     <property name="binding.egl" value="true"/>
     <property name="binding.glfw" value="true"/>
     <property name="binding.jawt" value="true"/>
@@ -37,33 +32,39 @@ This script is included in /config/build-definitions.xml.
     <property name="binding.lz4" value="true"/>
     <condition property="binding.meow" value="true" else="false">
         <or>
-            <isset property="notARM"/>
+            <not><isset property="build.arch.arm"/></not>
             <isset property="build.arch.arm64"/>
         </or>
     </condition>
     <property name="binding.meshoptimizer" value="true"/>
     <property name="binding.nanovg" value="true"/>
-    <condition property="binding.nfd" value="true" else="false"><isset property="notARM"/></condition>
+    <property name="binding.nfd" value="true"/>
     <property name="binding.nuklear" value="true"/>
     <property name="binding.odbc" value="true"/>
     <property name="binding.openal" value="true"/>
     <property name="binding.opencl" value="true"/>
     <property name="binding.opengl" value="true"/>
     <property name="binding.opengles" value="true"/>
-    <condition property="binding.openvr" value="true" else="false"><isset property="notARM"/></condition>
+    <condition property="binding.openvr" value="false" else="true"><isset property="build.arch.arm"/></condition>
+    <property name="binding.openxr" value="true"/>
     <property name="binding.opus" value="true"/>
     <property name="binding.par" value="true"/>
-    <property name="binding.remotery" value="true"/>
+    <condition property="binding.remotery" value="false" else="true">
+        <and>
+            <isset property="platform.windows"/>
+            <isset property="build.arch.arm"/>
+        </and>
+    </condition>
     <property name="binding.rpmalloc" value="true"/>
     <property name="binding.shaderc" value="true"/>
     <property name="binding.spvc" value="true"/>
-    <condition property="binding.sse" value="true" else="false"><isset property="notARM"/></condition>
+    <condition property="binding.sse" value="false" else="true"><isset property="build.arch.arm"/></condition>
     <property name="binding.stb" value="true"/>
     <property name="binding.tinyexr" value="true"/>
     <property name="binding.tinyfd" value="true"/>
-    <condition property="binding.tootle" value="true" else="false"><isset property="notARM"/></condition>
-    <property name="binding.vma" value="true"/>
+    <condition property="binding.tootle" value="false" else="true"><isset property="build.arch.arm"/></condition>
     <property name="binding.vulkan" value="true"/>
+    <condition property="binding.vma" value="true" else="false"><istrue value="${binding.vulkan}"/></condition>
     <property name="binding.xxhash" value="true"/>
     <property name="binding.yoga" value="true"/>
     <property name="binding.zstd" value="false"/>
@@ -78,101 +79,23 @@ This script is included in /config/build-definitions.xml.
     <!-- Set the path to the Oculus SDK to enable. -->
     <!-- TODO: add headers in here -->
     <property name="OCULUS_SDK_PATH" location="../OculusSDK" relative="false"/>
+    <condition property="binding.ovr" value="true" else="false">
+        <and>
+            <isset property="OCULUS_SDK_PATH"/>
+            <available file="${OCULUS_SDK_PATH}/LibOVR/Include/OVR_CAPI.h"/>
+            <not><isset property="build.arch.arm"/></not>
+        </and>
+    </condition>
 
     <!-- // ================================ // -->
-
-    <target name="bindings">
-        <condition property="binding.ovr" value="true" else="false">
-            <and>
-                <isset property="OCULUS_SDK_PATH"/>
-                <available file="${OCULUS_SDK_PATH}/LibOVR/Include/OVR_CAPI.h"/>
-            </and>
-        </condition>
-
-        <local name="dependency_problem"/>
-        <condition property="dependency_problem" value="1">
-            <and>
-                <istrue value="${binding.ovr}"/>
-
-                <and>
-                    <isfalse value="${binding.opengl}"/>
-                    <isfalse value="${binding.vulkan}"/>
-                </and>
-            </and>
-        </condition>
-        <fail if="dependency_problem" message="The OpenGL or Vulkan bindings are required."/>
-
-        <condition property="dependency_problem" value="1">
-            <and>
-                <istrue value="${binding.nanovg}"/>
-                <or>
-                    <isfalse value="${binding.stb}"/>
-                    <and>
-                        <isfalse value="${binding.bgfx}"/>
-                        <isfalse value="${binding.opengl}"/>
-                        <isfalse value="${binding.opengles}"/>
-                    </and>
-                </or>
-            </and>
-        </condition>
-        <fail if="dependency_problem" message="The stb and OpenGL or OpenGL ES bindings are required."/>
-
-        <script language="javascript">
-        var props = LWJGL.getProperties();
-
-        var modules = ["core"];
-        var bindings = ["-Dbinding.DISABLE_CHECKS=" + props.get("binding.DISABLE_CHECKS")];
-
-        for each (p in props.entrySet()) {
-            var name = p.key;
-            if (name.startsWith("binding.") &amp;&amp; p.value == "true") {
-                var module = name.substring(8);
-
-                modules.push(module);
-                bindings.push("-D" + name + "=true");
-            }
-        }
-
-        LWJGL.setProperty("binding.core", "true");
-        LWJGL.setProperty("generator.bindings", bindings.join(" "));
-        LWJGL.setProperty("module.list", modules.join(","));
-
-        var classes = [];
-        var templates = [];
-        var sources = [];
-
-        modules.forEach(function(it) {
-            LWJGL.setProperty("module." + it + ".path", it == "core" ? "org/lwjgl" : "org/lwjgl/" + it);
-
-            classes.push("bin/classes/lwjgl/" + it);
-
-            var src = "modules/lwjgl/" + it + "/src";
-
-            templates.push(src + "/templates/kotlin");
-            sources.push(src + "/generated/java");
-            if (java.nio.file.Files.isDirectory(java.nio.file.Paths.get(src + "/main/java"))) {
-                sources.push(src + "/main/java");
-            }
-        });
-
-        LWJGL.setProperty("module.classpath", classes.join(java.io.File.pathSeparator));
-        LWJGL.setProperty("module.templatepath", templates.join(java.io.File.pathSeparator));
-        LWJGL.setProperty("module.sourcepath", sources.join(java.io.File.pathSeparator));
-        LWJGL.setProperty("module.javadocsourcepath", sources.filter(function(it) {
-            return it.indexOf('driftfx/src/main/java') === -1;
-        }).join(java.io.File.pathSeparator));
-        </script>
-    </target>
 
     <macrodef name="forEachBinding">
         <element name="body" implicit="yes"/>
         <sequential>
             <parallel threadsPerProcessor="1">
                 <sequential if:true="${binding.assimp}"><local name="module"/><property name="module" value="assimp"/><body/></sequential>
-                <sequential if:true="${binding.bullet}"><local name="module"/><property name="module" value="bullet"/><body/></sequential>
                 <sequential if:true="${binding.bgfx}"><local name="module"/><property name="module" value="bgfx"/><body/></sequential>
                 <sequential if:true="${binding.cuda}"><local name="module"/><property name="module" value="cuda"/><body/></sequential>
-                <sequential if:true="${binding.driftfx}"><local name="module"/><property name="module" value="driftfx"/><body/></sequential>
                 <sequential if:true="${binding.egl}"><local name="module"/><property name="module" value="egl"/><body/></sequential>
                 <sequential if:true="${binding.glfw}"><local name="module"/><property name="module" value="glfw"/><body/></sequential>
                 <sequential if:true="${binding.jawt}"><local name="module"/><property name="module" value="jawt"/><body/></sequential>
@@ -192,6 +115,7 @@ This script is included in /config/build-definitions.xml.
                 <sequential if:true="${binding.opengl}"><local name="module"/><property name="module" value="opengl"/><body/></sequential>
                 <sequential if:true="${binding.opengles}"><local name="module"/><property name="module" value="opengles"/><body/></sequential>
                 <sequential if:true="${binding.openvr}"><local name="module"/><property name="module" value="openvr"/><body/></sequential>
+                <sequential if:true="${binding.openxr}"><local name="module"/><property name="module" value="openxr"/><body/></sequential>
                 <sequential if:true="${binding.opus}"><local name="module"/><property name="module" value="opus"/><body/></sequential>
                 <sequential if:true="${binding.ovr}"><local name="module"/><property name="module" value="ovr"/><body/></sequential>
                 <sequential if:true="${binding.par}"><local name="module"/><property name="module" value="par"/><body/></sequential>

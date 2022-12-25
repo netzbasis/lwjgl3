@@ -8,11 +8,12 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val KHR_shared_presentable_image = "KHRSharedPresentableImage".nativeClassVK("KHR_shared_presentable_image", type = "device", postfix = KHR) {
+val KHR_shared_presentable_image = "KHRSharedPresentableImage".nativeClassVK("KHR_shared_presentable_image", type = "device", postfix = "KHR") {
     documentation =
         """
         This extension extends {@link KHRSwapchain VK_KHR_swapchain} to enable creation of a shared presentable image. This allows the application to use the image while the presention engine is accessing it, in order to reduce the latency between rendering and presentation.
 
+        <h5>VK_KHR_shared_presentable_image</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_KHR_shared_presentable_image}</dd>
@@ -36,9 +37,12 @@ val KHR_shared_presentable_image = "KHRSharedPresentableImage".nativeClassVK("KH
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Alon Or-bach <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_KHR_shared_presentable_image:%20&amp;body=@alonorbach%20">alonorbach</a></li>
+                <li>Alon Or-bach <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_KHR_shared_presentable_image]%20@alonorbach%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_KHR_shared_presentable_image%20extension%3E%3E">alonorbach</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2017-03-20</dd>
 
@@ -98,10 +102,10 @@ val KHR_shared_presentable_image = "KHRSharedPresentableImage".nativeClassVK("KH
     VkResult(
         "GetSwapchainStatusKHR",
         """
-        Get a swapchain's status.
+        Get a swapchain’s status.
 
         <h5>C Specification</h5>
-        In order to query a swapchain's status when rendering to a shared presentable image, call:
+        In order to query a swapchain’s status when rendering to a shared presentable image, call:
 
         <pre><code>
 ￿VkResult vkGetSwapchainStatusKHR(

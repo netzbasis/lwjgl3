@@ -33,7 +33,7 @@ val Spvc = "Spvc".nativeClass(Module.SPVC, prefix = "SPVC_", prefixMethod = "spv
         """
 
     IntConstant("", "C_API_VERSION_MAJOR".."0")
-    IntConstant("", "C_API_VERSION_MINOR".."23")
+    IntConstant("", "C_API_VERSION_MINOR".."48")
     IntConstant("", "C_API_VERSION_PATCH".."0")
 
     IntConstant("", "COMPILER_OPTION_COMMON_BIT"..0x1000000)
@@ -134,7 +134,16 @@ val Spvc = "Spvc".nativeClass(Module.SPVC, prefix = "SPVC_", prefixMethod = "spv
         "RESOURCE_TYPE_PUSH_CONSTANT".enum,
         "RESOURCE_TYPE_SEPARATE_IMAGE".enum,
         "RESOURCE_TYPE_SEPARATE_SAMPLERS".enum,
-        "RESOURCE_TYPE_ACCELERATION_STRUCTURE".enum
+        "RESOURCE_TYPE_ACCELERATION_STRUCTURE".enum,
+        "RESOURCE_TYPE_RAY_QUERY".enum
+    )
+
+    EnumConstant(
+        "{@code spvc_builtin_resource_type}",
+
+        "BUILTIN_RESOURCE_TYPE_UNKNOWN".enum("", "0"),
+        "BUILTIN_RESOURCE_TYPE_STAGE_INPUT".enum,
+        "BUILTIN_RESOURCE_TYPE_STAGE_OUTPUT".enum
     )
 
     EnumConstant(
@@ -179,14 +188,42 @@ val Spvc = "Spvc".nativeClass(Module.SPVC, prefix = "SPVC_", prefixMethod = "spv
 
     EnumConstant(
         """
-        Maps to C++ API.
+        The type of index in the index buffer, if present.
+
+        ({@code spvc_msl_index_type})
+        """,
+
+        "MSL_INDEX_TYPE_NONE".enum("", "0"),
+        "MSL_INDEX_TYPE_UINT16".enum,
+        "MSL_INDEX_TYPE_UINT32".enum
+    )
+
+    EnumConstant(
+        """
+        Indicates the format of a shader input.
+
+        Currently limited to specifying if the input is an 8-bit unsigned integer, 16-bit unsigned integer, or some other format.
+
+        ({@code spvc_msl_shader_input_format})
+        """,
+
+        "MSL_SHADER_INPUT_FORMAT_OTHER".enum("", "0"),
+        "MSL_SHADER_INPUT_FORMAT_UINT8".enum,
+        "MSL_SHADER_INPUT_FORMAT_UINT16".enum,
+        "MSL_SHADER_INPUT_FORMAT_ANY16".enum,
+        "MSL_SHADER_INPUT_FORMAT_ANY32".enum
+    )
+
+    EnumConstant(
+        """
+        Deprecated.
 
         ({@code spvc_msl_vertex_format})
         """,
 
-        "MSL_VERTEX_FORMAT_OTHER".enum("", "0"),
-        "MSL_VERTEX_FORMAT_UINT8".enum,
-        "MSL_VERTEX_FORMAT_UINT16".enum
+        "MSL_VERTEX_FORMAT_OTHER".enum("", "SPVC_MSL_SHADER_INPUT_FORMAT_OTHER"),
+        "MSL_VERTEX_FORMAT_UINT8".enum("", "SPVC_MSL_SHADER_INPUT_FORMAT_UINT8"),
+        "MSL_VERTEX_FORMAT_UINT16".enum("", "SPVC_MSL_SHADER_INPUT_FORMAT_UINT16")
     )
 
     EnumConstant(
@@ -428,10 +465,38 @@ val Spvc = "Spvc".nativeClass(Module.SPVC, prefix = "SPVC_", prefixMethod = "spv
         "COMPILER_OPTION_MSL_TEXTURE_1D_AS_2D".enum("", "44 | SPVC_COMPILER_OPTION_MSL_BIT"),
         "COMPILER_OPTION_MSL_ENABLE_BASE_INDEX_ZERO".enum("", "45 | SPVC_COMPILER_OPTION_MSL_BIT"),
         "COMPILER_OPTION_MSL_IOS_FRAMEBUFFER_FETCH_SUBPASS".enum("", "46 | SPVC_COMPILER_OPTION_MSL_BIT"),
+        "COMPILER_OPTION_MSL_FRAMEBUFFER_FETCH_SUBPASS".enum("", "46 | SPVC_COMPILER_OPTION_MSL_BIT"),
         "COMPILER_OPTION_MSL_INVARIANT_FP_MATH".enum("", "47 | SPVC_COMPILER_OPTION_MSL_BIT"),
         "COMPILER_OPTION_MSL_EMULATE_CUBEMAP_ARRAY".enum("", "48 | SPVC_COMPILER_OPTION_MSL_BIT"),
         "COMPILER_OPTION_MSL_ENABLE_DECORATION_BINDING".enum("", "49 | SPVC_COMPILER_OPTION_MSL_BIT"),
-        "COMPILER_OPTION_MSL_FORCE_ACTIVE_ARGUMENT_BUFFER_RESOURCES".enum("", "50 | SPVC_COMPILER_OPTION_MSL_BIT")
+        "COMPILER_OPTION_MSL_FORCE_ACTIVE_ARGUMENT_BUFFER_RESOURCES".enum("", "50 | SPVC_COMPILER_OPTION_MSL_BIT"),
+        "COMPILER_OPTION_MSL_FORCE_NATIVE_ARRAYS".enum("", "51 | SPVC_COMPILER_OPTION_MSL_BIT"),
+        "COMPILER_OPTION_ENABLE_STORAGE_IMAGE_QUALIFIER_DEDUCTION".enum("", "52 | SPVC_COMPILER_OPTION_COMMON_BIT"),
+        "COMPILER_OPTION_HLSL_FORCE_STORAGE_BUFFER_AS_UAV".enum("", "53 | SPVC_COMPILER_OPTION_HLSL_BIT"),
+        "COMPILER_OPTION_FORCE_ZERO_INITIALIZED_VARIABLES".enum("", "54 | SPVC_COMPILER_OPTION_COMMON_BIT"),
+        "COMPILER_OPTION_HLSL_NONWRITABLE_UAV_TEXTURE_AS_SRV".enum("", "55 | SPVC_COMPILER_OPTION_HLSL_BIT"),
+        "COMPILER_OPTION_MSL_ENABLE_FRAG_OUTPUT_MASK".enum("", "56 | SPVC_COMPILER_OPTION_MSL_BIT"),
+        "COMPILER_OPTION_MSL_ENABLE_FRAG_DEPTH_BUILTIN".enum("", "57 | SPVC_COMPILER_OPTION_MSL_BIT"),
+        "COMPILER_OPTION_MSL_ENABLE_FRAG_STENCIL_REF_BUILTIN".enum("", "58 | SPVC_COMPILER_OPTION_MSL_BIT"),
+        "COMPILER_OPTION_MSL_ENABLE_CLIP_DISTANCE_USER_VARYING".enum("", "59 | SPVC_COMPILER_OPTION_MSL_BIT"),
+        "COMPILER_OPTION_HLSL_ENABLE_16BIT_TYPES".enum("", "60 | SPVC_COMPILER_OPTION_HLSL_BIT"),
+        "COMPILER_OPTION_MSL_MULTI_PATCH_WORKGROUP".enum("", "61 | SPVC_COMPILER_OPTION_MSL_BIT"),
+        "COMPILER_OPTION_MSL_SHADER_INPUT_BUFFER_INDEX".enum("", "62 | SPVC_COMPILER_OPTION_MSL_BIT"),
+        "COMPILER_OPTION_MSL_SHADER_INDEX_BUFFER_INDEX".enum("", "63 | SPVC_COMPILER_OPTION_MSL_BIT"),
+        "COMPILER_OPTION_MSL_VERTEX_FOR_TESSELLATION".enum("", "64 | SPVC_COMPILER_OPTION_MSL_BIT"),
+        "COMPILER_OPTION_MSL_VERTEX_INDEX_TYPE".enum("", "65 | SPVC_COMPILER_OPTION_MSL_BIT"),
+        "COMPILER_OPTION_GLSL_FORCE_FLATTENED_IO_BLOCKS".enum("", "66 | SPVC_COMPILER_OPTION_GLSL_BIT"),
+        "COMPILER_OPTION_MSL_MULTIVIEW_LAYERED_RENDERING".enum("", "67 | SPVC_COMPILER_OPTION_MSL_BIT"),
+        "COMPILER_OPTION_MSL_ARRAYED_SUBPASS_INPUT".enum("", "68 | SPVC_COMPILER_OPTION_MSL_BIT"),
+        "COMPILER_OPTION_MSL_R32UI_LINEAR_TEXTURE_ALIGNMENT".enum("", "69 | SPVC_COMPILER_OPTION_MSL_BIT"),
+        "COMPILER_OPTION_MSL_R32UI_ALIGNMENT_CONSTANT_ID".enum("", "70 | SPVC_COMPILER_OPTION_MSL_BIT"),
+        "COMPILER_OPTION_HLSL_FLATTEN_MATRIX_VERTEX_INPUT_SEMANTICS".enum("", "71 | SPVC_COMPILER_OPTION_HLSL_BIT"),
+        "COMPILER_OPTION_MSL_IOS_USE_SIMDGROUP_FUNCTIONS".enum("", "72 | SPVC_COMPILER_OPTION_MSL_BIT"),
+        "COMPILER_OPTION_MSL_EMULATE_SUBGROUPS".enum("", "73 | SPVC_COMPILER_OPTION_MSL_BIT"),
+        "COMPILER_OPTION_MSL_FIXED_SUBGROUP_SIZE".enum("", "74 | SPVC_COMPILER_OPTION_MSL_BIT"),
+        "COMPILER_OPTION_MSL_FORCE_SAMPLE_RATE_SHADING".enum("", "75 | SPVC_COMPILER_OPTION_MSL_BIT"),
+        "COMPILER_OPTION_MSL_IOS_SUPPORT_BASE_VERTEX_INSTANCE".enum("", "76 | SPVC_COMPILER_OPTION_MSL_BIT"),
+        "COMPILER_OPTION_GLSL_OVR_MULTIVIEW_VIEW_COUNT".enum("", "77 | SPVC_COMPILER_OPTION_GLSL_BIT")
     )
 
     void(
@@ -455,6 +520,13 @@ val Spvc = "Spvc".nativeClass(Module.SPVC, prefix = "SPVC_", prefixMethod = "spv
         "Initializes the vertex attribute struct.",
 
         spvc_msl_vertex_attribute.p("attr", "")
+    )
+
+    void(
+        "msl_shader_input_init",
+        "Initializes the shader input struct.",
+
+        spvc_msl_shader_input.p("input", "")
     )
 
     void(
@@ -638,6 +710,31 @@ val Spvc = "Spvc".nativeClass(Module.SPVC, prefix = "SPVC_", prefixMethod = "spv
         spvc_variable_id("id", "")
     )
 
+    spvc_bool(
+        "compiler_variable_is_depth_or_compare",
+        "",
+
+        spvc_compiler("compiler", ""),
+        spvc_variable_id("id", "")
+    )
+
+    spvc_result(
+        "compiler_mask_stage_output_by_location",
+        "",
+
+        spvc_compiler("compiler", ""),
+        unsigned("location", ""),
+        unsigned("component", "")
+    )
+
+    spvc_result(
+        "compiler_mask_stage_output_by_builtin",
+        "",
+
+        spvc_compiler("compiler", ""),
+        SpvBuiltIn("builtin", "")
+    )
+
     spvc_result(
         "compiler_hlsl_set_root_constants_layout",
         "HLSL specifics. Maps to C++ API.",
@@ -748,6 +845,14 @@ val Spvc = "Spvc".nativeClass(Module.SPVC, prefix = "SPVC_", prefixMethod = "spv
     )
 
     spvc_result(
+        "compiler_msl_add_shader_input",
+        "",
+
+        spvc_compiler("compiler", ""),
+        spvc_msl_shader_input.const.p("input", "")
+    )
+
+    spvc_result(
         "compiler_msl_add_discrete_descriptor_set",
         "",
 
@@ -766,10 +871,18 @@ val Spvc = "Spvc".nativeClass(Module.SPVC, prefix = "SPVC_", prefixMethod = "spv
 
     spvc_bool(
         "compiler_msl_is_vertex_attribute_used",
-        "",
+        "Obsolete, use #compiler_msl_is_shader_input_used().",
 
         spvc_compiler("compiler", ""),
         unsigned_int("location", "")
+    )
+
+    spvc_bool(
+        "compiler_msl_is_shader_input_used",
+        "",
+
+        spvc_compiler("compiler", ""),
+        unsigned("location", "")
     )
 
     spvc_bool(
@@ -858,6 +971,30 @@ val Spvc = "Spvc".nativeClass(Module.SPVC, prefix = "SPVC_", prefixMethod = "spv
     )
 
     spvc_result(
+        "compiler_msl_add_inline_uniform_block",
+        "",
+
+        spvc_compiler("compiler", ""),
+        unsigned_int("desc_set", ""),
+        unsigned_int("binding", "")
+    )
+
+    spvc_result(
+        "compiler_msl_set_combined_sampler_suffix",
+        "",
+
+        spvc_compiler("compiler", ""),
+        charUTF8.const.p("suffix", "")
+    )
+
+    charUTF8.const.p(
+        "compiler_msl_get_combined_sampler_suffix",
+        "",
+
+        spvc_compiler("compiler", "")
+    )
+
+    spvc_result(
         "compiler_get_active_interface_variables",
         "Reflect resources. Maps almost 1:1 to C++ API.",
 
@@ -897,6 +1034,16 @@ val Spvc = "Spvc".nativeClass(Module.SPVC, prefix = "SPVC_", prefixMethod = "spv
         spvc_resources("resources", ""),
         spvc_resource_type("type", ""),
         Check(1)..spvc_reflected_resource.const.p.p("resource_list", ""),
+        Check(1)..size_t.p("resource_size", "")
+    )
+
+    spvc_result(
+        "resources_get_builtin_resource_list_for_type",
+        "",
+
+        spvc_resources("resources", ""),
+        spvc_builtin_resource_type("type", ""),
+        Check(1)..spvc_reflected_builtin_resource.const.p.p("resource_list", ""),
         Check(1)..size_t.p("resource_size", "")
     )
 
@@ -1149,6 +1296,22 @@ val Spvc = "Spvc".nativeClass(Module.SPVC, prefix = "SPVC_", prefixMethod = "spv
         "",
 
         spvc_compiler("compiler", "")
+    )
+
+    void(
+        "compiler_update_active_builtins",
+        "",
+
+        spvc_compiler("compiler", "")
+    )
+
+    spvc_bool(
+        "compiler_has_active_builtin",
+        "",
+
+        spvc_compiler("compiler", ""),
+        SpvBuiltIn("builtin", ""),
+        SpvStorageClass("storage", "")
     )
 
     spvc_type(

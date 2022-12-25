@@ -8,13 +8,14 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val NV_viewport_swizzle = "NVViewportSwizzle".nativeClassVK("NV_viewport_swizzle", type = "device", postfix = NV) {
+val NV_viewport_swizzle = "NVViewportSwizzle".nativeClassVK("NV_viewport_swizzle", type = "device", postfix = "NV") {
     documentation =
         """
         This extension provides a new per-viewport swizzle that can modify the position of primitives sent to each viewport. New viewport swizzle state is added for each viewport, and a new position vector is computed for each vertex by selecting from and optionally negating any of the four components of the original position vector.
 
-        This new viewport swizzle is useful for a number of algorithms, including single-pass cubemap rendering (broadcasting a primitive to multiple faces and reorienting the vertex position for each face) and voxel rasterization. The per-viewport component remapping and negation provided by the swizzle allows application code to re-orient three-dimensional geometry with a view along any of the <b>X</b>, <b>Y</b>, or <b>Z</b> axes. If a perspective projection and depth buffering is required, <code>1/W</code> buffering should be used, as described in the single-pass cubemap rendering example in the "{@code Issues}" section below.
+        This new viewport swizzle is useful for a number of algorithms, including single-pass cube map rendering (broadcasting a primitive to multiple faces and reorienting the vertex position for each face) and voxel rasterization. The per-viewport component remapping and negation provided by the swizzle allows application code to re-orient three-dimensional geometry with a view along any of the <b>X</b>, <b>Y</b>, or <b>Z</b> axes. If a perspective projection and depth buffering is required, <code>1/W</code> buffering should be used, as described in the single-pass cube map rendering example in the “{@code Issues}” section below.
 
+        <h5>VK_NV_viewport_swizzle</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_NV_viewport_swizzle}</dd>
@@ -35,9 +36,12 @@ val NV_viewport_swizzle = "NVViewportSwizzle".nativeClassVK("NV_viewport_swizzle
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Piers Daniell <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_NV_viewport_swizzle:%20&amp;body=@pdaniell-nv%20">pdaniell-nv</a></li>
+                <li>Piers Daniell <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_NV_viewport_swizzle]%20@pdaniell-nv%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_NV_viewport_swizzle%20extension%3E%3E">pdaniell-nv</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2016-12-22</dd>
 
@@ -77,7 +81,7 @@ val NV_viewport_swizzle = "NVViewportSwizzle".nativeClassVK("NV_viewport_swizzle
         VkViewportCoordinateSwizzleNV - Specify how a viewport coordinate is swizzled
 
         <h5>Description</h5>
-        These values are described in detail in <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#vertexpostproc-viewport-swizzle">Viewport Swizzle</a>.
+        These values are described in detail in <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#vertexpostproc-viewport-swizzle">Viewport Swizzle</a>.
 
         <h5>See Also</h5>
         ##VkViewportSwizzleNV

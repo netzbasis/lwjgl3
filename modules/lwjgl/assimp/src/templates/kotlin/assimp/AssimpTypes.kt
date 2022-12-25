@@ -14,6 +14,7 @@ val ASSIMP_BINDING = simpleBinding(
 
 val ai_int32 = typedef(int32_t, "ai_int32")
 val ai_uint32 = typedef(uint32_t, "ai_uint32")
+val ai_real = typedef(float, "ai_real")
 
 /*val aiPlane = struct(Binding.ASSIMP, "AIPlane", nativeName = "struct aiPlane") {
     documentation = "Represents a plane in a three-dimensional, euclidean space."
@@ -104,14 +105,14 @@ val aiTexture = struct(Module.ASSIMP, "AITexture", nativeName = "struct aiTextur
         zero-based index of the texture in the ##AIScene{@code ::mTextures} array).
         """
 
-    unsigned_int(
+    AutoSize("pcData")..unsigned_int(
         "mWidth",
         """
         Width of the texture, in pixels. If {@code mHeight} is zero the texture is compressed in a format like JPEG. In this case {@code mWidth} specifies the
         size of the memory area {@code pcData} is pointing to, in bytes.
         """
     )
-    unsigned_int(
+    AutoSize("pcData")..unsigned_int(
         "mHeight",
         "Height of the texture, in pixels. If this value is zero, {@code pcData} points to an compressed texture in any format (e.g. JPEG)."
     )
@@ -135,7 +136,7 @@ val aiTexture = struct(Module.ASSIMP, "AITexture", nativeName = "struct aiTextur
         (JPEG maps to 'jpg', not to 'jpeg'). E.g. 'dds\0', 'pcx\0', 'jpg\0'. All characters are lower-case. The fourth character will always be '\0'.
         """
     )[HINTMAXTEXTURELEN] // 8 for string + 1 for terminator.
-    Unsafe..aiTexel.p(
+    aiTexel.p(
         "pcData",
         """
         Data of the texture.
@@ -146,6 +147,19 @@ val aiTexture = struct(Module.ASSIMP, "AITexture", nativeName = "struct aiTextur
         """
     )
     aiString("mFilename", "texture original filename. Used to get the texture reference.")
+
+    customMethod("""
+    /** Returns a {@code char *} view of the array pointed to by the {@code pcData} field. */
+    @NativeType("char *")
+    public ByteBuffer pcDataCompressed() { return npcDataCompressed(address()); }
+
+    /** Unsafe version of {@link #pcDataCompressed}. */
+    public static ByteBuffer npcDataCompressed(long struct) { return memByteBuffer(memGetAddress(struct + AITexture.PCDATA), nmWidth(struct)); }""")
+
+    customMethodBuffer("""
+        $t/** Returns a {@code char *} view of the array pointed to by the {@code pcData} field. */
+        @NativeType("char *")
+        public ByteBuffer pcDataCompressed() { return npcDataCompressed(address()); }""")
 }
 
 val aiColor4D = struct(Module.ASSIMP, "AIColor4D", nativeName = "struct aiColor4D") {
@@ -346,22 +360,25 @@ val aiAnimMesh = struct(Module.ASSIMP, "AIAnimMesh", nativeName = "struct aiAnim
     )..unsigned_int(
         "mNumVertices",
         """
-        The number of vertices in the {@code aiAnimMesh}, and thus the length of all the member arrays. This has always the same value as the
-        {@code mNumVertices} property in the corresponding ##AIMesh. It is duplicated here merely to make the length of the member arrays accessible even if
-        the {@code aiMesh} is not known, e.g. from language bindings.
+        The number of vertices in the {@code aiAnimMesh}, and thus the length of all the member arrays.
+        
+        This has always the same value as the {@code mNumVertices} property in the corresponding ##AIMesh. It is duplicated here merely to make the length of
+        the member arrays accessible even if the {@code aiMesh} is not known, e.g. from language bindings.
         """
     )
     float("mWeight", "Weight of the {@code AnimMesh}.")
 }
 
 val aiMesh = struct(Module.ASSIMP, "AIMesh", nativeName = "struct aiMesh") {
+    javaImport("static org.lwjgl.assimp.Assimp.*")
     documentation =
         """
         A mesh represents a geometry or model with a single material.
 
         It usually consists of a number of vertices and a series of primitives/faces referencing the vertices. In addition there might be a series of bones,
         each of them addressing a number of vertices with a certain weight. Vertex data is presented in channels with each channel containing a single
-        per-vertex information such as a set of texture coords or a normal vector. If a data pointer is non-null, the corresponding data stream is present.
+        per-vertex information such as a set of texture coordinates or a normal vector. If a data pointer is non-null, the corresponding data stream is
+        present.
 
         A Mesh uses only a single material which is referenced by a material ID.
         """
@@ -435,22 +452,24 @@ val aiMesh = struct(Module.ASSIMP, "AIMesh", nativeName = "struct aiMesh") {
         Vertex color sets. A mesh may contain 0 to #AI_MAX_NUMBER_OF_COLOR_SETS vertex colors per vertex. #NULL if not present. Each array is
         {@code mNumVertices} in size if present.
         """
-    )["Assimp.AI_MAX_NUMBER_OF_COLOR_SETS"]
+    )["AI_MAX_NUMBER_OF_COLOR_SETS"]
     nullable..aiVector3D.p(
         "mTextureCoords",
         """
-        Vertex texture coords, also known as UV channels. A mesh may contain 0 to #AI_MAX_NUMBER_OF_TEXTURECOORDS per vertex. #NULL if not present. The array
-        is {@code mNumVertices} in size.
+        Vertex texture coordinates, also known as UV channels. A mesh may contain 0 to #AI_MAX_NUMBER_OF_TEXTURECOORDS per vertex. #NULL if not present. The
+        array is {@code mNumVertices} in size.
         """
-    )["Assimp.AI_MAX_NUMBER_OF_TEXTURECOORDS"]
+    )["AI_MAX_NUMBER_OF_TEXTURECOORDS"]
     unsigned_int(
         "mNumUVComponents",
         """
         Specifies the number of components for a given UV channel. Up to three channels are supported (UVW, for accessing volume or cube maps). If the value is
         2 for a given channel n, the component {@code p.z} of {@code mTextureCoords[n][p]} is set to 0.0f. If the value is 1 for a given channel, {@code p.y}
         is set to 0.0f, too.
+        
+        Note: 4D coordinates are not supported.
         """
-    )["Assimp.AI_MAX_NUMBER_OF_TEXTURECOORDS"]
+    )["AI_MAX_NUMBER_OF_TEXTURECOORDS"]
     aiFace.p(
         "mFaces",
         """
@@ -501,8 +520,12 @@ val aiMesh = struct(Module.ASSIMP, "AIMesh", nativeName = "struct aiMesh") {
         (usually positions, normals). Note! Currently only works with Collada loader.
         """
     )
-    unsigned_int("mMethod", "Method of morphing when {@code animeshes} are specified.").links("MorphingMethod_\\w+")
-    aiAABB("mAABB", "")
+    unsigned_int("mMethod", "Method of morphing when anim-meshes are specified.").links("MorphingMethod_\\w+")
+    aiAABB("mAABB", "the bounding box")
+    Check("AI_MAX_NUMBER_OF_TEXTURECOORDS")..nullable..aiString.p.p(
+        "mTextureCoordsNames",
+        "Vertex UV stream names. Pointer to array of size #AI_MAX_NUMBER_OF_TEXTURECOORDS."
+    )
 }
 
 val aiUVTransform = struct(Module.ASSIMP, "AIUVTransform", nativeName = "struct aiUVTransform", mutable = false) {
@@ -536,12 +559,12 @@ val aiMaterialProperty = struct(Module.ASSIMP, "AIMaterialProperty", nativeName 
 
         Material property names follow a simple scheme:
         ${codeBlock("""
-$&lt;name&gt;
-?&lt;name&gt;
+$<name>
+?<name>
     A public property, there must be corresponding AI_MATKEY_XXX define
     2nd: Public, but ignored by the aiProcess_RemoveRedundantMaterials
     post-processing step.
-~&lt;name&gt;
+~<name>
     A temporary property for internal use.
     """)}
         """
@@ -754,14 +777,14 @@ val aiLight = struct(Module.ASSIMP, "AILight", nativeName = "struct aiLight", mu
 
         Assimp supports multiple sorts of light sources, including directional, point and spot lights. All of them are defined with just a single structure and
         distinguished by their parameters. Note - some file formats (such as 3DS, ASE) export a "target point" - the point a spot light is looking at (it can
-        even be animated). Assimp writes the target point as a subnode of a spotlights's main node, called "&lt;spotName&gt;.Target". However, this is just
+        even be animated). Assimp writes the target point as a sub-node of a spot-lights's main node, called "&lt;spotName&gt;.Target". However, this is just
         additional information then, the transformation tracks of the main node make the spot light already point in the right direction.
         """
 
     aiString(
         "mName",
         """
-        The name of the light source. There must be a node in the scenegraph with the same name. This node specifies the position of the light in the scene
+        The name of the light source. There must be a node in the scene-graph with the same name. This node specifies the position of the light in the scene
         hierarchy and can be animated.
         """
     )
@@ -884,14 +907,14 @@ val aiCamera = struct(Module.ASSIMP, "AICamera", nativeName = "struct aiCamera")
         "mLookAt",
         """
         'LookAt' - vector of the camera coordinate system relative to the coordinate space defined by the corresponding node. This is the viewing direction of
-        the user. The default value is 0|0|1. The vector may be normalized, but it needn't.
+        the user. The default value is {@code 0|0|1}. The vector may be normalized, but it needn't.
         """
     )
     float(
         "mHorizontalFOV",
         """
-        Half horizontal field of view angle, in radians. The field of view angle is the angle between the center line of the screen and the left or right
-        border. The default value is 1/4PI.
+        Horizontal field of view angle, in radians. The field of view angle is the angle between the center line of the screen and the left or right border.
+        The default value is {@code 1/4PI}.
         """
     )
     float(
@@ -913,6 +936,15 @@ val aiCamera = struct(Module.ASSIMP, "AICamera", nativeName = "struct aiCamera")
         """
         Screen aspect ratio. This is the ration between the width and the height of the screen. Typical values are 4/3, 1/2 or 1/1. This value is 0 if the
         aspect ratio is not defined in the source file. 0 is also the default value.
+        """
+    )
+    float(
+        "mOrthographicWidth",
+        """
+        Half horizontal orthographic width, in scene units.
+
+        The orthographic width specifies the half width of the orthographic view box. If non-zero the camera is orthographic and the {@code mAspect} should
+        define to the ratio between the orthographic width and height and {@code mHorizontalFOV} should be set to 0. The default value is 0 (not orthographic).
         """
     )
 }
@@ -997,6 +1029,7 @@ val aiScene = struct(Module.ASSIMP, "AIScene", nativeName = "struct aiScene") {
         to store format-specific metadata as well.
         """
     )
+    aiString("mName", "The name of the scene itself.")
 
     char.p("mPrivate", "Internal use only, do not touch!").private()
 }
@@ -1047,11 +1080,12 @@ val aiFileWriteProc = Module.ASSIMP.callback {
         "AIFileWriteProc",
         "File write procedure.",
 
-        _aiFile.p("pFile", "File pointer to write to"),
-        char.const.p("pBuffer", "The buffer to be written"),
-        size_t("memB", "Size of the individual element to be written"),
-        size_t("count", "Number of elements to be written"),
+        _aiFile.p("pFile", "file pointer to write to"),
+        char.const.p("pBuffer", "the buffer to be written"),
+        size_t("memB", "size of the individual element to be written"),
+        size_t("count", "number of elements to be written"),
 
+        returnDoc = "the number of elements written",
         nativeType = "aiFileWriteProc"
     )
 }
@@ -1061,11 +1095,12 @@ val aiFileReadProc = Module.ASSIMP.callback {
         "AIFileReadProc",
         "File read procedure",
 
-        _aiFile.p("pFile", "File pointer to read from"),
-        char.p("pBuffer", "The buffer to read the values"),
-        size_t("size", "Size in bytes of each element to be read"),
-        size_t("count", "Number of elements to be read"),
+        _aiFile.p("pFile", "file pointer to read from"),
+        char.p("pBuffer", "the buffer to read the values"),
+        size_t("size", "size in bytes of each element to be read"),
+        size_t("count", "number of elements to be read"),
 
+        returnDoc = "the number of elements read",
         nativeType = "aiFileReadProc"
     )
 }
@@ -1075,8 +1110,9 @@ val aiFileTellProc = Module.ASSIMP.callback {
         "AIFileTellProc",
         "File tell procedure.",
 
-        _aiFile.p("pFile", "File pointer to find ftell() on"),
+        _aiFile.p("pFile", "file pointer to query"),
 
+        returnDoc = "the current file position",
         nativeType = "aiFileTellProc"
     )
 }
@@ -1086,7 +1122,7 @@ val aiFileFlushProc = Module.ASSIMP.callback {
         "AIFileFlushProc",
         "File flush procedure.",
 
-        _aiFile.p("pFile", "File pointer to flush"),
+        _aiFile.p("pFile", "file pointer to flush"),
 
         nativeType = "aiFileFlushProc"
     )
@@ -1099,10 +1135,11 @@ val aiFileSeek = Module.ASSIMP.callback {
         "AIFileSeek",
         "File seek procedure",
 
-        _aiFile.p("pFile", "File pointer to seek to"),
-        size_t("offset", "Number of bytes to shift from origin"),
-        aiOrigin("origin", "Position used as reference for the offset."),
+        _aiFile.p("pFile", "file pointer to seek"),
+        size_t("offset", "number of bytes to shift from origin"),
+        aiOrigin("origin", "position used as reference for the offset"),
 
+        returnDoc = "an {@code aiReturn} value",
         nativeType = "aiFileSeek"
     )
 }
@@ -1112,11 +1149,12 @@ val aiFileOpenProc = Module.ASSIMP.callback {
         "AIFileOpenProc",
         "File open procedure",
 
-        _aiFileIO.p("pFileIO", "FileIO system pointer"),
-        charUTF8.const.p("fileName", "The name of the file to be opened"),
-        charUTF8.const.p("openMode", "The mode in which to open the file"),
+        _aiFileIO.p("pFileIO", "{@code FileIO} pointer"),
+        charUTF8.const.p("fileName", "name of the file to be opened"),
+        charUTF8.const.p("openMode", "mode in which to open the file"),
 
-        nativeType = "aiFileOpenProc"
+        returnDoc = "pointer to an ##AIFile structure, or #NULL if the file could not be opened",
+        nativeType = "aiFileOpenProc",
     )
 }
 
@@ -1125,8 +1163,8 @@ val aiFileCloseProc = Module.ASSIMP.callback {
         "AIFileCloseProc",
         "File close procedure",
 
-        _aiFileIO.p("pFileIO", "FileIO system pointer"),
-        _aiFile.p("pFile", "File pointer to close"),
+        _aiFileIO.p("pFileIO", "{@code FileIO} pointer"),
+        _aiFile.p("pFile", "file pointer to close"),
 
         nativeType = "aiFileCloseProc"
     )
@@ -1169,7 +1207,7 @@ val aiLogStreamCallback = Module.ASSIMP.callback {
         "Callback to be called for log stream messages",
 
         charUTF8.const.p("message", "The message to be logged"),
-        opaque_p("user", "The user data from the log stream"),
+        Unsafe..nullable..char.p("user", "The user data from the log stream"),
 
         nativeType = "aiLogStreamCallback"
     )
@@ -1179,7 +1217,7 @@ val aiLogStream = struct(Module.ASSIMP, "AILogStream", nativeName = "struct aiLo
     documentation = "Represents a log stream. A log stream receives all log messages and streams them somewhere"
 
     aiLogStreamCallback("callback", "callback to be called")
-    opaque_p("user", "user data to be passed to the callback")
+    nullable..char.p("user", "user data to be passed to the callback")
 }
 
 val aiPropertyStore = struct(Module.ASSIMP, "AIPropertyStore", nativeName = "struct aiPropertyStore") {
@@ -1193,8 +1231,8 @@ val aiDefaultLogStream = "aiDefaultLogStream".enumType
 
 val aiExportFormatDesc = struct(Module.ASSIMP, "AIExportFormatDesc", nativeName = "struct aiExportFormatDesc") {
     documentation = """
-        Describes an file format which Assimp can export to. Use #GetExportFormatCount() to learn how many export formats the current Assimp build supports and
-        #GetExportFormatDescription() to retrieve a description of an export format option.
+        Describes an file format which Assimp can export to. Use #GetExportFormatCount() to learn how many export-formats are supported by the current
+        Assimp-build and #GetExportFormatDescription() to retrieve the description of the export format option.
         """
 
     charUTF8.const.p(
@@ -1232,6 +1270,9 @@ val aiExportDataBlob = struct(Module.ASSIMP, "AIExportDataBlob", nativeName = "s
         files.
 
         If used, blob names usually contain the file extension that should be used when writing the data to disc.
+        
+        The blob names generated can be influenced by setting the #AI_CONFIG_EXPORT_BLOB_NAME export property to the name that is used for the master blob. All
+        other names are typically derived from the base name, by the file format exporter.
         """
     )
 

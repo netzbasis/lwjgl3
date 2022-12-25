@@ -8,11 +8,12 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val KHR_pipeline_executable_properties = "KHRPipelineExecutableProperties".nativeClassVK("KHR_pipeline_executable_properties", type = "device", postfix = KHR) {
+val KHR_pipeline_executable_properties = "KHRPipelineExecutableProperties".nativeClassVK("KHR_pipeline_executable_properties", type = "device", postfix = "KHR") {
     documentation =
         """
         When a pipeline is created, its state and shaders are compiled into zero or more device-specific executables, which are used when executing commands against that pipeline. This extension adds a mechanism to query properties and statistics about the different executables produced by the pipeline compilation process. This is intended to be used by debugging and performance tools to allow them to provide more detailed information to the user. Certain compile-time shader statistics provided through this extension may be useful to developers for debugging or performance analysis.
 
+        <h5>VK_KHR_pipeline_executable_properties</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_KHR_pipeline_executable_properties}</dd>
@@ -29,13 +30,22 @@ val KHR_pipeline_executable_properties = "KHRPipelineExecutableProperties".nativ
             <dt><b>Extension and Version Dependencies</b></dt>
             <dd><ul>
                 <li>Requires Vulkan 1.0</li>
+                <li>Requires {@link KHRGetPhysicalDeviceProperties2 VK_KHR_get_physical_device_properties2}</li>
+            </ul></dd>
+
+            <dt><b>Special Use</b></dt>
+            <dd><ul>
+                <li><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#extendingvulkan-compatibility-specialuse">Developer tools</a></li>
             </ul></dd>
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Jason Ekstrand <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_KHR_pipeline_executable_properties:%20&amp;body=@jekstrand%20">jekstrand</a></li>
+                <li>Jason Ekstrand <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_KHR_pipeline_executable_properties]%20@jekstrand%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_KHR_pipeline_executable_properties%20extension%3E%3E">jekstrand</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2019-05-28</dd>
 
@@ -118,7 +128,7 @@ val KHR_pipeline_executable_properties = "KHRPipelineExecutableProperties".nativ
         Get the executables associated with a pipeline.
 
         <h5>C Specification</h5>
-        When a pipeline is created, its state and shaders are compiled into zero or more device-specific executables, which are used when executing commands against that pipeline. To query the properties of these executables, call:
+        When a pipeline is created, its state and shaders are compiled into zero or more device-specific executables, which are used when executing commands against that pipeline. To query the properties of these pipeline executables, call:
 
         <pre><code>
 ￿VkResult vkGetPipelineExecutablePropertiesKHR(
@@ -128,12 +138,12 @@ val KHR_pipeline_executable_properties = "KHRPipelineExecutableProperties".nativ
 ￿    VkPipelineExecutablePropertiesKHR*          pProperties);</code></pre>
 
         <h5>Description</h5>
-        If {@code pProperties} is {@code NULL}, then the number of executables associated with the pipeline is returned in {@code pExecutableCount}. Otherwise, {@code pExecutableCount} <b>must</b> point to a variable set by the user to the number of elements in the {@code pProperties} array, and on return the variable is overwritten with the number of structures actually written to {@code pProperties}. If {@code pExecutableCount} is less than the number of executables associated with the pipeline, at most {@code pExecutableCount} structures will be written and {@code vkGetPipelineExecutablePropertiesKHR} will return #INCOMPLETE.
+        If {@code pProperties} is {@code NULL}, then the number of pipeline executables associated with the pipeline is returned in {@code pExecutableCount}. Otherwise, {@code pExecutableCount} <b>must</b> point to a variable set by the user to the number of elements in the {@code pProperties} array, and on return the variable is overwritten with the number of structures actually written to {@code pProperties}. If {@code pExecutableCount} is less than the number of pipeline executables associated with the pipeline, at most {@code pExecutableCount} structures will be written, and #INCOMPLETE will be returned instead of #SUCCESS, to indicate that not all the available properties were returned.
 
         <h5>Valid Usage</h5>
         <ul>
-            <li><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#features-pipelineExecutableInfo">{@code pipelineExecutableInfo}</a> <b>must</b> be enabled.</li>
-            <li>{@code pipeline} member of {@code pPipelineInfo} <b>must</b> have been created with {@code device}.</li>
+            <li><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#features-pipelineExecutableInfo">{@code pipelineExecutableInfo}</a> <b>must</b> be enabled</li>
+            <li>{@code pipeline} member of {@code pPipelineInfo} <b>must</b> have been created with {@code device}</li>
         </ul>
 
         <h5>Valid Usage (Implicit)</h5>
@@ -185,13 +195,13 @@ val KHR_pipeline_executable_properties = "KHRPipelineExecutableProperties".nativ
 ￿    VkPipelineExecutableStatisticKHR*           pStatistics);</code></pre>
 
         <h5>Description</h5>
-        If {@code pStatistics} is {@code NULL}, then the number of statistics associated with the pipeline executable is returned in {@code pStatisticCount}. Otherwise, {@code pStatisticCount} <b>must</b> point to a variable set by the user to the number of elements in the {@code pStatistics} array, and on return the variable is overwritten with the number of structures actually written to {@code pStatistics}. If {@code pStatisticCount} is less than the number of statistics associated with the pipeline executable, at most {@code pStatisticCount} structures will be written and {@code vkGetPipelineExecutableStatisticsKHR} will return #INCOMPLETE.
+        If {@code pStatistics} is {@code NULL}, then the number of statistics associated with the pipeline executable is returned in {@code pStatisticCount}. Otherwise, {@code pStatisticCount} <b>must</b> point to a variable set by the user to the number of elements in the {@code pStatistics} array, and on return the variable is overwritten with the number of structures actually written to {@code pStatistics}. If {@code pStatisticCount} is less than the number of statistics associated with the pipeline executable, at most {@code pStatisticCount} structures will be written, and #INCOMPLETE will be returned instead of #SUCCESS, to indicate that not all the available statistics were returned.
 
         <h5>Valid Usage</h5>
         <ul>
-            <li><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#features-pipelineExecutableInfo">{@code pipelineExecutableInfo}</a> <b>must</b> be enabled.</li>
-            <li>{@code pipeline} member of {@code pExecutableInfo} <b>must</b> have been created with {@code device}.</li>
-            <li>{@code pipeline} member of {@code pExecutableInfo} <b>must</b> have been created with #PIPELINE_CREATE_CAPTURE_STATISTICS_BIT_KHR set in the {@code flags} field of ##VkGraphicsPipelineCreateInfo or ##VkComputePipelineCreateInfo.</li>
+            <li><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#features-pipelineExecutableInfo">{@code pipelineExecutableInfo}</a> <b>must</b> be enabled</li>
+            <li>{@code pipeline} member of {@code pExecutableInfo} <b>must</b> have been created with {@code device}</li>
+            <li>{@code pipeline} member of {@code pExecutableInfo} <b>must</b> have been created with #PIPELINE_CREATE_CAPTURE_STATISTICS_BIT_KHR</li>
         </ul>
 
         <h5>Valid Usage (Implicit)</h5>
@@ -233,7 +243,7 @@ val KHR_pipeline_executable_properties = "KHRPipelineExecutableProperties".nativ
         Get internal representations of the pipeline executable.
 
         <h5>C Specification</h5>
-        Each pipeline executable <b>may</b> have one or more text or binary internal representations associated with it which are generated as part of the compile process. These <b>may</b> include the final shader assembly, a binary form of the compiled shader, or the shader compiler's internal representation at any number of intermediate compile steps. To query the internal representations associated with a pipeline executable, call:
+        Each pipeline executable <b>may</b> have one or more text or binary internal representations associated with it which are generated as part of the compile process. These <b>may</b> include the final shader assembly, a binary form of the compiled shader, or the shader compiler’s internal representation at any number of intermediate compile steps. To query the internal representations associated with a pipeline executable, call:
 
         <pre><code>
 ￿VkResult vkGetPipelineExecutableInternalRepresentationsKHR(
@@ -243,15 +253,15 @@ val KHR_pipeline_executable_properties = "KHRPipelineExecutableProperties".nativ
 ￿    VkPipelineExecutableInternalRepresentationKHR* pInternalRepresentations);</code></pre>
 
         <h5>Description</h5>
-        If {@code pInternalRepresentations} is {@code NULL}, then the number of internal representations associated with the pipeline executable is returned in {@code pInternalRepresentationCount}. Otherwise, {@code pInternalRepresentationCount} <b>must</b> point to a variable set by the user to the number of elements in the {@code pInternalRepresentations} array, and on return the variable is overwritten with the number of structures actually written to {@code pInternalRepresentations}. If {@code pInternalRepresentationCount} is less than the number of internal representations associated with the pipeline executable, at most {@code pInternalRepresentationCount} structures will be written and {@code vkGetPipelineExecutableInternalRepresentationsKHR} will return #INCOMPLETE.
+        If {@code pInternalRepresentations} is {@code NULL}, then the number of internal representations associated with the pipeline executable is returned in {@code pInternalRepresentationCount}. Otherwise, {@code pInternalRepresentationCount} <b>must</b> point to a variable set by the user to the number of elements in the {@code pInternalRepresentations} array, and on return the variable is overwritten with the number of structures actually written to {@code pInternalRepresentations}. If {@code pInternalRepresentationCount} is less than the number of internal representations associated with the pipeline executable, at most {@code pInternalRepresentationCount} structures will be written, and #INCOMPLETE will be returned instead of #SUCCESS, to indicate that not all the available representations were returned.
 
-        While the details of the internal representations remain implementation dependent, the implementation <b>should</b> order the internal representations in the order in which they occur in the compile pipeline with the final shader assembly (if any) last.
+        While the details of the internal representations remain implementation-dependent, the implementation <b>should</b> order the internal representations in the order in which they occur in the compiled pipeline with the final shader assembly (if any) last.
 
         <h5>Valid Usage</h5>
         <ul>
-            <li><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#features-pipelineExecutableInfo">{@code pipelineExecutableInfo}</a> <b>must</b> be enabled.</li>
-            <li>{@code pipeline} member of {@code pExecutableInfo} <b>must</b> have been created with {@code device}.</li>
-            <li>{@code pipeline} member of {@code pExecutableInfo} <b>must</b> have been created with #PIPELINE_CREATE_CAPTURE_INTERNAL_REPRESENTATIONS_BIT_KHR set in the {@code flags} field of ##VkGraphicsPipelineCreateInfo or ##VkComputePipelineCreateInfo.</li>
+            <li><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#features-pipelineExecutableInfo">{@code pipelineExecutableInfo}</a> <b>must</b> be enabled</li>
+            <li>{@code pipeline} member of {@code pExecutableInfo} <b>must</b> have been created with {@code device}</li>
+            <li>{@code pipeline} member of {@code pExecutableInfo} <b>must</b> have been created with #PIPELINE_CREATE_CAPTURE_INTERNAL_REPRESENTATIONS_BIT_KHR</li>
         </ul>
 
         <h5>Valid Usage (Implicit)</h5>

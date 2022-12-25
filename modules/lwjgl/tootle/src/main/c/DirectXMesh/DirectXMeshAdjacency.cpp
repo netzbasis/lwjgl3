@@ -1,9 +1,9 @@
 //-------------------------------------------------------------------------------------
 // DirectXMeshAdjacency.cpp
-//  
+//
 // DirectX Mesh Geometry Library - Adjacency computation
 //
-// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkID=324981
@@ -37,7 +37,7 @@ namespace
     // <algorithm> std::make_heap doesn't match D3DX10 so we use the same algorithm here
     void MakeXHeap(
         _Out_writes_(nVerts) uint32_t *index,
-        _In_reads_(nVerts) const XMFLOAT3* positions, size_t nVerts)
+        _In_reads_(nVerts) const XMFLOAT3* positions, size_t nVerts) noexcept
     {
         for (uint32_t vert = 0; vert < nVerts; ++vert)
         {
@@ -93,6 +93,7 @@ namespace
 
                 while (iulJ < iulLim)
                 {
+                    _Analysis_assume_(iulJ < nVerts);
                     uint32_t ulJ = index[iulJ];
 
                     if (iulJ + 1 < iulLim)
@@ -129,7 +130,7 @@ namespace
         _In_reads_(nFaces * 3) const index_t* indices, size_t nFaces,
         _In_reads_(nVerts) const XMFLOAT3* positions, size_t nVerts,
         float epsilon,
-        _Out_writes_(nVerts) uint32_t* pointRep)
+        _Out_writes_(nVerts) uint32_t* pointRep) noexcept
     {
         std::unique_ptr<uint32_t[]> temp(new (std::nothrow) uint32_t[nVerts + nFaces * 3]);
         if (!temp)
@@ -157,7 +158,7 @@ namespace
 
         if (epsilon == 0.f)
         {
-            size_t hashSize = nVerts / 3;
+            auto hashSize = std::max<size_t>(nVerts / 3, 1);
 
             std::unique_ptr<vertexHashEntry*[]> hashTable(new (std::nothrow) vertexHashEntry*[hashSize]);
             if (!hashTable)
@@ -242,7 +243,9 @@ namespace
         }
         else
         {
-            std::unique_ptr<uint32_t[]> xorder(new uint32_t[nVerts]);
+            std::unique_ptr<uint32_t[]> xorder(new (std::nothrow) uint32_t[nVerts]);
+            if (!xorder)
+                return E_OUTOFMEMORY;
 
             // order in descending order
             MakeXHeap(xorder.get(), positions, nVerts);
@@ -334,9 +337,9 @@ namespace
         _In_reads_(nFaces * 3) const index_t* indices, size_t nFaces,
         _In_reads_(nVerts) const XMFLOAT3* positions, size_t nVerts,
         _In_reads_(nVerts) const uint32_t* pointRep,
-        _Out_writes_(nFaces * 3) uint32_t* adjacency)
+        _Out_writes_(nFaces * 3) uint32_t* adjacency) noexcept
     {
-        size_t hashSize = nVerts / 3;
+        auto hashSize = std::max<size_t>(nVerts / 3, 1);
 
         std::unique_ptr<edgeHashEntry*[]> hashTable(new (std::nothrow) edgeHashEntry*[hashSize]);
         if (!hashTable)
@@ -624,10 +627,13 @@ namespace
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
 HRESULT DirectX::GenerateAdjacencyAndPointReps(
-    const uint16_t* indices, size_t nFaces,
-    const XMFLOAT3* positions, size_t nVerts,
+    const uint16_t* indices,
+    size_t nFaces,
+    const XMFLOAT3* positions,
+    size_t nVerts,
     float epsilon,
-    uint32_t* pointRep, uint32_t* adjacency)
+    uint32_t* pointRep,
+    uint32_t* adjacency)
 {
     if (!indices || !nFaces || !positions || !nVerts)
         return E_INVALIDARG;
@@ -639,7 +645,7 @@ HRESULT DirectX::GenerateAdjacencyAndPointReps(
         return E_INVALIDARG;
 
     if ((uint64_t(nFaces) * 3) >= UINT32_MAX)
-        return HRESULT_FROM_WIN32(ERROR_ARITHMETIC_OVERFLOW);
+        return HRESULT_E_ARITHMETIC_OVERFLOW;
 
     std::unique_ptr<uint32_t[]> temp;
     if (!pointRep)
@@ -663,10 +669,13 @@ HRESULT DirectX::GenerateAdjacencyAndPointReps(
 
 _Use_decl_annotations_
 HRESULT DirectX::GenerateAdjacencyAndPointReps(
-    const uint32_t* indices, size_t nFaces,
-    const XMFLOAT3* positions, size_t nVerts,
+    const uint32_t* indices,
+    size_t nFaces,
+    const XMFLOAT3* positions,
+    size_t nVerts,
     float epsilon,
-    uint32_t* pointRep, uint32_t* adjacency)
+    uint32_t* pointRep,
+    uint32_t* adjacency)
 {
     if (!indices || !nFaces || !positions || !nVerts)
         return E_INVALIDARG;
@@ -678,7 +687,7 @@ HRESULT DirectX::GenerateAdjacencyAndPointReps(
         return E_INVALIDARG;
 
     if ((uint64_t(nFaces) * 3) >= UINT32_MAX)
-        return HRESULT_FROM_WIN32(ERROR_ARITHMETIC_OVERFLOW);
+        return HRESULT_E_ARITHMETIC_OVERFLOW;
 
     std::unique_ptr<uint32_t[]> temp;
     if (!pointRep)
@@ -704,8 +713,10 @@ HRESULT DirectX::GenerateAdjacencyAndPointReps(
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
 HRESULT DirectX::ConvertPointRepsToAdjacency(
-    const uint16_t* indices, size_t nFaces,
-    const XMFLOAT3* positions, size_t nVerts,
+    const uint16_t* indices,
+    size_t nFaces,
+    const XMFLOAT3* positions,
+    size_t nVerts,
     const uint32_t* pointRep,
     uint32_t* adjacency)
 {
@@ -716,7 +727,7 @@ HRESULT DirectX::ConvertPointRepsToAdjacency(
         return E_INVALIDARG;
 
     if ((uint64_t(nFaces) * 3) >= UINT32_MAX)
-        return HRESULT_FROM_WIN32(ERROR_ARITHMETIC_OVERFLOW);
+        return HRESULT_E_ARITHMETIC_OVERFLOW;
 
     std::unique_ptr<uint32_t[]> temp;
     if (!pointRep)
@@ -738,8 +749,10 @@ HRESULT DirectX::ConvertPointRepsToAdjacency(
 
 _Use_decl_annotations_
 HRESULT DirectX::ConvertPointRepsToAdjacency(
-    const uint32_t* indices, size_t nFaces,
-    const XMFLOAT3* positions, size_t nVerts,
+    const uint32_t* indices,
+    size_t nFaces,
+    const XMFLOAT3* positions,
+    size_t nVerts,
     const uint32_t* pointRep,
     uint32_t* adjacency)
 {
@@ -750,7 +763,7 @@ HRESULT DirectX::ConvertPointRepsToAdjacency(
         return E_INVALIDARG;
 
     if ((uint64_t(nFaces) * 3) >= UINT32_MAX)
-        return HRESULT_FROM_WIN32(ERROR_ARITHMETIC_OVERFLOW);
+        return HRESULT_E_ARITHMETIC_OVERFLOW;
 
     std::unique_ptr<uint32_t[]> temp;
     if (!pointRep)

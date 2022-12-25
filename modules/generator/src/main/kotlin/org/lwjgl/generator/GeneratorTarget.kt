@@ -158,7 +158,8 @@ abstract class GeneratorTarget(
             throw IllegalStateException("The source file for template ${module.packageKotlin}.$className does not exist ($it).")
     }.lastModified
 
-    val packageName get() = module.packageName
+    var subpackage: String? = null
+    val packageName get() = if (subpackage == null) module.packageName else "${module.packageName}.$subpackage"
 
     var access = Access.PUBLIC
         set(access) {
@@ -260,9 +261,7 @@ abstract class GeneratorTarget(
                                 classElement.lastIndexOf('(') + 2
                             )
                         } else {
-                            check(module === Module.VULKAN) {
-                                "Failed to resolve link: ${match.value} in ${this.className}"
-                            }
+                            throw IllegalStateException("Failed to resolve link: ${match.value} in ${this.className}")
                         }
                     } else {
                         if (classElement.startsWith(prefix))

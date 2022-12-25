@@ -8,11 +8,12 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val NV_external_memory_capabilities = "NVExternalMemoryCapabilities".nativeClassVK("NV_external_memory_capabilities", type = "instance", postfix = NV) {
+val NV_external_memory_capabilities = "NVExternalMemoryCapabilities".nativeClassVK("NV_external_memory_capabilities", type = "instance", postfix = "NV") {
     documentation =
         """
         Applications may wish to import memory from the Direct 3D API, or export memory to other Vulkan instances. This extension provides a set of capability queries that allow applications determine what types of win32 memory handles an implementation supports for a given set of use cases.
 
+        <h5>VK_NV_external_memory_capabilities</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_NV_external_memory_capabilities}</dd>
@@ -36,16 +37,19 @@ val NV_external_memory_capabilities = "NVExternalMemoryCapabilities".nativeClass
                 <li>
                     <em>Deprecated</em> by {@link KHRExternalMemoryCapabilities VK_KHR_external_memory_capabilities} extension
                     <ul>
-                        <li>Which in turn was <em>promoted</em> to <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#versions-1.1-promotions">Vulkan 1.1</a></li>
+                        <li>Which in turn was <em>promoted</em> to <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#versions-1.1-promotions">Vulkan 1.1</a></li>
                     </ul>
                 </li>
             </ul></dd>
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>James Jones <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_NV_external_memory_capabilities:%20&amp;body=@cubanismo%20">cubanismo</a></li>
+                <li>James Jones <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_NV_external_memory_capabilities]%20@cubanismo%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_NV_external_memory_capabilities%20extension%3E%3E">cubanismo</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2016-08-19</dd>
 
@@ -89,9 +93,6 @@ val NV_external_memory_capabilities = "NVExternalMemoryCapabilities".nativeClass
             <li>#EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_IMAGE_BIT_NV specifies a valid NT handle to memory returned by {@code IDXGIResource1::CreateSharedHandle}, or a handle duplicated from such a handle using {@code DuplicateHandle()}.</li>
             <li>#EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_IMAGE_KMT_BIT_NV specifies a handle to memory returned by {@code IDXGIResource::GetSharedHandle()}.</li>
         </ul>
-
-        <h5>See Also</h5>
-        {@code VkExternalMemoryHandleTypeFlagsNV}
         """,
 
         "EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT_NV".enum(0x00000001),
@@ -112,7 +113,7 @@ val NV_external_memory_capabilities = "NVExternalMemoryCapabilities".nativeClass
         </ul>
 
         <h5>See Also</h5>
-        ##VkExternalImageFormatPropertiesNV, {@code VkExternalMemoryFeatureFlagsNV}, #GetPhysicalDeviceExternalImageFormatPropertiesNV()
+        ##VkExternalImageFormatPropertiesNV, #GetPhysicalDeviceExternalImageFormatPropertiesNV()
         """,
 
         "EXTERNAL_MEMORY_FEATURE_DEDICATED_ONLY_BIT_NV".enum(0x00000001),
@@ -123,7 +124,7 @@ val NV_external_memory_capabilities = "NVExternalMemoryCapabilities".nativeClass
     VkResult(
         "GetPhysicalDeviceExternalImageFormatPropertiesNV",
         """
-        determine image capabilities compatible with external memory handle types.
+        Determine image capabilities compatible with external memory handle types.
 
         <h5>C Specification</h5>
         To determine the image capabilities compatible with an external memory handle type, call:
@@ -140,7 +141,7 @@ val NV_external_memory_capabilities = "NVExternalMemoryCapabilities".nativeClass
 ￿    VkExternalImageFormatPropertiesNV*          pExternalImageFormatProperties);</code></pre>
 
         <h5>Description</h5>
-        If {@code externalHandleType} is 0, {@code pExternalImageFormatProperties}-&gt;imageFormatProperties will return the same values as a call to #GetPhysicalDeviceImageFormatProperties(), and the other members of {@code pExternalImageFormatProperties} will all be 0. Otherwise, they are filled in as described for ##VkExternalImageFormatPropertiesNV.
+        If {@code externalHandleType} is 0, {@code pExternalImageFormatProperties→imageFormatProperties} will return the same values as a call to #GetPhysicalDeviceImageFormatProperties(), and the other members of {@code pExternalImageFormatProperties} will all be 0. Otherwise, they are filled in as described for ##VkExternalImageFormatPropertiesNV.
 
         <h5>Valid Usage (Implicit)</h5>
         <ul>

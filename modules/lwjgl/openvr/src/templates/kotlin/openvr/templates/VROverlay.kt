@@ -309,26 +309,6 @@ typedef struct HmdRect2_t
         VRTextureBounds_t.p("pOverlayTextureBounds", "")
     )
 
-    uint32_t(
-        "GetOverlayRenderModel",
-        "Gets render model to draw behind this overlay.",
-
-        VROverlayHandle_t("ulOverlayHandle", ""),
-        charASCII.p("pchValue", ""),
-        AutoSize("pchValue")..uint32_t("unBufferSize", ""),
-        HmdColor_t.p("pColor", ""),
-        Check(1)..EVROverlayError.p("pError", "")
-    )
-
-    EVROverlayError(
-        "SetOverlayRenderModel",
-        "",
-
-        VROverlayHandle_t("ulOverlayHandle", ""),
-        charASCII.const.p("pchRenderModel", ""),
-        HmdColor_t.p("pColor", "")
-    )
-
     EVROverlayError(
         "GetOverlayTransformType",
         "Returns the transform type of this overlay.",
@@ -431,6 +411,17 @@ typedef struct HmdRect2_t
 
         VROverlayHandle_t("ulOverlayHandle", ""),
         HmdVector2_t.p("pvHotspot", "")
+    )
+
+    EVROverlayError(
+        "SetOverlayTransformProjection",
+        "Sets the overlay as a projection overlay.",
+
+        VROverlayHandle_t("ulOverlayHandle", ""),
+        ETrackingUniverseOrigin("eTrackingOrigin", ""),
+        HmdMatrix34_t.p("pmatTrackingOriginToOverlayTransform", ""),
+        VROverlayProjection_t.p("pProjection", ""),
+        EVREye("eEye", "")
     )
 
     EVROverlayError(
@@ -538,26 +529,6 @@ typedef struct HmdRect2_t
         """,
 
         VROverlayHandle_t("ulOverlayHandle", "")
-    )
-
-    EVROverlayError(
-        "SetOverlayDualAnalogTransform",
-        "Sets the analog input to Dual Analog coordinate scale for the specified overlay.",
-
-        VROverlayHandle_t("ulOverlay", ""),
-        EDualAnalogWhich("eWhich", "", "EDualAnalogWhich_\\w+"),
-        HmdVector2_t.p("pvCenter", ""),
-        float("fRadius", "")
-    )
-
-    EVROverlayError(
-        "GetOverlayDualAnalogTransform",
-        "Gets the analog input to Dual Analog coordinate scale for the specified overlay.",
-
-        VROverlayHandle_t("ulOverlay", ""),
-        EDualAnalogWhich("eWhich", "", "EDualAnalogWhich_\\w+"),
-        HmdVector2_t.p("pvCenter", ""),
-        Check(1)..float.p("pfRadius", "")
     )
 
     EVROverlayError(
@@ -748,10 +719,15 @@ typedef struct HmdRect2_t
 
     EVROverlayError(
         "ShowKeyboard",
-        "Show the virtual keyboard to accept input.",
+        """
+        Show the virtual keyboard to accept input.
+
+        In most cases, you should pass #EKeyboardFlags_KeyboardFlag_Modal to enable modal overlay behavior on the keyboard itself. See {@code EKeyboardFlags} for more.
+        """,
 
         EGamepadTextInputMode("eInputMode", "", "EGamepadTextInputMode_\\w+"),
         EGamepadTextInputLineMode("eLineInputMode", "", "EGamepadTextInputLineMode_\\w+"),
+        uint32_t("unFlags", ""),
         charASCII.const.p("pchDescription", ""),
         uint32_t("unCharMax", ""),
         charASCII.const.p("pchExistingText", ""),
@@ -761,11 +737,16 @@ typedef struct HmdRect2_t
 
     EVROverlayError(
         "ShowKeyboardForOverlay",
-        "",
+        """
+        Show the virtual keyboard to accept input for an overlay.
+
+        In most cases, you should pass #EKeyboardFlags_KeyboardFlag_Modal to enable modal overlay behavior on the keyboard itself. See {@code EKeyboardFlags} for more.
+        """,
 
         VROverlayHandle_t("ulOverlayHandle", ""),
         EGamepadTextInputMode("eInputMode", "", "EGamepadTextInputMode_\\w+"),
         EGamepadTextInputLineMode("eLineInputMode", "", "EGamepadTextInputLineMode_\\w+"),
+        uint32_t("unFlags", ""),
         charASCII.const.p("pchDescription", ""),
         uint32_t("unCharMax", ""),
         charASCII.const.p("pchExistingText", ""),

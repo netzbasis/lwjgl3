@@ -26,9 +26,7 @@
     <orderEntry type="module" module-name="lwjgl.core" scope="TEST" />
     <orderEntry type="module" module-name="lwjgl.assimp" scope="TEST" />
     <orderEntry type="module" module-name="lwjgl.bgfx" scope="TEST" />
-    <orderEntry type="module" module-name="lwjgl.bullet" scope="TEST" />
     <orderEntry type="module" module-name="lwjgl.cuda" scope="TEST" />
-    <orderEntry type="module" module-name="lwjgl.driftfx" scope="TEST" />
     <orderEntry type="module" module-name="lwjgl.egl" scope="TEST" />
     <orderEntry type="module" module-name="lwjgl.glfw" scope="TEST" />
     <orderEntry type="module" module-name="lwjgl.jawt" scope="TEST" />
@@ -48,6 +46,7 @@
     <orderEntry type="module" module-name="lwjgl.opengl" scope="TEST" />
     <orderEntry type="module" module-name="lwjgl.opengles" scope="TEST" />
     <orderEntry type="module" module-name="lwjgl.openvr" scope="TEST" />
+    <orderEntry type="module" module-name="lwjgl.openxr" scope="TEST" />
     <orderEntry type="module" module-name="lwjgl.opus" scope="TEST" />
     <orderEntry type="module" module-name="lwjgl.ovr" scope="TEST" />
     <orderEntry type="module" module-name="lwjgl.par" scope="TEST" />

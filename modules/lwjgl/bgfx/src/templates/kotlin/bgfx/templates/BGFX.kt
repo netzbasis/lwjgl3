@@ -14,7 +14,7 @@ val BGFX = "BGFX".nativeClass(Module.BGFX, prefix = "BGFX", prefixMethod = "bgfx
     IntConstant(
         "API version",
 
-        "API_VERSION".."103"
+        "API_VERSION".."115"
     )
 
     ShortConstant(
@@ -228,19 +228,14 @@ val BGFX = "BGFX".nativeClass(Module.BGFX, prefix = "BGFX", prefixMethod = "bgfx
         When state is preserved in submit, rendering states can be discarded on a finer grain.
         """,
 
-        "DISCARD_INDEX_BUFFER"..0x01.b,
-        "DISCARD_VERTEX_STREAMS"..0x02.b,
-        "DISCARD_TEXTURE_SAMPLERS"..0x04.b,
-        "DISCARD_COMPUTE"..0x08.b,
-        "DISCARD_STATE"..0x10.b,
-
-        "DISCARD_ALL".."""(0
-        | BGFX_DISCARD_INDEX_BUFFER
-        | BGFX_DISCARD_VERTEX_STREAMS
-        | BGFX_DISCARD_TEXTURE_SAMPLERS
-        | BGFX_DISCARD_COMPUTE
-        | BGFX_DISCARD_STATE)
-        """
+        "DISCARD_NONE"..0x00.b,
+        "DISCARD_BINDINGS"..0x01.b,
+        "DISCARD_INDEX_BUFFER"..0x02.b,
+        "DISCARD_INSTANCE_DATA"..0x04.b,
+        "DISCARD_STATE"..0x08.b,
+        "DISCARD_TRANSFORM"..0x10.b,
+        "DISCARD_VERTEX_STREAMS"..0x20.b,
+        "DISCARD_ALL"..0xff.b
     ).javaDocLinks
 
     val DebugFlags = EnumConstant(
@@ -257,7 +252,15 @@ val BGFX = "BGFX".nativeClass(Module.BGFX, prefix = "BGFX", prefixMethod = "bgfx
         ),
         "DEBUG_STATS".enum("Display internal statistics.", 0x00000004),
         "DEBUG_TEXT".enum("Display debug text.", 0x00000008),
-        "DEBUG_PROFILER".enum("Enable profiler.", 0x00000010)
+        "DEBUG_PROFILER".enum(
+            """
+            Enable profiler.
+            
+            This causes per-view statistics to be collected, available through ##BGFXViewStats. This is unrelated to the profiler functions in
+            ##BGFXCallbackInterface.
+            """,
+            0x00000010
+        )
     ).javaDocLinks
 
     val BufferFlags = IntConstant(
@@ -454,49 +457,50 @@ val BGFX = "BGFX".nativeClass(Module.BGFX, prefix = "BGFX", prefixMethod = "bgfx
         "CAPS_DRAW_INDIRECT"..0x0000000000000010L,
         "CAPS_FRAGMENT_DEPTH"..0x0000000000000020L,
         "CAPS_FRAGMENT_ORDERING"..0x0000000000000040L,
-        "CAPS_FRAMEBUFFER_RW"..0x0000000000000080L,
-        "CAPS_GRAPHICS_DEBUGGER"..0x0000000000000100L,
-        "CAPS_RESERVED"..0x0000000000000200L,
-        "CAPS_HDR10"..0x0000000000000400L,
-        "CAPS_HIDPI"..0x0000000000000800L,
-        "CAPS_INDEX32"..0x0000000000001000L,
-        "CAPS_INSTANCING"..0x0000000000002000L,
-        "CAPS_OCCLUSION_QUERY"..0x0000000000004000L,
-        "CAPS_RENDERER_MULTITHREADED"..0x0000000000008000L,
-        "CAPS_SWAP_CHAIN"..0x0000000000010000L,
-        "CAPS_TEXTURE_2D_ARRAY"..0x0000000000020000L,
-        "CAPS_TEXTURE_3D"..0x0000000000040000L,
-        "CAPS_TEXTURE_BLIT"..0x0000000000180000L,
-        "CAPS_TEXTURE_COMPARE_RESERVED"..0x0000000000100000L,
-        "CAPS_TEXTURE_COMPARE_LEQUAL"..0x0000000000200000L,
+        "CAPS_GRAPHICS_DEBUGGER"..0x0000000000000080L,
+        "CAPS_HDR10"..0x0000000000000100L,
+        "CAPS_HIDPI"..0x0000000000000200L,
+        "CAPS_IMAGE_RW"..0x0000000000000400L,
+        "CAPS_INDEX32"..0x000000000000800L,
+        "CAPS_INSTANCING"..0x0000000000001000L,
+        "CAPS_OCCLUSION_QUERY"..0x0000000000002000L,
+        "CAPS_RENDERER_MULTITHREADED"..0x0000000000004000L,
+        "CAPS_SWAP_CHAIN"..0x000000000008000L,
+        "CAPS_TEXTURE_2D_ARRAY"..0x0000000000010000L,
+        "CAPS_TEXTURE_3D"..0x0000000000020000L,
+        "CAPS_TEXTURE_BLIT"..0x0000000000040000L,
+        "CAPS_TEXTURE_COMPARE_RESERVED"..0x0000000000080000L,
+        "CAPS_TEXTURE_COMPARE_LEQUAL"..0x0000000000100000L,
         "CAPS_TEXTURE_COMPARE_ALL".."BGFX_CAPS_TEXTURE_COMPARE_RESERVED | BGFX_CAPS_TEXTURE_COMPARE_LEQUAL",
-        "CAPS_TEXTURE_CUBE_ARRAY"..0x0000000000400000L,
-        "CAPS_TEXTURE_DIRECT_ACCESS"..0x0000000000800000L,
-        "CAPS_TEXTURE_READ_BACK"..0x0000000001000000L,
-        "CAPS_VERTEX_ATTRIB_HALF"..0x0000000002000000L,
-        "CAPS_VERTEX_ATTRIB_UINT10"..0x0000000004000000L,
-        "CAPS_VERTEX_ID"..0x0000000008000000L
+        "CAPS_TEXTURE_CUBE_ARRAY"..0x0000000000200000L,
+        "CAPS_TEXTURE_DIRECT_ACCESS"..0x0000000000400000L,
+        "CAPS_TEXTURE_READ_BACK"..0x0000000000800000L,
+        "CAPS_VERTEX_ATTRIB_HALF"..0x0000000001000000L,
+        "CAPS_VERTEX_ATTRIB_UINT10"..0x0000000002000000L,
+        "CAPS_VERTEX_ID"..0x0000000004000000L,
+        "CAPS_VIEWPORT_LAYER_ARRAY"..0x0000000008000000L
     )
 
-    ShortConstant(
+    IntConstant(
         "Format caps",
 
-        "CAPS_FORMAT_TEXTURE_NONE"..0x0000.s,
-        "CAPS_FORMAT_TEXTURE_2D"..0x0001.s,
-        "CAPS_FORMAT_TEXTURE_2D_SRGB"..0x0002.s,
-        "CAPS_FORMAT_TEXTURE_2D_EMULATED"..0x0004.s,
-        "CAPS_FORMAT_TEXTURE_3D"..0x0008.s,
-        "CAPS_FORMAT_TEXTURE_3D_SRGB"..0x0010.s,
-        "CAPS_FORMAT_TEXTURE_3D_EMULATED"..0x0020.s,
-        "CAPS_FORMAT_TEXTURE_CUBE"..0x0040.s,
-        "CAPS_FORMAT_TEXTURE_CUBE_SRGB"..0x0080.s,
-        "CAPS_FORMAT_TEXTURE_CUBE_EMULATED"..0x0100.s,
-        "CAPS_FORMAT_TEXTURE_VERTEX"..0x0200.s,
-        "CAPS_FORMAT_TEXTURE_IMAGE"..0x0400.s,
-        "CAPS_FORMAT_TEXTURE_FRAMEBUFFER"..0x0800.s,
-        "CAPS_FORMAT_TEXTURE_FRAMEBUFFER_MSAA"..0x1000.s,
-        "CAPS_FORMAT_TEXTURE_MSAA"..0x2000.s,
-        "CAPS_FORMAT_TEXTURE_MIP_AUTOGEN"..0x4000.s
+        "CAPS_FORMAT_TEXTURE_NONE"..0x00000000,
+        "CAPS_FORMAT_TEXTURE_2D"..0x00000001,
+        "CAPS_FORMAT_TEXTURE_2D_SRGB"..0x00000002,
+        "CAPS_FORMAT_TEXTURE_2D_EMULATED"..0x00000004,
+        "CAPS_FORMAT_TEXTURE_3D"..0x00000008,
+        "CAPS_FORMAT_TEXTURE_3D_SRGB"..0x00000010,
+        "CAPS_FORMAT_TEXTURE_3D_EMULATED"..0x00000020,
+        "CAPS_FORMAT_TEXTURE_CUBE"..0x00000040,
+        "CAPS_FORMAT_TEXTURE_CUBE_SRGB"..0x00000080,
+        "CAPS_FORMAT_TEXTURE_CUBE_EMULATED"..0x00000100,
+        "CAPS_FORMAT_TEXTURE_VERTEX"..0x00000200,
+        "CAPS_FORMAT_TEXTURE_IMAGE_READ"..0x00000400,
+        "CAPS_FORMAT_TEXTURE_IMAGE_WRITE"..0x00000800,
+        "CAPS_FORMAT_TEXTURE_FRAMEBUFFER"..0x00001000,
+        "CAPS_FORMAT_TEXTURE_FRAMEBUFFER_MSAA"..0x00002000,
+        "CAPS_FORMAT_TEXTURE_MSAA"..0x00004000,
+        "CAPS_FORMAT_TEXTURE_MIP_AUTOGEN"..0x00008000
     )
 
     ByteConstant(
@@ -512,8 +516,10 @@ val BGFX = "BGFX".nativeClass(Module.BGFX, prefix = "BGFX", prefixMethod = "bgfx
         "PCI_ID_NONE"..0x0000.s,
         "PCI_ID_SOFTWARE_RASTERIZER"..0x0001.s,
         "PCI_ID_AMD"..0x1002.s,
+        "PCI_ID_APPLE"..0x106b.s,
         "PCI_ID_INTEL".."(short)0x8086",
-        "PCI_ID_NVIDIA"..0x10de.s
+        "PCI_ID_NVIDIA"..0x10de.s,
+        "PCI_ID_MICROSOFT"..0x1414.s
     )
 
     val CubeMapSides = ByteConstant(
@@ -543,6 +549,7 @@ val BGFX = "BGFX".nativeClass(Module.BGFX, prefix = "BGFX", prefixMethod = "bgfx
         "Renderer backend type. ({@code bgfx_renderer_type_t})",
 
         "RENDERER_TYPE_NOOP".enum("No rendering."),
+        "RENDERER_TYPE_AGC".enum("AGC"),
         "RENDERER_TYPE_DIRECT3D9".enum("Direct3D 9.0"),
         "RENDERER_TYPE_DIRECT3D11".enum("Direct3D 11.0"),
         "RENDERER_TYPE_DIRECT3D12".enum("Direct3D 12.0"),
@@ -552,6 +559,7 @@ val BGFX = "BGFX".nativeClass(Module.BGFX, prefix = "BGFX", prefixMethod = "bgfx
         "RENDERER_TYPE_OPENGLES".enum("OpenGL ES 2.0+"),
         "RENDERER_TYPE_OPENGL".enum("OpenGL 2.1+"),
         "RENDERER_TYPE_VULKAN".enum("Vulkan"),
+        "BGFX_RENDERER_TYPE_WEBGPU".enum("WebGPU"),
 
         "RENDERER_TYPE_COUNT".enum
     ).javaDocLinks
@@ -810,7 +818,8 @@ RGBA16S
         bgfx_attachment_t.p("_this", ""),
         bgfx_texture_handle_t("_handle", "render target texture handle"),
         bgfx_access_t("_access", "access", Access),
-        MapToInt..uint16_t("_layer", "cubemap side or depth layer/slice"),
+        MapToInt..uint16_t("_layer", "cubemap side or depth layer/slice to use"),
+        MapToInt..uint16_t("_numLayers", "number of texture layer/slice(s) in array to use"),
         MapToInt..uint16_t("_mip", "mip level"),
         MapToInt..uint8_t("_resolve", "resolve flags", "RESOLVE_\\w+")
     )
@@ -820,7 +829,9 @@ RGBA16S
         "Start a vertex layout.",
 
         bgfx_vertex_layout_t.p("_this", "the vertex layout"),
-        bgfx_renderer_type_t("_renderer", "the renderer type", RendererType)
+        bgfx_renderer_type_t("_renderer", "the renderer backend type", RendererType),
+
+        returnDoc = "itself"
     )
 
     bgfx_vertex_layout_t.p(
@@ -848,7 +859,9 @@ RGBA16S
             packaging rule for {@code vertexPack}, {@code vertexUnpack}, and {@code vertexConvert} for #ATTRIB_TYPE_UINT8 and #ATTRIB_TYPE_INT16. Unpacking
             code must be implemented inside vertex shader.
             """
-        )
+        ),
+
+        returnDoc = "itself"
     )
 
     void(
@@ -868,7 +881,9 @@ RGBA16S
         "Returns true if {@code _this} contains attribute.",
 
         bgfx_vertex_layout_t.const.p("_this", "the vertex layout"),
-        bgfx_attrib_t("_attr", "the attribute to query", Attrib)
+        bgfx_attrib_t("_attr", "the attribute to query", Attrib),
+
+        returnDoc = "{@code true} if {@code VertexLayout} contains attribute"
     )
 
     bgfx_vertex_layout_t.p(
@@ -876,7 +891,9 @@ RGBA16S
         "Skips {@code _num} bytes in vertex stream.",
 
         bgfx_vertex_layout_t.p("_this", "the vertex layout"),
-        MapToInt..uint8_t("_num", "the number of bytes to skip")
+        MapToInt..uint8_t("_num", "the number of bytes to skip"),
+
+        returnDoc = "itself"
     )
 
     void(
@@ -920,14 +937,18 @@ RGBA16S
         uint32_t("_num", "number of vertices to convert from source to destination")
     )
 
-    uint16_t(
+    uint32_t(
         "weld_vertices",
         "Welds vertices.",
 
-        uint16_t.p("_output", "welded vertices remapping table. The size of buffer be the same as number of vertices."),
+        MultiType(
+            PointerMapping.DATA_SHORT,
+            PointerMapping.DATA_INT
+        )..void.p("_output", "welded vertices remapping table. The size of buffer must be the same as number of vertices."),
         bgfx_vertex_layout_t.const.p("_layout", "vertex stream layout"),
         Unsafe..void.const.p("_data", "vertex stream"),
-        AutoSize("_output")..uint16_t("_num", "number of vertices in vertex stream"),
+        AutoSizeShr("(_index32 ? 2 : 1)", "_output")..uint32_t("_num", "number of vertices in vertex stream"),
+        bool("_index32", "set to {@code true} if input indices are 32-bit"),
         float("_epsilon", "error tolerance for vertex position comparison"),
 
         returnDoc = "number of unique vertices after vertex welding"
@@ -954,7 +975,7 @@ RGBA16S
             PointerMapping.DATA_INT
         )..void.const.p("_indices", "source indices"),
         AutoSizeShr("(_index32 ? 2 : 1)", "_indices")..uint32_t("_numIndices", "number of input indices"),
-        bool("_index32", "set to `true` if input indices are 32-bit"),
+        bool("_index32", "set to {@code true} if input indices are 32-bit"),
 
         returnDoc = "number of output indices after conversion"
     )
@@ -987,7 +1008,7 @@ RGBA16S
             PointerMapping.DATA_INT
         )..void.const.p("_indices", "source indices"),
         AutoSizeShr("(_index32 ? 2 : 1)", "_indices")..uint32_t("_numIndices", "number of input indices"),
-        bool("_index32", "set to `true` if input indices are 32-bit")
+        bool("_index32", "set to {@code true} if input indices are 32-bit")
     )
 
     uint8_t(
@@ -1139,7 +1160,11 @@ RGBA16S
 
     void(
         "dbg_text_printf",
-        "Prints into internal debug text character-buffer (VGA-compatible text mode).",
+        """
+        Prints into internal debug text character-buffer (VGA-compatible text mode).
+        
+        <b>LWJGL note</b>: This is a vararg function that should be called with {@link Functions\#dbg_text_printf dbg_text_printf} via the libffi bindings.
+        """,
 
         MapToInt..uint16_t("_x", "x coordinate"),
         MapToInt..uint16_t("_y", "y coordinate"),
@@ -1150,7 +1175,7 @@ RGBA16S
             escape codes).
             """
         ),
-        charASCII.const.p("_format", "`printf` style format")
+        charASCII.const.p("_format", "{@code printf} style format")
     )
 
     void(
@@ -1163,7 +1188,7 @@ RGBA16S
             "_attr",
             "color palette. Where top 4-bits represent index of background, and bottom 4-bits represent foreground color from standard VGA text palette."
         ),
-        charASCII.const.p("_format", "`printf` style format"),
+        charASCII.const.p("_format", "{@code printf} style format"),
         va_list("_argList", "additional arguments for format string")
     )
 
@@ -1318,7 +1343,8 @@ RGBA16S
         "get_avail_transient_index_buffer",
         "Returns number of requested or maximum available indices.",
 
-        uint32_t("_num", "number of required indices")
+        uint32_t("_num", "number of required indices"),
+        bool("_index32", "set to {@code true} if input indices will be 32-bit")
     )
 
     uint32_t(
@@ -1339,17 +1365,14 @@ RGBA16S
 
     void(
         "alloc_transient_index_buffer",
-        """
-        Allocates transient index buffer.
-
-        Only 16-bit index buffer is supported.
-        """,
+        "Allocates transient index buffer.",
 
         bgfx_transient_index_buffer_t.p(
             "_tib",
             "##BGFXTransientIndexBuffer structure is filled and is valid for the duration of frame, and it can be reused for multiple draw calls"
         ),
-        uint32_t("_num", "number of indices to allocate")
+        uint32_t("_num", "number of indices to allocate"),
+        bool("_index32", "set to {@code true} if input indices will be 32-bit")
     )
 
     void(
@@ -1366,11 +1389,7 @@ RGBA16S
 
     bool(
         "alloc_transient_buffers",
-        """
-        Checks for required space and allocates transient vertex and index buffers. If both space requirements are satisfied function returns true.
-
-        Only 16-bit index buffer is supported.
-        """,
+        "Checks for required space and allocates transient vertex and index buffers. If both space requirements are satisfied function returns true.",
 
         bgfx_transient_vertex_buffer_t.p(
             "_tvb",
@@ -1382,7 +1401,8 @@ RGBA16S
             "_tib",
             "##BGFXTransientIndexBuffer structure is filled and is valid for the duration of frame, and it can be reused for multiple draw calls"
         ),
-        uint32_t("_numIndices", "number of indices to allocate")
+        uint32_t("_numIndices", "number of indices to allocate"),
+        bool("_index32", "set to {@code true} if input indices will be 32-bit")
     )
 
     void(
@@ -1415,7 +1435,9 @@ RGBA16S
         "create_shader",
         "Creates shader from memory buffer.",
 
-        bgfx_memory_t.const.p("_mem", "")
+        bgfx_memory_t.const.p("_mem", ""),
+
+        returnDoc = "shader handle"
     )
 
     uint16_t(
@@ -1486,7 +1508,19 @@ RGBA16S
         bool("_cubeMap", "indicates that texture contains cubemap"),
         MapToInt..uint16_t("_numLayers", "number of layers in texture array"),
         bgfx_texture_format_t("_format", "texture format", TextureFormat),
-        uint64_t("_flags", "texture flags", TextureFlags, LinkMode.BITFIELD)
+        uint64_t("_flags", "texture flags", TextureFlags, LinkMode.BITFIELD),
+
+        returnDoc = "true if texture can be successfully created"
+    )
+
+    bool(
+        "is_frame_buffer_valid",
+        "Validate frame buffer parameters.",
+
+        MapToInt..uint8_t("_num", "number of attachments"),
+        bgfx_attachment_t.const.p("_attachment", "attachment texture info"),
+
+        returnDoc = "true if frame buffer can be successfully created"
     )
 
     void(
@@ -1773,7 +1807,7 @@ RGBA16S
         "create_frame_buffer_from_attachment",
         "Create MRT frame buffer from texture handles with specific layer and mip level.",
 
-        AutoSize("_attachment")..uint8_t("_num", "number of texture attachments"),
+        AutoSize("_attachment")..uint8_t("_num", "number of attachments"),
         bgfx_attachment_t.const.p("_attachment", "attachment texture info"),
         bool("_destroyTextures", "if true, textures will be destroyed when frame buffer is destroyed"),
 
@@ -1835,7 +1869,7 @@ RGBA16S
         same handle, but the handle reference count will be incremented. This means that the same number of #destroy_uniform() must be called to properly
         destroy the uniform.
 
-        Predefined uniforms (declared in `bgfx_shader.sh`):
+        Predefined uniforms (declared in {@code bgfx_shader.sh}):
         ${ul(
             "{@code u_viewRect vec4(x, y, width, height)} - view rectangle for current view, in pixels.",
             "{@code u_viewTexel vec4(1.0/width, 1.0/height, undef, undef)} - inverse width and height",
@@ -2044,6 +2078,13 @@ RGBA16S
         Check("_num")..nullable..bgfx_view_id_t.const.p("_order", "view remap id table. Passing #NULL will reset view ids to default state")
     )
 
+    void(
+        "reset_view",
+        "Reset all view settings to default.",
+
+        MapToInt..bgfx_view_id_t("_id", "view id")
+    )
+
     bgfx_encoder_s.p(
         "encoder_begin",
         "Begin submitting draw calls from thread.",
@@ -2164,7 +2205,7 @@ BGFX_STATE_BLEND_EQUATION_SEPARATE(_equationRGB, _equationA)""")}
         """
         Reserves {@code _num} matrices in internal matrix cache.
 
-        Pointer returned can be modifed until #frame() is called.
+        Pointer returned can be modified until #frame() is called.
         """,
 
         bgfx_encoder_s.p("_this", "the encoder"),
@@ -2228,8 +2269,22 @@ BGFX_STATE_BLEND_EQUATION_SEPARATE(_equationRGB, _equationA)""")}
         MapToInt..uint8_t("_stream", "vertex stream"),
         bgfx_vertex_buffer_handle_t("_handle", "vertex buffer"),
         uint32_t("_startVertex", "first vertex to render"),
+        uint32_t("_numVertices", "number of vertices to render")
+    )
+
+    void(
+        "encoder_set_vertex_buffer_with_layout",
+        "Sets vertex buffer for draw primitive.",
+
+        bgfx_encoder_s.p("_this", "the encoder"),
+        MapToInt..uint8_t("_stream", "vertex stream"),
+        bgfx_vertex_buffer_handle_t("_handle", "vertex buffer"),
+        uint32_t("_startVertex", "first vertex to render"),
         uint32_t("_numVertices", "number of vertices to render"),
-        bgfx_vertex_layout_handle_t("_layoutHandle", "vertex layout for aliasing vertex buffer")
+        bgfx_vertex_layout_handle_t(
+            "_layoutHandle",
+            "vertex layout for aliasing vertex buffer. If invalid handle is used, vertex layout used for creation of vertex buffer will be used."
+        )
     )
 
     void(
@@ -2240,8 +2295,22 @@ BGFX_STATE_BLEND_EQUATION_SEPARATE(_equationRGB, _equationA)""")}
         MapToInt..uint8_t("_stream", "vertex stream"),
         bgfx_dynamic_vertex_buffer_handle_t("_handle", "dynamic vertex buffer"),
         uint32_t("_startVertex", "first vertex to render"),
+        uint32_t("_numVertices", "number of vertices to render")
+    )
+
+    void(
+        "encoder_set_dynamic_vertex_buffer_with_layout",
+        "Sets vertex buffer for draw primitive.",
+
+        bgfx_encoder_s.p("_this", "the encoder"),
+        MapToInt..uint8_t("_stream", "vertex stream"),
+        bgfx_dynamic_vertex_buffer_handle_t("_handle", "dynamic vertex buffer"),
+        uint32_t("_startVertex", "first vertex to render"),
         uint32_t("_numVertices", "number of vertices to render"),
-        bgfx_vertex_layout_handle_t("_layoutHandle", "vertex layout for aliasing vertex buffer")
+        bgfx_vertex_layout_handle_t(
+            "_layoutHandle",
+            "vertex layout for aliasing vertex buffer. If invalid handle is used, vertex layout used for creation of vertex buffer will be used."
+        )
     )
 
     void(
@@ -2252,14 +2321,28 @@ BGFX_STATE_BLEND_EQUATION_SEPARATE(_equationRGB, _equationA)""")}
         MapToInt..uint8_t("_stream", "vertex stream"),
         bgfx_transient_vertex_buffer_t.const.p("_tvb", "transient vertex buffer"),
         uint32_t("_startVertex", "first vertex to render"),
+        uint32_t("_numVertices", "number of vertices to render")
+    )
+
+    void(
+        "encoder_set_transient_vertex_buffer_with_layout",
+        "Sets vertex buffer for draw primitive.",
+
+        bgfx_encoder_s.p("_this", "the encoder"),
+        MapToInt..uint8_t("_stream", "vertex stream"),
+        bgfx_transient_vertex_buffer_t.const.p("_tvb", "transient vertex buffer"),
+        uint32_t("_startVertex", "first vertex to render"),
         uint32_t("_numVertices", "number of vertices to render"),
-        bgfx_vertex_layout_handle_t("_layoutHandle", "vertex layout for aliasing vertex buffer")
+        bgfx_vertex_layout_handle_t(
+            "_layoutHandle",
+            "vertex layout for aliasing vertex buffer. If invalid handle is used, vertex layout used for creation of vertex buffer will be used."
+        )
     )
 
     void(
         "encoder_set_vertex_count",
         """
-        Set number of vertices for auto generated vertices use in conjuction with {@code gl_VertexID}.
+        Set number of vertices for auto generated vertices use in conjunction with {@code gl_VertexID}.
 
         Availability depends on: #CAPS_VERTEX_ID.
         """,
@@ -2324,7 +2407,10 @@ BGFX_STATE_BLEND_EQUATION_SEPARATE(_equationRGB, _equationA)""")}
     void(
         "encoder_touch",
         """
-        Submits an empty primitive for rendering. Uniforms and draw state will be applied but no geometry will be submitted.
+        Submits an empty primitive for rendering.
+
+        Uniforms and draw state will be applied but no geometry will be submitted. Useful in cases when no other draw/compute primitive is submitted to view,
+        but it's desired to execute clear view.
 
         These empty draw calls will sort before ordinary draw calls.
         """,
@@ -2341,7 +2427,7 @@ BGFX_STATE_BLEND_EQUATION_SEPARATE(_equationRGB, _equationA)""")}
         MapToInt..bgfx_view_id_t("_id", "view id"),
         bgfx_program_handle_t("_handle", "program"),
         uint32_t("_depth", "depth for sorting"),
-        bool("_preserveState", "preserve internal draw state for next draw call submit")
+        MapToInt..uint8_t("_flags", "discard or preserve states", DiscardFlags, LinkMode.BITFIELD)
     )
 
     void(
@@ -2353,7 +2439,7 @@ BGFX_STATE_BLEND_EQUATION_SEPARATE(_equationRGB, _equationA)""")}
         bgfx_program_handle_t("_program", "program"),
         bgfx_occlusion_query_handle_t("_occlusionQuery", "occlusion query"),
         uint32_t("_depth", "depth for sorting"),
-        bool("_preserveState", "preserve internal draw state for next draw call submit")
+        MapToInt..uint8_t("_flags", "discard or preserve states", DiscardFlags, LinkMode.BITFIELD)
     )
 
     void(
@@ -2367,7 +2453,7 @@ BGFX_STATE_BLEND_EQUATION_SEPARATE(_equationRGB, _equationA)""")}
         MapToInt..uint16_t("_start", "first element in indirect buffer"),
         MapToInt..uint16_t("_num", "number of dispatches"),
         uint32_t("_depth", "depth for sorting"),
-        bool("_preserveState", "preserve internal draw state for next draw call submit")
+        MapToInt..uint8_t("_flags", "discard or preserve states", DiscardFlags, LinkMode.BITFIELD)
     )
 
     void(
@@ -2441,7 +2527,8 @@ BGFX_STATE_BLEND_EQUATION_SEPARATE(_equationRGB, _equationA)""")}
         bgfx_program_handle_t("_handle", "compute program"),
         uint32_t("_numX", "number of groups X"),
         uint32_t("_numY", "number of groups Y"),
-        uint32_t("_numZ", "number of groups Z")
+        uint32_t("_numZ", "number of groups Z"),
+        MapToInt..uint8_t("_flags", "discard or preserve states", DiscardFlags, LinkMode.BITFIELD)
     )
 
     void(
@@ -2453,7 +2540,8 @@ BGFX_STATE_BLEND_EQUATION_SEPARATE(_equationRGB, _equationA)""")}
         bgfx_program_handle_t("_handle", "compute program"),
         bgfx_indirect_buffer_handle_t("_indirectHandle", "indirect buffer"),
         MapToInt..uint16_t("_start", "first element in indirect buffer"),
-        MapToInt..uint16_t("_num", "number of dispatches")
+        MapToInt..uint16_t("_num", "number of dispatches"),
+        MapToInt..uint8_t("_flags", "discard or preserve states", DiscardFlags, LinkMode.BITFIELD)
     )
 
     void(
@@ -2461,7 +2549,7 @@ BGFX_STATE_BLEND_EQUATION_SEPARATE(_equationRGB, _equationA)""")}
         "Discards all previously set state for draw or compute call.",
 
         bgfx_encoder_s.p("_this", "the encoder"),
-        MapToInt..uint8_t("_flags", "draw/compute states to discard", DiscardFlags, LinkMode.BITFIELD)
+        MapToInt..uint8_t("_flags", "discard or preserve states", DiscardFlags, LinkMode.BITFIELD)
     )
 
     void(
@@ -2605,7 +2693,7 @@ BGFX_STATE_BLEND_EQUATION_SEPARATE(_equationRGB, _equationA)""")}
         """
         Reserves {@code _num} matrices in internal matrix cache.
 
-        Pointer returned can be modifed until #frame() is called.
+        Pointer returned can be modified until #frame() is called.
         """,
 
         bgfx_transform_t.p("_transform", "pointer to ##BGFXTransform structure"),
@@ -2667,6 +2755,20 @@ BGFX_STATE_BLEND_EQUATION_SEPARATE(_equationRGB, _equationA)""")}
     )
 
     void(
+        "set_vertex_buffer_with_layout",
+        "Sets vertex buffer for draw primitive.",
+
+        MapToInt..uint8_t("_stream", "vertex stream"),
+        bgfx_vertex_buffer_handle_t("_handle", "vertex buffer"),
+        uint32_t("_startVertex", "first vertex to render"),
+        uint32_t("_numVertices", "number of vertices to render"),
+        bgfx_vertex_layout_handle_t(
+            "_layoutHandle",
+            "vertex layout for aliasing vertex buffer. If invalid handle is used, vertex layout used for creation of vertex buffer will be used."
+        )
+    )
+
+    void(
         "set_dynamic_vertex_buffer",
         "Sets vertex buffer for draw primitive.",
 
@@ -2674,6 +2776,20 @@ BGFX_STATE_BLEND_EQUATION_SEPARATE(_equationRGB, _equationA)""")}
         bgfx_dynamic_vertex_buffer_handle_t("_handle", "dynamic vertex buffer"),
         uint32_t("_startVertex", "first vertex to render"),
         uint32_t("_numVertices", "number of vertices to render")
+    )
+
+    void(
+        "set_dynamic_vertex_buffer_with_layout",
+        "Sets vertex buffer for draw primitive.",
+
+        MapToInt..uint8_t("_stream", "vertex stream"),
+        bgfx_dynamic_vertex_buffer_handle_t("_handle", "dynamic vertex buffer"),
+        uint32_t("_startVertex", "first vertex to render"),
+        uint32_t("_numVertices", "number of vertices to render"),
+        bgfx_vertex_layout_handle_t(
+            "_layoutHandle",
+            "vertex layout for aliasing vertex buffer. If invalid handle is used, vertex layout used for creation of vertex buffer will be used."
+        )
     )
 
     void(
@@ -2687,9 +2803,23 @@ BGFX_STATE_BLEND_EQUATION_SEPARATE(_equationRGB, _equationA)""")}
     )
 
     void(
+        "set_transient_vertex_buffer_with_layout",
+        "Sets vertex buffer for draw primitive.",
+
+        MapToInt..uint8_t("_stream", "vertex stream"),
+        bgfx_transient_vertex_buffer_t.const.p("_tvb", "transient vertex buffer"),
+        uint32_t("_startVertex", "first vertex to render"),
+        uint32_t("_numVertices", "number of vertices to render"),
+        bgfx_vertex_layout_handle_t(
+            "_layoutHandle",
+            "vertex layout for aliasing vertex buffer. If invalid handle is used, vertex layout used for creation of vertex buffer will be used."
+        )
+    )
+
+    void(
         "set_vertex_count",
         """
-        Set number of vertices for auto generated vertices use in conjuction with {@code gl_VertexID}.
+        Set number of vertices for auto generated vertices use in conjunction with {@code gl_VertexID}.
 
         Availability depends on: #CAPS_VERTEX_ID.
         """,
@@ -2727,7 +2857,7 @@ BGFX_STATE_BLEND_EQUATION_SEPARATE(_equationRGB, _equationA)""")}
     void(
         "set_instance_count",
         """
-        Sets number of instances for auto generated instances use in conjuction with {@code gl_InstanceID}.
+        Sets number of instances for auto generated instances use in conjunction with {@code gl_InstanceID}.
 
         Availability depends on: #CAPS_VERTEX_ID.
         """,
@@ -2763,7 +2893,7 @@ BGFX_STATE_BLEND_EQUATION_SEPARATE(_equationRGB, _equationA)""")}
         MapToInt..bgfx_view_id_t("_id", "view id"),
         bgfx_program_handle_t("_program", "program"),
         uint32_t("_depth", "depth for sorting"),
-        bool("_preserveState", "preserve internal draw state for next draw call submit")
+        MapToInt..uint8_t("_flags", "which states to discard for next draw", DiscardFlags, LinkMode.BITFIELD)
     )
 
     void(
@@ -2774,7 +2904,7 @@ BGFX_STATE_BLEND_EQUATION_SEPARATE(_equationRGB, _equationA)""")}
         bgfx_program_handle_t("_program", "program"),
         bgfx_occlusion_query_handle_t("_occlusionQuery", "occlusion query"),
         uint32_t("_depth", "depth for sorting"),
-        bool("_preserveState", "preserve internal draw state for next draw call submit")
+        MapToInt..uint8_t("_flags", "which states to discard for next draw", DiscardFlags, LinkMode.BITFIELD)
     )
 
     void(
@@ -2787,7 +2917,7 @@ BGFX_STATE_BLEND_EQUATION_SEPARATE(_equationRGB, _equationA)""")}
         MapToInt..uint16_t("_start", "first element in indirect buffer"),
         MapToInt..uint16_t("_num", "number of dispatches"),
         uint32_t("_depth", "depth for sorting"),
-        bool("_preserveState", "preserve internal draw state for next draw call submit")
+        MapToInt..uint8_t("_flags", "which states to discard for next draw", DiscardFlags, LinkMode.BITFIELD)
     )
 
     void(
@@ -2854,7 +2984,8 @@ BGFX_STATE_BLEND_EQUATION_SEPARATE(_equationRGB, _equationA)""")}
         bgfx_program_handle_t("_program", "compute program"),
         uint32_t("_numX", "number of groups X"),
         uint32_t("_numY", "number of groups Y"),
-        uint32_t("_numZ", "number of groups Z")
+        uint32_t("_numZ", "number of groups Z"),
+        MapToInt..uint8_t("_flags", "discard or preserve states", DiscardFlags, LinkMode.BITFIELD)
     )
 
     void(
@@ -2865,7 +2996,8 @@ BGFX_STATE_BLEND_EQUATION_SEPARATE(_equationRGB, _equationA)""")}
         bgfx_program_handle_t("_program", "compute program"),
         bgfx_indirect_buffer_handle_t("_indirectHandle", "indirect buffer"),
         MapToInt..uint16_t("_start", "first element in indirect buffer"),
-        MapToInt..uint16_t("_num", "number of dispatches")
+        MapToInt..uint16_t("_num", "number of dispatches"),
+        MapToInt..uint8_t("_flags", "discard or preserve states", DiscardFlags, LinkMode.BITFIELD)
     )
 
     void(

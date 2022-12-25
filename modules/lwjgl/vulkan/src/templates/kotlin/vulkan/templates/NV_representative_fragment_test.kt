@@ -8,15 +8,16 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val NV_representative_fragment_test = "NVRepresentativeFragmentTest".nativeClassVK("NV_representative_fragment_test", type = "device", postfix = NV) {
+val NV_representative_fragment_test = "NVRepresentativeFragmentTest".nativeClassVK("NV_representative_fragment_test", type = "device", postfix = "NV") {
     documentation =
         """
-        This extension provides a new representative fragment test that allows implementations to reduce the amount of rasterization and fragment processing work performed for each point, line, or triangle primitive. For any primitive that produces one or more fragments that pass all other early fragment tests, the implementation is permitted to choose one or more "{@code representative}" fragments for processing and discard all other fragments. For draw calls rendering multiple points, lines, or triangles arranged in lists, strips, or fans, the representative fragment test is performed independently for each of those primitives.
+        This extension provides a new representative fragment test that allows implementations to reduce the amount of rasterization and fragment processing work performed for each point, line, or triangle primitive. For any primitive that produces one or more fragments that pass all other early fragment tests, the implementation is permitted to choose one or more “{@code representative}” fragments for processing and discard all other fragments. For draw calls rendering multiple points, lines, or triangles arranged in lists, strips, or fans, the representative fragment test is performed independently for each of those primitives.
 
         This extension is useful for applications that use an early render pass to determine the full set of primitives that would be visible in the final scene. In this render pass, such applications would set up a fragment shader that enables early fragment tests and writes to an image or shader storage buffer to record the ID of the primitive that generated the fragment. Without this extension, the shader would record the ID separately for each visible fragment of each primitive. With this extension, fewer stores will be performed, particularly for large primitives.
 
         The representative fragment test has no effect if early fragment tests are not enabled via the fragment shader. The set of fragments discarded by the representative fragment test is implementation-dependent and may vary from frame to frame. In some cases, the representative fragment test may not discard any fragments for a given primitive.
 
+        <h5>VK_NV_representative_fragment_test</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_NV_representative_fragment_test}</dd>
@@ -37,9 +38,12 @@ val NV_representative_fragment_test = "NVRepresentativeFragmentTest".nativeClass
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Kedarnath Thangudu <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_NV_representative_fragment_test:%20&amp;body=@kthangudu%20">kthangudu</a></li>
+                <li>Kedarnath Thangudu <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_NV_representative_fragment_test]%20@kthangudu%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_NV_representative_fragment_test%20extension%3E%3E">kthangudu</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2018-09-13</dd>
 

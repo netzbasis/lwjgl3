@@ -8,10 +8,10 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val EXT_blend_operation_advanced = "EXTBlendOperationAdvanced".nativeClassVK("EXT_blend_operation_advanced", type = "device", postfix = EXT) {
+val EXT_blend_operation_advanced = "EXTBlendOperationAdvanced".nativeClassVK("EXT_blend_operation_advanced", type = "device", postfix = "EXT") {
     documentation =
         """
-        This extension adds a number of "{@code advanced}" blending operations that <b>can</b> be used to perform new color blending operations, many of which are more complex than the standard blend modes provided by unextended Vulkan. This extension requires different styles of usage, depending on the level of hardware support and the enabled features:
+        This extension adds a number of “{@code advanced}” blending operations that <b>can</b> be used to perform new color blending operations, many of which are more complex than the standard blend modes provided by unextended Vulkan. This extension requires different styles of usage, depending on the level of hardware support and the enabled features:
 
         <ul>
             <li>If ##VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT{@code ::advancedBlendCoherentOperations} is #FALSE, the new blending operations are supported, but a memory dependency <b>must</b> separate each advanced blend operation on a given sample. #ACCESS_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT is used to synchronize reads using advanced blend operations.</li>
@@ -20,7 +20,7 @@ val EXT_blend_operation_advanced = "EXTBlendOperationAdvanced".nativeClassVK("EX
 
         In unextended Vulkan, the set of blending operations is limited, and <b>can</b> be expressed very simply. The #BLEND_OP_MIN and #BLEND_OP_MAX blend operations simply compute component-wise minimums or maximums of source and destination color components. The #BLEND_OP_ADD, #BLEND_OP_SUBTRACT, and #BLEND_OP_REVERSE_SUBTRACT modes multiply the source and destination colors by source and destination factors and either add the two products together or subtract one from the other. This limited set of operations supports many common blending operations but precludes the use of more sophisticated transparency and blending operations commonly available in many dedicated imaging APIs.
 
-        This extension provides a number of new "{@code advanced}" blending operations. Unlike traditional blending operations using #BLEND_OP_ADD, these blending equations do not use source and destination factors specified by {@code VkBlendFactor}. Instead, each blend operation specifies a complete equation based on the source and destination colors. These new blend operations are used for both RGB and alpha components; they <b>must</b> not be used to perform separate RGB and alpha blending (via different values of color and alpha {@code VkBlendOp}).
+        This extension provides a number of new “{@code advanced}” blending operations. Unlike traditional blending operations using #BLEND_OP_ADD, these blending equations do not use source and destination factors specified by {@code VkBlendFactor}. Instead, each blend operation specifies a complete equation based on the source and destination colors. These new blend operations are used for both RGB and alpha components; they <b>must</b> not be used to perform separate RGB and alpha blending (via different values of color and alpha {@code VkBlendOp}).
 
         These blending operations are performed using premultiplied colors, where RGB colors <b>can</b> be considered premultiplied or non-premultiplied by alpha, according to the {@code srcPremultiplied} and {@code dstPremultiplied} members of ##VkPipelineColorBlendAdvancedStateCreateInfoEXT. If a color is considered non-premultiplied, the (R,G,B) color components are multiplied by the alpha component prior to blending. For non-premultiplied color components in the range <code>[0,1]</code>, the corresponding premultiplied color component would have values in the range <code>[0 × A, 1 × A]</code>.
 
@@ -28,6 +28,7 @@ val EXT_blend_operation_advanced = "EXTBlendOperationAdvanced".nativeClassVK("EX
 
         In addition to the coherency issues on implementations not supporting {@code advancedBlendCoherentOperations}, this extension has several limitations worth noting. First, the new blend operations have a limit on the number of color attachments they <b>can</b> be used with, as indicated by ##VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT{@code ::advancedBlendMaxColorAttachments}. Additionally, blending precision <b>may</b> be limited to 16-bit floating-point, which <b>may</b> result in a loss of precision and dynamic range for framebuffer formats with 32-bit floating-point components, and in a loss of precision for formats with 12- and 16-bit signed or unsigned normalized integer components.
 
+        <h5>VK_EXT_blend_operation_advanced</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_EXT_blend_operation_advanced}</dd>
@@ -48,9 +49,12 @@ val EXT_blend_operation_advanced = "EXTBlendOperationAdvanced".nativeClassVK("EX
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Jeff Bolz <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_EXT_blend_operation_advanced:%20&amp;body=@jeffbolznv%20">jeffbolznv</a></li>
+                <li>Jeff Bolz <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_EXT_blend_operation_advanced]%20@jeffbolznv%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_EXT_blend_operation_advanced%20extension%3E%3E">jeffbolznv</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2017-06-12</dd>
 

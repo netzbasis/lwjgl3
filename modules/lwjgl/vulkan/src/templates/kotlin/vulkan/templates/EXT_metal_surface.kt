@@ -6,13 +6,15 @@
 package vulkan.templates
 
 import org.lwjgl.generator.*
+import core.macos.*
 import vulkan.*
 
-val EXT_metal_surface = "EXTMetalSurface".nativeClassVK("EXT_metal_surface", type = "instance", postfix = EXT) {
+val EXT_metal_surface = "EXTMetalSurface".nativeClassVK("EXT_metal_surface", type = "instance", postfix = "EXT") {
     documentation =
         """
-        The {@code VK_EXT_metal_surface} extension is an instance extension. It provides a mechanism to create a {@code VkSurfaceKHR} object (defined by the {@link KHRSurface VK_KHR_surface} extension) from dlink:CAMetalLayer, which is the native rendering surface of Apple's Metal framework.
+        The {@code VK_EXT_metal_surface} extension is an instance extension. It provides a mechanism to create a {@code VkSurfaceKHR} object (defined by the {@link KHRSurface VK_KHR_surface} extension) from {@code CAMetalLayer}, which is the native rendering surface of Apple’s Metal framework.
 
+        <h5>VK_EXT_metal_surface</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_EXT_metal_surface}</dd>
@@ -34,9 +36,12 @@ val EXT_metal_surface = "EXTMetalSurface".nativeClassVK("EXT_metal_surface", typ
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Dzmitry Malyshau <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_EXT_metal_surface:%20&amp;body=@kvark%20">kvark</a></li>
+                <li>Dzmitry Malyshau <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_EXT_metal_surface]%20@kvark%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_EXT_metal_surface%20extension%3E%3E">kvark</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2018-10-01</dd>
 
@@ -74,7 +79,7 @@ val EXT_metal_surface = "EXTMetalSurface".nativeClassVK("EXT_metal_surface", typ
         Create a VkSurfaceKHR object for CAMetalLayer.
 
         <h5>C Specification</h5>
-        To create a {@code VkSurfaceKHR} object for a dlink:CAMetalLayer, call:
+        To create a {@code VkSurfaceKHR} object for a {@code CAMetalLayer}, call:
 
         <pre><code>
 ￿VkResult vkCreateMetalSurfaceEXT(
@@ -112,7 +117,7 @@ val EXT_metal_surface = "EXTMetalSurface".nativeClassVK("EXT_metal_surface", typ
 
         VkInstance("instance", "the instance with which to associate the surface."),
         VkMetalSurfaceCreateInfoEXT.const.p("pCreateInfo", "a pointer to a ##VkMetalSurfaceCreateInfoEXT structure specifying parameters affecting the creation of the surface object."),
-        nullable..VkAllocationCallbacks.const.p("pAllocator", "the allocator used for host memory allocated for the surface object when there is no more specific allocator available (see <a target=\"_blank\" href=\"https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\\#memory-allocation\">Memory Allocation</a>)."),
+        nullable..VkAllocationCallbacks.const.p("pAllocator", "the allocator used for host memory allocated for the surface object when there is no more specific allocator available (see <a target=\"_blank\" href=\"https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\\#memory-allocation\">Memory Allocation</a>)."),
         Check(1)..VkSurfaceKHR.p("pSurface", "a pointer to a {@code VkSurfaceKHR} handle in which the created surface object is returned.")
     )
 }

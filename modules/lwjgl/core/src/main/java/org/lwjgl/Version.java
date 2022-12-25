@@ -4,7 +4,7 @@
  */
 package org.lwjgl;
 
-import static org.lwjgl.system.APIUtil.*;
+import java.util.*;
 
 /** This class can be used to query the LWJGL version. */
 public final class Version {
@@ -12,8 +12,8 @@ public final class Version {
     /** Current version of library. */
     public static final int
         VERSION_MAJOR    = 3,
-        VERSION_MINOR    = 2,
-        VERSION_REVISION = 4;
+        VERSION_MINOR    = 3,
+        VERSION_REVISION = 1;
 
     /** The development state of the current build. */
     public static final BuildType BUILD_TYPE = BuildType.STABLE;
@@ -22,13 +22,14 @@ public final class Version {
         String.valueOf(VERSION_MAJOR) +
         '.' + VERSION_MINOR +
         '.' + VERSION_REVISION + BUILD_TYPE.postfix +
-        ' ' + apiGetManifestValue("Implementation-Version").orElse("SNAPSHOT");
+        ' ' + Optional.ofNullable(Version.class.getPackage().getImplementationVersion()).orElse("SNAPSHOT");
 
     private Version() {
     }
 
     public static void main(String[] args) {
-        System.out.println(getVersion());
+        System.out.println(version);
+        System.err.println(version.substring(0, version.indexOf(' ')));
     }
 
     /** Returns the LWJGL version. */

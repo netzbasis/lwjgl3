@@ -18,23 +18,14 @@ import static org.lwjgl.system.MemoryStack.*;
 /**
  * An RGBA color with normalized float components.
  * 
- * <h3>Member documentation</h3>
- * 
- * <ul>
- * <li>{@code r} &ndash; the R component</li>
- * <li>{@code g} &ndash; the G component</li>
- * <li>{@code b} &ndash; the B component</li>
- * <li>{@code a} &ndash; the A component</li>
- * </ul>
- * 
  * <h3>Layout</h3>
  * 
  * <pre><code>
  * struct ovrColorf {
- *     float r;
- *     float g;
- *     float b;
- *     float a;
+ *     float {@link #r};
+ *     float {@link #g};
+ *     float {@link #b};
+ *     float {@link #a};
  * }</code></pre>
  */
 @NativeType("struct ovrColorf")
@@ -83,22 +74,22 @@ public class OVRColorf extends Struct implements NativeResource {
     @Override
     public int sizeof() { return SIZEOF; }
 
-    /** Returns the value of the {@code r} field. */
+    /** the R component */
     public float r() { return nr(address()); }
-    /** Returns the value of the {@code g} field. */
+    /** the G component */
     public float g() { return ng(address()); }
-    /** Returns the value of the {@code b} field. */
+    /** the B component */
     public float b() { return nb(address()); }
-    /** Returns the value of the {@code a} field. */
+    /** the A component */
     public float a() { return na(address()); }
 
-    /** Sets the specified value to the {@code r} field. */
+    /** Sets the specified value to the {@link #r} field. */
     public OVRColorf r(float value) { nr(address(), value); return this; }
-    /** Sets the specified value to the {@code g} field. */
+    /** Sets the specified value to the {@link #g} field. */
     public OVRColorf g(float value) { ng(address(), value); return this; }
-    /** Sets the specified value to the {@code b} field. */
+    /** Sets the specified value to the {@link #b} field. */
     public OVRColorf b(float value) { nb(address(), value); return this; }
-    /** Sets the specified value to the {@code a} field. */
+    /** Sets the specified value to the {@link #a} field. */
     public OVRColorf a(float value) { na(address(), value); return this; }
 
     /** Initializes this struct with the specified values. */
@@ -203,22 +194,29 @@ public class OVRColorf extends Struct implements NativeResource {
 
     // -----------------------------------
 
-    /** Returns a new {@code OVRColorf} instance allocated on the thread-local {@link MemoryStack}. */
-    public static OVRColorf mallocStack() {
-        return mallocStack(stackGet());
-    }
-
-    /** Returns a new {@code OVRColorf} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero. */
-    public static OVRColorf callocStack() {
-        return callocStack(stackGet());
-    }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRColorf mallocStack() { return malloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRColorf callocStack() { return calloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRColorf mallocStack(MemoryStack stack) { return malloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRColorf callocStack(MemoryStack stack) { return calloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRColorf.Buffer mallocStack(int capacity) { return malloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRColorf.Buffer callocStack(int capacity) { return calloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRColorf.Buffer mallocStack(int capacity, MemoryStack stack) { return malloc(capacity, stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRColorf.Buffer callocStack(int capacity, MemoryStack stack) { return calloc(capacity, stack); }
 
     /**
      * Returns a new {@code OVRColorf} instance allocated on the specified {@link MemoryStack}.
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRColorf mallocStack(MemoryStack stack) {
+    public static OVRColorf malloc(MemoryStack stack) {
         return wrap(OVRColorf.class, stack.nmalloc(ALIGNOF, SIZEOF));
     }
 
@@ -227,45 +225,27 @@ public class OVRColorf extends Struct implements NativeResource {
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRColorf callocStack(MemoryStack stack) {
+    public static OVRColorf calloc(MemoryStack stack) {
         return wrap(OVRColorf.class, stack.ncalloc(ALIGNOF, 1, SIZEOF));
-    }
-
-    /**
-     * Returns a new {@link OVRColorf.Buffer} instance allocated on the thread-local {@link MemoryStack}.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRColorf.Buffer mallocStack(int capacity) {
-        return mallocStack(capacity, stackGet());
-    }
-
-    /**
-     * Returns a new {@link OVRColorf.Buffer} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRColorf.Buffer callocStack(int capacity) {
-        return callocStack(capacity, stackGet());
     }
 
     /**
      * Returns a new {@link OVRColorf.Buffer} instance allocated on the specified {@link MemoryStack}.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRColorf.Buffer mallocStack(int capacity, MemoryStack stack) {
+    public static OVRColorf.Buffer malloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.nmalloc(ALIGNOF, capacity * SIZEOF), capacity);
     }
 
     /**
      * Returns a new {@link OVRColorf.Buffer} instance allocated on the specified {@link MemoryStack} and initializes all its bits to zero.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRColorf.Buffer callocStack(int capacity, MemoryStack stack) {
+    public static OVRColorf.Buffer calloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.ncalloc(ALIGNOF, capacity, SIZEOF), capacity);
     }
 
@@ -327,22 +307,22 @@ public class OVRColorf extends Struct implements NativeResource {
             return ELEMENT_FACTORY;
         }
 
-        /** Returns the value of the {@code r} field. */
+        /** @return the value of the {@link OVRColorf#r} field. */
         public float r() { return OVRColorf.nr(address()); }
-        /** Returns the value of the {@code g} field. */
+        /** @return the value of the {@link OVRColorf#g} field. */
         public float g() { return OVRColorf.ng(address()); }
-        /** Returns the value of the {@code b} field. */
+        /** @return the value of the {@link OVRColorf#b} field. */
         public float b() { return OVRColorf.nb(address()); }
-        /** Returns the value of the {@code a} field. */
+        /** @return the value of the {@link OVRColorf#a} field. */
         public float a() { return OVRColorf.na(address()); }
 
-        /** Sets the specified value to the {@code r} field. */
+        /** Sets the specified value to the {@link OVRColorf#r} field. */
         public OVRColorf.Buffer r(float value) { OVRColorf.nr(address(), value); return this; }
-        /** Sets the specified value to the {@code g} field. */
+        /** Sets the specified value to the {@link OVRColorf#g} field. */
         public OVRColorf.Buffer g(float value) { OVRColorf.ng(address(), value); return this; }
-        /** Sets the specified value to the {@code b} field. */
+        /** Sets the specified value to the {@link OVRColorf#b} field. */
         public OVRColorf.Buffer b(float value) { OVRColorf.nb(address(), value); return this; }
-        /** Sets the specified value to the {@code a} field. */
+        /** Sets the specified value to the {@link OVRColorf#a} field. */
         public OVRColorf.Buffer a(float value) { OVRColorf.na(address(), value); return this; }
 
     }

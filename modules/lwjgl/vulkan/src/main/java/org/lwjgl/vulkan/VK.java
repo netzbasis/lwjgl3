@@ -12,11 +12,11 @@ import java.nio.*;
 import java.util.*;
 
 import static java.lang.Math.*;
-import static org.lwjgl.system.APIUtil.*;
 import static org.lwjgl.system.JNI.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 import static org.lwjgl.vulkan.VK10.*;
+import static org.lwjgl.vulkan.VK11.*;
 
 /**
  * This class loads the Vulkan library into the JVM process.
@@ -132,19 +132,18 @@ public final class VK {
 
     /**
      * Returns a {@code uint32_t}, which is the version of Vulkan supported by instance-level functionality, encoded as described in the
-     * <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.0-extensions/html/vkspec.html#fundamentals-versionnum">API Version Numbers and
-     * Semantics</a> section.
+     * <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html#extendingvulkan-coreversions-versionnumbers">
+     * Version Numbers</a> section.
      *
      * <p>This method can be called before creating a Vulkan instance. The returned value can be used to set the {@link VkApplicationInfo}{@code ::apiVersion}
      * member.</p>
      */
     public static int getInstanceVersionSupported() {
         long EnumerateInstanceVersion = getGlobalCommands().vkEnumerateInstanceVersion;
-        try (MemoryStack stack = stackPush()) {
-            if (EnumerateInstanceVersion != NULL) {
+        if (EnumerateInstanceVersion != NULL) {
+            try (MemoryStack stack = stackPush()) {
                 IntBuffer pi = stack.callocInt(1);
-                VK11.vkEnumerateInstanceVersion(pi);
-                if (callPI(memAddress(pi), EnumerateInstanceVersion) == VK_SUCCESS) {
+                if (vkEnumerateInstanceVersion(pi) == VK_SUCCESS) {
                     return pi.get(0);
                 }
             }
@@ -195,7 +194,7 @@ public final class VK {
         int minorVersion = VK_VERSION_MINOR(apiVersion);
 
         int[] VK_VERSIONS = {
-            1 // Vulkan 1.0 to 1.1
+            3 // Vulkan 1.0 to 1.3
         };
 
         int maxMajor = min(majorVersion, VK_VERSIONS.length);
@@ -216,31 +215,6 @@ public final class VK {
         }
 
         return enabledExtensions;
-    }
-
-    static boolean checkExtension(String extension, boolean available) {
-        if (!available) {
-            apiLog("[VK] " + extension + " was reported as available but an entry point is missing.");
-            return false;
-        }
-        return true;
-    }
-
-    static boolean isSupported(FunctionProvider provider, String functionName, Map<String, Long> caps, boolean satisfiedDependency) {
-        return !satisfiedDependency || isSupported(provider, functionName, caps);
-    }
-    static boolean isSupported(FunctionProvider provider, String functionName, Map<String, Long> caps) {
-        long address = provider.getFunctionAddress(functionName);
-        if (address != NULL) {
-            caps.put(functionName, address);
-            return true;
-        }
-        return false;
-    }
-
-    static long get(Map<String, Long> caps, String functionName) {
-        Long address = caps.get(functionName);
-        return address == null ? NULL : address;
     }
 
 }

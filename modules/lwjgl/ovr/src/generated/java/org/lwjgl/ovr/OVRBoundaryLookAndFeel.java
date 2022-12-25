@@ -18,17 +18,11 @@ import static org.lwjgl.system.MemoryStack.*;
 /**
  * Boundary system look and feel.
  * 
- * <h3>Member documentation</h3>
- * 
- * <ul>
- * <li>{@code Color} &ndash; Boundary color (alpha channel is ignored)</li>
- * </ul>
- * 
  * <h3>Layout</h3>
  * 
  * <pre><code>
  * struct ovrBoundaryLookAndFeel {
- *     {@link OVRColorf ovrColorf} Color;
+ *     {@link OVRColorf ovrColorf} {@link #Color};
  * }</code></pre>
  */
 @NativeType("struct ovrBoundaryLookAndFeel")
@@ -68,13 +62,13 @@ public class OVRBoundaryLookAndFeel extends Struct implements NativeResource {
     @Override
     public int sizeof() { return SIZEOF; }
 
-    /** Returns a {@link OVRColorf} view of the {@code Color} field. */
+    /** Boundary color (alpha channel is ignored) */
     @NativeType("ovrColorf")
     public OVRColorf Color() { return nColor(address()); }
 
-    /** Copies the specified {@link OVRColorf} to the {@code Color} field. */
+    /** Copies the specified {@link OVRColorf} to the {@link #Color} field. */
     public OVRBoundaryLookAndFeel Color(@NativeType("ovrColorf") OVRColorf value) { nColor(address(), value); return this; }
-    /** Passes the {@code Color} field to the specified {@link java.util.function.Consumer Consumer}. */
+    /** Passes the {@link #Color} field to the specified {@link java.util.function.Consumer Consumer}. */
     public OVRBoundaryLookAndFeel Color(java.util.function.Consumer<OVRColorf> consumer) { consumer.accept(Color()); return this; }
 
     /**
@@ -164,22 +158,29 @@ public class OVRBoundaryLookAndFeel extends Struct implements NativeResource {
 
     // -----------------------------------
 
-    /** Returns a new {@code OVRBoundaryLookAndFeel} instance allocated on the thread-local {@link MemoryStack}. */
-    public static OVRBoundaryLookAndFeel mallocStack() {
-        return mallocStack(stackGet());
-    }
-
-    /** Returns a new {@code OVRBoundaryLookAndFeel} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero. */
-    public static OVRBoundaryLookAndFeel callocStack() {
-        return callocStack(stackGet());
-    }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRBoundaryLookAndFeel mallocStack() { return malloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRBoundaryLookAndFeel callocStack() { return calloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRBoundaryLookAndFeel mallocStack(MemoryStack stack) { return malloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRBoundaryLookAndFeel callocStack(MemoryStack stack) { return calloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRBoundaryLookAndFeel.Buffer mallocStack(int capacity) { return malloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRBoundaryLookAndFeel.Buffer callocStack(int capacity) { return calloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRBoundaryLookAndFeel.Buffer mallocStack(int capacity, MemoryStack stack) { return malloc(capacity, stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRBoundaryLookAndFeel.Buffer callocStack(int capacity, MemoryStack stack) { return calloc(capacity, stack); }
 
     /**
      * Returns a new {@code OVRBoundaryLookAndFeel} instance allocated on the specified {@link MemoryStack}.
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRBoundaryLookAndFeel mallocStack(MemoryStack stack) {
+    public static OVRBoundaryLookAndFeel malloc(MemoryStack stack) {
         return wrap(OVRBoundaryLookAndFeel.class, stack.nmalloc(ALIGNOF, SIZEOF));
     }
 
@@ -188,45 +189,27 @@ public class OVRBoundaryLookAndFeel extends Struct implements NativeResource {
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRBoundaryLookAndFeel callocStack(MemoryStack stack) {
+    public static OVRBoundaryLookAndFeel calloc(MemoryStack stack) {
         return wrap(OVRBoundaryLookAndFeel.class, stack.ncalloc(ALIGNOF, 1, SIZEOF));
-    }
-
-    /**
-     * Returns a new {@link OVRBoundaryLookAndFeel.Buffer} instance allocated on the thread-local {@link MemoryStack}.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRBoundaryLookAndFeel.Buffer mallocStack(int capacity) {
-        return mallocStack(capacity, stackGet());
-    }
-
-    /**
-     * Returns a new {@link OVRBoundaryLookAndFeel.Buffer} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRBoundaryLookAndFeel.Buffer callocStack(int capacity) {
-        return callocStack(capacity, stackGet());
     }
 
     /**
      * Returns a new {@link OVRBoundaryLookAndFeel.Buffer} instance allocated on the specified {@link MemoryStack}.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRBoundaryLookAndFeel.Buffer mallocStack(int capacity, MemoryStack stack) {
+    public static OVRBoundaryLookAndFeel.Buffer malloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.nmalloc(ALIGNOF, capacity * SIZEOF), capacity);
     }
 
     /**
      * Returns a new {@link OVRBoundaryLookAndFeel.Buffer} instance allocated on the specified {@link MemoryStack} and initializes all its bits to zero.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRBoundaryLookAndFeel.Buffer callocStack(int capacity, MemoryStack stack) {
+    public static OVRBoundaryLookAndFeel.Buffer calloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.ncalloc(ALIGNOF, capacity, SIZEOF), capacity);
     }
 
@@ -276,13 +259,13 @@ public class OVRBoundaryLookAndFeel extends Struct implements NativeResource {
             return ELEMENT_FACTORY;
         }
 
-        /** Returns a {@link OVRColorf} view of the {@code Color} field. */
+        /** @return a {@link OVRColorf} view of the {@link OVRBoundaryLookAndFeel#Color} field. */
         @NativeType("ovrColorf")
         public OVRColorf Color() { return OVRBoundaryLookAndFeel.nColor(address()); }
 
-        /** Copies the specified {@link OVRColorf} to the {@code Color} field. */
+        /** Copies the specified {@link OVRColorf} to the {@link OVRBoundaryLookAndFeel#Color} field. */
         public OVRBoundaryLookAndFeel.Buffer Color(@NativeType("ovrColorf") OVRColorf value) { OVRBoundaryLookAndFeel.nColor(address(), value); return this; }
-        /** Passes the {@code Color} field to the specified {@link java.util.function.Consumer Consumer}. */
+        /** Passes the {@link OVRBoundaryLookAndFeel#Color} field to the specified {@link java.util.function.Consumer Consumer}. */
         public OVRBoundaryLookAndFeel.Buffer Color(java.util.function.Consumer<OVRColorf> consumer) { consumer.accept(Color()); return this; }
 
     }

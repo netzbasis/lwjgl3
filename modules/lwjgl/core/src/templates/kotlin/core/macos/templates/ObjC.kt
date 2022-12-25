@@ -28,7 +28,7 @@ long objc_msgSend = objc.getFunctionAddress("objc_msgSend");
 long NSThread = objc_getClass("NSThread");
 long currentThread = invokePPP(NSThread, sel_getUid("currentThread"), objc_msgSend);""")}
         The safe way to use objc_msgSend in C code is to cast it to an appropriate function pointer. This is exactly what the {@link org.lwjgl.system.JNI JNI}
-        class does. If a particular function signature is not available, {@link org.lwjgl.system.dyncall.DynCall DynCall} may be used to invoke it.
+        class does. If a particular function signature is not available, {@link org.lwjgl.system.libffi.LibFFI LibFFI} may be used to invoke it.
 
         The functions not exposed are:
         ${ul(
@@ -886,7 +886,9 @@ void myMethodIMP(id self, SEL _cmd)
         returnDoc = "a C string describing the return type. You must free the string with free()."
     )
 
-    charUTF8.p(
+    Code(
+        javaFinally = statement("            if ($RESULT != NULL) org.lwjgl.system.libc.LibCStdlib.nfree($RESULT);")
+    )..charUTF8.p(
         "method_copyArgumentType",
         "Returns a string describing a single parameter type of a method.",
 
@@ -1010,7 +1012,9 @@ void myMethodIMP(id self, SEL _cmd)
         returnDoc = "an array of property attributes. You must free the array with free()."
     )
 
-    charUTF8.p(
+    Code(
+        javaFinally = statement("            if ($RESULT != NULL) org.lwjgl.system.libc.LibCStdlib.nfree($RESULT);")
+    )..charUTF8.p(
         "property_copyAttributeValue",
         "Returns the value of a property attribute given the attribute name.",
 

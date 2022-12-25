@@ -20,11 +20,12 @@ extern "C" {
 #if defined(__clang__) || defined(__GNUC__)
 # define RPMALLOC_EXPORT __attribute__((visibility("default")))
 # define RPMALLOC_ALLOCATOR 
-# define RPMALLOC_ATTRIB_MALLOC __attribute__((__malloc__))
-# if defined(__clang_major__) && (__clang_major__ < 4)
+# if (defined(__clang_major__) && (__clang_major__ < 4)) || (defined(__GNUC__) && defined(ENABLE_PRELOAD) && ENABLE_PRELOAD)
+# define RPMALLOC_ATTRIB_MALLOC
 # define RPMALLOC_ATTRIB_ALLOC_SIZE(size)
 # define RPMALLOC_ATTRIB_ALLOC_SIZE2(count, size)
 # else
+# define RPMALLOC_ATTRIB_MALLOC __attribute__((__malloc__))
 # define RPMALLOC_ATTRIB_ALLOC_SIZE(size) __attribute__((alloc_size(size)))
 # define RPMALLOC_ATTRIB_ALLOC_SIZE2(count, size)  __attribute__((alloc_size(count, size)))
 # endif
@@ -110,7 +111,7 @@ typedef struct rpmalloc_thread_statistics_t {
 		size_t from_reserved;
 		//! Number of raw memory map calls (not hitting the reserve spans but resulting in actual OS mmap calls)
 		size_t map_calls;
-	} span_use[32];
+	} span_use[64];
 	//! Per size class statistics (only if ENABLE_STATISTICS=1)
 	struct {
 		//! Current number of allocations
@@ -152,6 +153,15 @@ typedef struct rpmalloc_config_t {
 	//  If you set a memory_unmap function, you must also set a memory_map function or
 	//  else the default implementation will be used for both.
 	void (*memory_unmap)(void* address, size_t size, size_t offset, size_t release);
+	//! Called when an assert fails, if asserts are enabled. Will use the standard assert()
+	//  if this is not set.
+	void (*error_callback)(const char* message);
+	//! Called when a call to map memory pages fails (out of memory). If this callback is
+	//  not set or returns zero the library will return a null pointer in the allocation
+	//  call. If this callback returns non-zero the map call will be retried. The argument
+	//  passed is the number of bytes that was requested in the map call. Only used if
+	//  the default system memory map function is used (memory_map callback is not set).
+	int (*map_fail_callback)(size_t size);
 	//! Size of memory pages. The page size MUST be a power of two. All memory mapping
 	//  requests to memory_map will be made with size set to a multiple of the page size.
 	//  Used if RPMALLOC_CONFIGURABLE is defined to 1, otherwise system page size is used.
@@ -174,6 +184,7 @@ typedef struct rpmalloc_config_t {
 	//  For Windows, see https://docs.microsoft.com/en-us/windows/desktop/memory/large-page-support
 	//  For Linux, see https://www.kernel.org/doc/Documentation/vm/hugetlbpage.txt
 	int enable_huge_pages;
+	int unused;
 } rpmalloc_config_t;
 
 //! Initialize allocator with default configuration
@@ -198,7 +209,7 @@ rpmalloc_thread_initialize(void);
 
 //! Finalize allocator for calling thread
 RPMALLOC_EXPORT void
-rpmalloc_thread_finalize(void);
+rpmalloc_thread_finalize(int release_caches);
 
 //! Perform deferred deallocations pending for the calling thread heap
 RPMALLOC_EXPORT void
@@ -279,10 +290,10 @@ rpmalloc_usable_size(void* ptr);
 #if RPMALLOC_FIRST_CLASS_HEAPS
 
 //! Heap type
-typedef void* rpmalloc_heap_t;
+typedef struct heap_t rpmalloc_heap_t;
 
 //! Acquire a new heap. Will reuse existing released heaps or allocate memory for a new heap
-//  if none available. Heap API is imlemented with the strict assumption that only one single
+//  if none available. Heap API is implemented with the strict assumption that only one single
 //  thread will call heap functions for a given heap at any given time, no functions are thread safe.
 RPMALLOC_EXPORT rpmalloc_heap_t*
 rpmalloc_heap_acquire(void);
@@ -325,7 +336,7 @@ rpmalloc_heap_realloc(rpmalloc_heap_t* heap, void* ptr, size_t size, unsigned in
 //  less than memory page size. A caveat of rpmalloc internals is that this must also be strictly less than
 //  the span size (default 64KiB).
 RPMALLOC_EXPORT RPMALLOC_ALLOCATOR void*
-rpmalloc_heap_aligned_realloc(rpmalloc_heap_t* heap, void* ptr, size_t alignment, size_t size, unsigned int flags) RPMALLOC_ATTRIB_MALLOC RPMALLOC_ATTRIB_ALLOC_SIZE(3);
+rpmalloc_heap_aligned_realloc(rpmalloc_heap_t* heap, void* ptr, size_t alignment, size_t size, unsigned int flags) RPMALLOC_ATTRIB_MALLOC RPMALLOC_ATTRIB_ALLOC_SIZE(4);
 
 //! Free the given memory block from the given heap. The memory block MUST be allocated
 //  by the same heap given to this function.

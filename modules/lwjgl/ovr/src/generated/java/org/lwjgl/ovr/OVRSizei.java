@@ -18,19 +18,12 @@ import static org.lwjgl.system.MemoryStack.*;
 /**
  * A 2D size with integer components.
  * 
- * <h3>Member documentation</h3>
- * 
- * <ul>
- * <li>{@code w} &ndash; the width</li>
- * <li>{@code h} &ndash; the height</li>
- * </ul>
- * 
  * <h3>Layout</h3>
  * 
  * <pre><code>
  * struct ovrSizei {
- *     int w;
- *     int h;
+ *     int {@link #w};
+ *     int {@link #h};
  * }</code></pre>
  */
 @NativeType("struct ovrSizei")
@@ -73,14 +66,14 @@ public class OVRSizei extends Struct implements NativeResource {
     @Override
     public int sizeof() { return SIZEOF; }
 
-    /** Returns the value of the {@code w} field. */
+    /** the width */
     public int w() { return nw(address()); }
-    /** Returns the value of the {@code h} field. */
+    /** the height */
     public int h() { return nh(address()); }
 
-    /** Sets the specified value to the {@code w} field. */
+    /** Sets the specified value to the {@link #w} field. */
     public OVRSizei w(int value) { nw(address(), value); return this; }
-    /** Sets the specified value to the {@code h} field. */
+    /** Sets the specified value to the {@link #h} field. */
     public OVRSizei h(int value) { nh(address(), value); return this; }
 
     /** Initializes this struct with the specified values. */
@@ -181,22 +174,29 @@ public class OVRSizei extends Struct implements NativeResource {
 
     // -----------------------------------
 
-    /** Returns a new {@code OVRSizei} instance allocated on the thread-local {@link MemoryStack}. */
-    public static OVRSizei mallocStack() {
-        return mallocStack(stackGet());
-    }
-
-    /** Returns a new {@code OVRSizei} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero. */
-    public static OVRSizei callocStack() {
-        return callocStack(stackGet());
-    }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRSizei mallocStack() { return malloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRSizei callocStack() { return calloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRSizei mallocStack(MemoryStack stack) { return malloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRSizei callocStack(MemoryStack stack) { return calloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRSizei.Buffer mallocStack(int capacity) { return malloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRSizei.Buffer callocStack(int capacity) { return calloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRSizei.Buffer mallocStack(int capacity, MemoryStack stack) { return malloc(capacity, stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRSizei.Buffer callocStack(int capacity, MemoryStack stack) { return calloc(capacity, stack); }
 
     /**
      * Returns a new {@code OVRSizei} instance allocated on the specified {@link MemoryStack}.
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRSizei mallocStack(MemoryStack stack) {
+    public static OVRSizei malloc(MemoryStack stack) {
         return wrap(OVRSizei.class, stack.nmalloc(ALIGNOF, SIZEOF));
     }
 
@@ -205,45 +205,27 @@ public class OVRSizei extends Struct implements NativeResource {
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRSizei callocStack(MemoryStack stack) {
+    public static OVRSizei calloc(MemoryStack stack) {
         return wrap(OVRSizei.class, stack.ncalloc(ALIGNOF, 1, SIZEOF));
-    }
-
-    /**
-     * Returns a new {@link OVRSizei.Buffer} instance allocated on the thread-local {@link MemoryStack}.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRSizei.Buffer mallocStack(int capacity) {
-        return mallocStack(capacity, stackGet());
-    }
-
-    /**
-     * Returns a new {@link OVRSizei.Buffer} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRSizei.Buffer callocStack(int capacity) {
-        return callocStack(capacity, stackGet());
     }
 
     /**
      * Returns a new {@link OVRSizei.Buffer} instance allocated on the specified {@link MemoryStack}.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRSizei.Buffer mallocStack(int capacity, MemoryStack stack) {
+    public static OVRSizei.Buffer malloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.nmalloc(ALIGNOF, capacity * SIZEOF), capacity);
     }
 
     /**
      * Returns a new {@link OVRSizei.Buffer} instance allocated on the specified {@link MemoryStack} and initializes all its bits to zero.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRSizei.Buffer callocStack(int capacity, MemoryStack stack) {
+    public static OVRSizei.Buffer calloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.ncalloc(ALIGNOF, capacity, SIZEOF), capacity);
     }
 
@@ -297,14 +279,14 @@ public class OVRSizei extends Struct implements NativeResource {
             return ELEMENT_FACTORY;
         }
 
-        /** Returns the value of the {@code w} field. */
+        /** @return the value of the {@link OVRSizei#w} field. */
         public int w() { return OVRSizei.nw(address()); }
-        /** Returns the value of the {@code h} field. */
+        /** @return the value of the {@link OVRSizei#h} field. */
         public int h() { return OVRSizei.nh(address()); }
 
-        /** Sets the specified value to the {@code w} field. */
+        /** Sets the specified value to the {@link OVRSizei#w} field. */
         public OVRSizei.Buffer w(int value) { OVRSizei.nw(address(), value); return this; }
-        /** Sets the specified value to the {@code h} field. */
+        /** Sets the specified value to the {@link OVRSizei#h} field. */
         public OVRSizei.Buffer h(int value) { OVRSizei.nh(address(), value); return this; }
 
     }

@@ -8,13 +8,14 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val KHR_shader_clock = "KHRShaderClock".nativeClassVK("KHR_shader_clock", type = "device", postfix = KHR) {
+val KHR_shader_clock = "KHRShaderClock".nativeClassVK("KHR_shader_clock", type = "device", postfix = "KHR") {
     documentation =
         """
         This extension advertises the SPIR-V {@code ShaderClockKHR} capability for Vulkan, which allows a shader to query a real-time or monotonically incrementing counter at the subgroup level or across the device level. The two valid SPIR-V scopes for {@code OpReadClockKHR} are {@code Subgroup} and {@code Device}.
 
-        When using GLSL source-based shading languages, the {@code clockRealtime}*{@code EXT}() timing functions map to the {@code OpReadClockKHR} instruction with a scope of {@code Device}, and the {@code clock}*{@code ARB}() timing functions map to the {@code OpReadClockKHR} instruction with a scope of {@code Subgroup}.
+        When using GLSL source-based shading languages, the {@code clockRealtime*EXT}() timing functions map to the {@code OpReadClockKHR} instruction with a scope of {@code Device}, and the {@code clock*ARB}() timing functions map to the {@code OpReadClockKHR} instruction with a scope of {@code Subgroup}.
 
+        <h5>VK_KHR_shader_clock</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_KHR_shader_clock}</dd>
@@ -36,9 +37,12 @@ val KHR_shader_clock = "KHRShaderClock".nativeClassVK("KHR_shader_clock", type =
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Aaron Hagan <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_KHR_shader_clock:%20&amp;body=@ahagan%20">ahagan</a></li>
+                <li>Aaron Hagan <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_KHR_shader_clock]%20@ahagan%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_KHR_shader_clock%20extension%3E%3E">ahagan</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2019-4-25</dd>
 
@@ -48,8 +52,7 @@ val KHR_shader_clock = "KHRShaderClock".nativeClassVK("KHR_shader_clock", type =
             <dt><b>Interactions and External Dependencies</b></dt>
             <dd><ul>
                 <li>This extension requires <a target="_blank" href="https://htmlpreview.github.io/?https://github.com/KhronosGroup/SPIRV-Registry/blob/master/extensions/KHR/SPV_KHR_shader_clock.html">{@code SPV_KHR_shader_clock}</a>.</li>
-                <li>This extension enables <a target="_blank" href="https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_shader_clock.txt">{@code ARB_shader_clock}</a> for GLSL source languages.</li>
-                <li>This extension enables <a target="_blank" href="https://github.com/KhronosGroup/GLSL/blob/master/extensions/ext/GL_EXT_shader_realtime_clock.txt">{@code EXT_shader_realtime_clock}</a> for GLSL source languages.</li>
+                <li>This extension provides API support for <a target="_blank" href="https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_shader_clock.txt">{@code ARB_shader_clock}</a> and <a target="_blank" href="https://github.com/KhronosGroup/GLSL/blob/master/extensions/ext/GL_EXT_shader_realtime_clock.txt">{@code EXT_shader_realtime_clock}</a></li>
             </ul></dd>
 
             <dt><b>Contributors</b></dt>

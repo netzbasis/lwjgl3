@@ -8,7 +8,7 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val EXT_host_query_reset = "EXTHostQueryReset".nativeClassVK("EXT_host_query_reset", type = "device", postfix = EXT) {
+val EXT_host_query_reset = "EXTHostQueryReset".nativeClassVK("EXT_host_query_reset", type = "device", postfix = "EXT") {
     documentation =
         """
         This extension adds a new function to reset queries from the host.
@@ -16,6 +16,7 @@ val EXT_host_query_reset = "EXTHostQueryReset".nativeClassVK("EXT_host_query_res
         <h5>Promotion to Vulkan 1.2</h5>
         All functionality in this extension is included in core Vulkan 1.2, with the EXT suffix omitted. The original type, enum and command names are still available as aliases of the core functionality.
 
+        <h5>VK_EXT_host_query_reset</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_EXT_host_query_reset}</dd>
@@ -37,14 +38,17 @@ val EXT_host_query_reset = "EXTHostQueryReset".nativeClassVK("EXT_host_query_res
 
             <dt><b>Deprecation state</b></dt>
             <dd><ul>
-                <li><em>Promoted</em> to <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#versions-1.2-promotions">Vulkan 1.2</a></li>
+                <li><em>Promoted</em> to <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#versions-1.2-promotions">Vulkan 1.2</a></li>
             </ul></dd>
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Bas Nieuwenhuizen <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_EXT_host_query_reset:%20&amp;body=@BNieuwenhuizen%20">BNieuwenhuizen</a></li>
+                <li>Bas Nieuwenhuizen <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_EXT_host_query_reset]%20@BNieuwenhuizen%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_EXT_host_query_reset%20extension%3E%3E">BNieuwenhuizen</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2019-03-06</dd>
 

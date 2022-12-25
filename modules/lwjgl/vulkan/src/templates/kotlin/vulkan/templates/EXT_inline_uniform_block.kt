@@ -8,11 +8,17 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val EXT_inline_uniform_block = "EXTInlineUniformBlock".nativeClassVK("EXT_inline_uniform_block", type = "device", postfix = EXT) {
+val EXT_inline_uniform_block = "EXTInlineUniformBlock".nativeClassVK("EXT_inline_uniform_block", type = "device", postfix = "EXT") {
     documentation =
         """
-        This extension introduces the ability to back uniform blocks directly with descriptor sets by storing inline uniform data within descriptor pool storage. Compared to push constants this new construct allows uniform data to be reused across multiple disjoint sets of draw or dispatch commands and <b>may</b> enable uniform data to be accessed with less indirections compared to uniforms backed by buffer memory.
+        This extension introduces the ability to back uniform blocks directly with descriptor sets by storing inline uniform data within descriptor pool storage. Compared to push constants this new construct allows uniform data to be reused across multiple disjoint sets of drawing or dispatching commands and <b>may</b> enable uniform data to be accessed with fewer indirections compared to uniforms backed by buffer memory.
 
+        <h5>Promotion to Vulkan 1.3</h5>
+        Functionality in this extension is included in core Vulkan 1.3, with the EXT suffix omitted. The original type, enum and command names are still available as aliases of the core functionality.
+
+        Vulkan 1.3 adds <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#versions-1.3-new-features">additional functionality related to this extension</a> in the form of the <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#limits-maxInlineUniformTotalSize">{@code maxInlineUniformTotalSize}</a> limit.
+
+        <h5>VK_EXT_inline_uniform_block</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_EXT_inline_uniform_block}</dd>
@@ -33,13 +39,26 @@ val EXT_inline_uniform_block = "EXTInlineUniformBlock".nativeClassVK("EXT_inline
                 <li>Requires {@link KHRMaintenance1 VK_KHR_maintenance1}</li>
             </ul></dd>
 
-            <dt><b>Contact</b></dt>
+            <dt><b>Deprecation state</b></dt>
             <dd><ul>
-                <li>Daniel Rakos <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_EXT_inline_uniform_block:%20&amp;body=@aqnuep%20">aqnuep</a></li>
+                <li><em>Promoted</em> to <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#versions-1.3-promotions">Vulkan 1.3</a></li>
             </ul></dd>
 
+            <dt><b>Contact</b></dt>
+            <dd><ul>
+                <li>Daniel Rakos <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_EXT_inline_uniform_block]%20@aqnuep%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_EXT_inline_uniform_block%20extension%3E%3E">aqnuep</a></li>
+            </ul></dd>
+        </dl>
+
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2018-08-01</dd>
+
+            <dt><b>Interactions and External Dependencies</b></dt>
+            <dd><ul>
+                <li>Promoted to Vulkan 1.3 Core</li>
+            </ul></dd>
 
             <dt><b>IP Status</b></dt>
             <dd>No known IP claims.</dd>

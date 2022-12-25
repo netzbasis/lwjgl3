@@ -153,28 +153,6 @@ val AutoSizeResult = AutoSizeResultParam(null)
 /* Custom expression. Use $original to inject the hardcoded expression */
 fun AutoSizeResult(expression: String) = AutoSizeResultParam(expression)
 
-/** Adds a capacity check to a buffer parameter. */
-class Check(
-    /** An integer expression to validate against the buffer capacity. */
-    val expression: String,
-    /** If true, the check will only be performed in debug mode. Useful for expensive checks. */
-    val debug: Boolean = false
-) : ParameterModifier {
-    override val isSpecial = expression != "0"
-    override fun validate(param: Parameter) {
-        require(param.nativeType is PointerType<*>) {
-            "The Check modifier can only be applied to pointer types."
-        }
-
-        require(param.nativeType.mapping !== PointerMapping.OPAQUE_POINTER) {
-            "The Check modifier cannot be applied to opaque pointer types."
-        }
-    }
-}
-
-/** Factory method for Check modifiers with integer expressions. */
-fun Check(value: Int) = Check(value.toString())
-
 /** Marks a buffer parameter as terminated by the specified value. */
 class Terminated(val value: String) : ParameterModifier {
     override val isSpecial = true
@@ -191,18 +169,6 @@ class Terminated(val value: String) : ParameterModifier {
 
 /** Marks a buffer parameter as null-terminated. */
 val NullTerminated = Terminated("")
-
-/** Marks a parameter to be replaced with an expression. */
-class Expression(
-    /** The expression to use instead of the parameter name. */
-    val value: String,
-    /** If true, the parameter will not be removed from the method signature. */
-    val keepParam: Boolean = false,
-    /** If true, the normal method overload (without the applied Expression) will not be generated. */
-    val skipNormal: Boolean = false
-) : ParameterModifier {
-    override val isSpecial = true
-}
 
 interface AutoTypeToken {
     val name: String
@@ -362,18 +328,6 @@ class PointerArray(
 
         require(param.isInput) {
             "The PointerArray modifier can only be applied to input parameters."
-        }
-    }
-}
-
-/** Marks a callback parameter as the "user data" parameter. */
-class UserData(
-    override val reference: String = ""
-) : ParameterModifier, ReferenceModifier {
-    override val isSpecial = false
-    override fun validate(param: Parameter) {
-        require(param.nativeType is PointerType<*> && param.nativeType.elementType is OpaqueType) {
-            "The UserData modifier can only be applied to opaque pointer parameters."
         }
     }
 }

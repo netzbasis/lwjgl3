@@ -105,7 +105,7 @@ val OpusCustom = "OpusCustom".nativeClass(Module.OPUS, prefix = "OPUS", prefixMe
 
     void(
         "custom_encoder_destroy",
-        "Destroys a an encoder state.",
+        "Destroys an encoder state.",
 
         OpusCustomEncoder.p("st", "state to be freed")
     )
@@ -213,7 +213,7 @@ val OpusCustom = "OpusCustom".nativeClass(Module.OPUS, prefix = "OPUS", prefixMe
 
     void(
         "custom_decoder_destroy",
-        "Destroys a an decoder state.",
+        "Destroys a decoder state.",
 
         OpusCustomDecoder.p("st", "state to be freed")
     )
@@ -265,7 +265,7 @@ val OpusCustom = "OpusCustom".nativeClass(Module.OPUS, prefix = "OPUS", prefixMe
      * @param request CTL request
      */
     public static int opus_custom_encoder_ctl(@NativeType("OpusCustomEncoder *") long st, int request) {
-        return new CTLRequest(request).apply(st, Functions.custom_encoder_ctl);
+        return new CTLRequestV(request).apply(st, Functions.custom_encoder_ctl);
     }
 
     /**
@@ -285,7 +285,7 @@ val OpusCustom = "OpusCustom".nativeClass(Module.OPUS, prefix = "OPUS", prefixMe
      * @param request CTL request
      */
     public static int opus_custom_decoder_ctl(@NativeType("OpusCustomDecoder *") long st, int request) {
-        return new CTLRequest(request).apply(st, Functions.custom_decoder_ctl);
+        return new CTLRequestV(request).apply(st, Functions.custom_decoder_ctl);
     }
 
     /**

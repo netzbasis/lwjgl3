@@ -8,7 +8,7 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val EXT_descriptor_indexing = "EXTDescriptorIndexing".nativeClassVK("EXT_descriptor_indexing", type = "device", postfix = EXT) {
+val EXT_descriptor_indexing = "EXTDescriptorIndexing".nativeClassVK("EXT_descriptor_indexing", type = "device", postfix = "EXT") {
     documentation =
         """
         This extension adds several small features which together enable applications to create large descriptor sets containing substantially all of their resources, and selecting amongst those resources with dynamic (non-uniform) indexes in the shader. There are feature enables and SPIR-V capabilities for non-uniform descriptor indexing in the shader, and non-uniform indexing in the shader requires use of a new {@code NonUniformEXT} decoration defined in the {@code SPV_EXT_descriptor_indexing} SPIR-V extension. There are descriptor set layout binding creation flags enabling several features:
@@ -27,6 +27,7 @@ val EXT_descriptor_indexing = "EXTDescriptorIndexing".nativeClassVK("EXT_descrip
         <h5>Promotion to Vulkan 1.2</h5>
         Functionality in this extension is included in core Vulkan 1.2, with the EXT suffix omitted. However, if Vulkan 1.2 is supported and this extension is not, the {@code descriptorIndexing} capability is optional. The original type, enum and command names are still available as aliases of the core functionality.
 
+        <h5>VK_EXT_descriptor_indexing</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_EXT_descriptor_indexing}</dd>
@@ -49,23 +50,25 @@ val EXT_descriptor_indexing = "EXTDescriptorIndexing".nativeClassVK("EXT_descrip
 
             <dt><b>Deprecation state</b></dt>
             <dd><ul>
-                <li><em>Promoted</em> to <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#versions-1.2-promotions">Vulkan 1.2</a></li>
+                <li><em>Promoted</em> to <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#versions-1.2-promotions">Vulkan 1.2</a></li>
             </ul></dd>
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Jeff Bolz <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_EXT_descriptor_indexing:%20&amp;body=@jeffbolznv%20">jeffbolznv</a></li>
+                <li>Jeff Bolz <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_EXT_descriptor_indexing]%20@jeffbolznv%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_EXT_descriptor_indexing%20extension%3E%3E">jeffbolznv</a></li>
             </ul></dd>
+        </dl>
 
-            <dt><b>Status</b></dt>
-            <dd>Complete</dd>
-
-            <dt><b>Last Modified Data</b></dt>
+        <h5>Other Extension Metadata</h5>
+        <dl>
+            <dt><b>Last Modified Date</b></dt>
             <dd>2017-10-02</dd>
 
             <dt><b>Interactions and External Dependencies</b></dt>
             <dd><ul>
                 <li>Promoted to Vulkan 1.2 Core</li>
+                <li>This extension requires <a target="_blank" href="https://htmlpreview.github.io/?https://github.com/KhronosGroup/SPIRV-Registry/blob/master/extensions/EXT/SPV_EXT_descriptor_indexing.html">{@code SPV_EXT_descriptor_indexing}</a></li>
+                <li>This extension provides API support for <a target="_blank" href="https://github.com/KhronosGroup/GLSL/blob/master/extensions/ext/GL_EXT_nonuniform_qualifier.txt">{@code GL_EXT_nonuniform_qualifier}</a></li>
             </ul></dd>
 
             <dt><b>Contributors</b></dt>

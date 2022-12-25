@@ -33,7 +33,7 @@ public abstract class Struct extends Pointer.Default {
 
     @SuppressWarnings({"unused", "FieldCanBeLocal"})
     @Nullable
-    private ByteBuffer container;
+    protected ByteBuffer container;
 
     protected Struct(long address, @Nullable ByteBuffer container) {
         super(address);
@@ -89,8 +89,12 @@ public abstract class Struct extends Pointer.Default {
         return struct;
     }
 
+    protected static <S extends Struct, T extends Struct> T wrap(Class<T> clazz, S value) {
+        return wrap(clazz, value.address, value.container);
+    }
+
     @SuppressWarnings("unchecked")
-    protected static <T extends Struct> T wrap(Class<T> clazz, long address, ByteBuffer container) {
+    protected static <T extends Struct> T wrap(Class<T> clazz, long address, @Nullable ByteBuffer container) {
         T struct;
         try {
             struct = (T)UNSAFE.allocateInstance(clazz);
@@ -154,6 +158,25 @@ public abstract class Struct extends Pointer.Default {
         return ByteBuffer.allocateDirect(elements * elementSize).order(ByteOrder.nativeOrder());
     }
 
+    /** A functional interface that enables lambda expressions to be passed to the {@link #validate} method. [INTERNAL USE ONLY] */
+    @FunctionalInterface
+    public interface StructValidation {
+        void validate(long struct);
+    }
+
+    /**
+     * Validates each struct contained in the specified struct array. [INTERNAL USE ONLY]
+     *
+     * @param array  the struct array to validate
+     * @param count  the number of structs in {@code array}
+     * @param SIZEOF the size of each struct, in bytes
+     */
+    public static void validate(long array, int count, int SIZEOF, StructValidation validation) {
+        for (int i = 0; i < count; i++) {
+            validation.validate(array + Integer.toUnsignedLong(i) * SIZEOF);
+        }
+    }
+
     // ---------------- Struct Member Layout ----------------
 
     protected static class Member {
@@ -195,8 +218,12 @@ public abstract class Struct extends Pointer.Default {
         }
     }
 
-    protected static Member __padding(int size, boolean condition) {
-        return __member(condition ? size : 0, 1);
+    protected static Member __padding(int num, boolean condition) {
+        return __padding(num, 1, condition);
+    }
+
+    protected static Member __padding(int num, int size, boolean condition) {
+        return __member(condition ? num * size : 0, size);
     }
 
     protected static Member __member(int size) {

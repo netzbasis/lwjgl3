@@ -24,13 +24,18 @@ private val GLESBinding = register(object : APIBinding(
     private val functions by lazy { classes.getFunctionPointers() }
 
     private val functionOrdinals by lazy {
-        val ordinals = HashMap<String, Int>(512)
-        var i = 0
-        functions.asSequence()
-            .forEach {
-                ordinals[it.name] = i++
-            }
-        ordinals
+        LinkedHashMap<String, Int>().also { functionOrdinals ->
+            classes.asSequence()
+                .filter { it.hasNativeFunctions }
+                .forEach {
+                    it.functions.asSequence()
+                        .forEach { cmd ->
+                            if (!cmd.has<Macro>() && !functionOrdinals.contains(cmd.name)) {
+                                functionOrdinals[cmd.name] = functionOrdinals.size
+                            }
+                        }
+                }
+        }
     }
 
     override fun getFunctionOrdinal(function: Func) = functionOrdinals[function.name]!!
@@ -95,29 +100,70 @@ private val GLESBinding = register(object : APIBinding(
 
     private val EXTENSION_NAME = "[A-Za-z0-9_]+".toRegex()
 
-    override fun PrintWriter.generateFunctionSetup(nativeClass: NativeClass) {
-        print("\n${t}static boolean isAvailable($CAPABILITIES_CLASS caps")
-        if (nativeClass.functions.any { it.has<DependsOn>() }) print(", java.util.Set<String> ext")
-        println(") {")
-
-        val printPointer = { func: Func ->
-            if (func.has<DependsOn>())
-                "${func.get<DependsOn>().reference.let { if (EXTENSION_NAME.matches(it)) "ext.contains(\"$it\")" else it }} ? caps.${func.name} : -1L"
+    private fun getFunctionDependencyExpression(func: Func) = func.get<DependsOn>()
+        .reference
+        .let { expression ->
+            if (EXTENSION_NAME.matches(expression))
+                "ext.contains(\"$expression\")"
             else
-                "caps.${func.name}"
+                expression
         }
 
-        print("$t${t}return checkFunctions(")
-        nativeClass.printPointers(this, printPointer) { !it.has(IgnoreMissing) }
-        println(");")
+    private fun PrintWriter.printCheckFunctions(
+        nativeClass: NativeClass,
+        dependencies: LinkedHashMap<String, Int>,
+        filter: (Func) -> Boolean
+    ) {
+        print("checkFunctions(provider, caps, new int[] {")
+        nativeClass.printPointers(this, { func ->
+            val index = functionOrdinals[func.name]
+            if (func.has<DependsOn>()) {
+                "flag${dependencies[getFunctionDependencyExpression(func)]} + $index"
+            } else{
+                index.toString()
+            }
+        }, filter)
+        print("},")
+        nativeClass.printPointers(this, { "\"${it.name}\"" }, filter)
+        print(")")
+    }
+
+    private fun PrintWriter.checkExtensionFunctions(nativeClass: NativeClass) {
+        val capName = nativeClass.capName
+
+        print("""
+    private static boolean check_${nativeClass.templateName}(FunctionProvider provider, PointerBuffer caps, Set<String> ext) {
+        if (!ext.contains("$capName")) {
+            return false;
+        }""")
+        val dependencies = nativeClass.functions
+            .filter { it.has<DependsOn>() }
+            .map(::getFunctionDependencyExpression)
+            .foldIndexed(LinkedHashMap<String, Int>()) { index, map, expression ->
+                if (!map.containsKey(expression)) {
+                    map[expression] = index
+                }
+                map
+            }
+        if (dependencies.isNotEmpty()) {
+            println()
+            dependencies.forEach { (expression, index) ->
+                print("\n$t${t}int flag$index = $expression ? 0 : Integer.MIN_VALUE;")
+            }
+        }
+
+        print("\n\n$t${t}return ")
+        printCheckFunctions(nativeClass, dependencies) { it-> !it.has(IgnoreMissing) }
+        println(" || reportMissing(\"GLES\", \"$capName\");")
         println("$t}")
     }
 
     init {
         javaImport(
             "org.lwjgl.*",
+            "java.util.function.IntFunction",
             "static org.lwjgl.system.APIUtil.*",
-            "static org.lwjgl.system.MemoryUtil.*"
+            "static org.lwjgl.system.Checks.*"
         )
 
         documentation = "Defines the capabilities of an OpenGL ES context."
@@ -125,12 +171,33 @@ private val GLESBinding = register(object : APIBinding(
 
     override fun PrintWriter.generateJava() {
         generateJavaPreamble()
-        println("public final class $CAPABILITIES_CLASS {\n")
+        println("""public final class $CAPABILITIES_CLASS {
 
-        println("${t}public final long")
-        println(functions
-            .map(Func::name)
-            .joinToString(",\n$t$t", prefix = "$t$t", postfix = ";\n"))
+    static final int ADDRESS_BUFFER_SIZE = ${functions.size};""")
+
+        val functionSet = LinkedHashSet<String>()
+        classes.asSequence()
+            .filter { it.hasNativeFunctions }
+            .forEach {
+                val functions = it.functions.asSequence()
+                    .filter { cmd ->
+                        if (!cmd.has<Macro>()) {
+                            if (functionSet.add(cmd.name)) {
+                                return@filter true
+                            }
+                        }
+                        false
+                    }
+                    .joinToString(",\n$t$t") { cmd -> cmd.name }
+
+                if (functions.isNotEmpty()) {
+                    println("\n$t// ${it.templateName}")
+                    println("${t}public final long")
+                    println("$t$t$functions;")
+                }
+            }
+
+        println()
 
         classes.forEach {
             println(it.getCapabilityJavadoc())
@@ -141,36 +208,47 @@ private val GLESBinding = register(object : APIBinding(
     /** Off-heap array of the above function addresses. */
     final PointerBuffer addresses;
 
-    $CAPABILITIES_CLASS(FunctionProvider provider, Set<String> ext) {
+    $CAPABILITIES_CLASS(FunctionProvider provider, Set<String> ext, IntFunction<PointerBuffer> bufferFactory) {
+        PointerBuffer caps = bufferFactory.apply(ADDRESS_BUFFER_SIZE);
 """)
-
-        println(functions.joinToString(prefix = "$t$t", separator = "\n$t$t") { "${it.name} = provider.getFunctionAddress(${it.functionAddress});" })
 
         for (extension in classes) {
             val capName = extension.capName
-            if (extension.hasNativeFunctions) {
-                print("\n$t$t$capName = ext.contains(\"$capName\") && checkExtension(\"$capName\", ${if (capName == extension.className) "$packageName.${extension.className}" else extension.className}.isAvailable(this")
-                if (extension.functions.any { it.has<DependsOn>() }) print(", ext")
-                print("));")
-            } else
-                print("\n$t$t$capName = ext.contains(\"$capName\");")
+            print(
+                if (extension.hasNativeFunctions)
+                    "\n$t$t$capName = check_${extension.templateName}(provider, caps, ext);"
+                else
+                    "\n$t$t$capName = ext.contains(\"$capName\");"
+            )
         }
+
+        println()
+        functionOrdinals.forEach { (it, index) ->
+            print("\n$t$t$it = caps.get($index);")
+        }
+
         print("""
 
-        addresses = ThreadLocalUtil.getAddressesFromCapabilities(this);
+        addresses = ThreadLocalUtil.setupAddressBuffer(caps);
     }
 
-    boolean hasDSA(Set<String> ext) {
-        return ext.contains("GL_ARB_direct_state_access") || ext.contains("GL_EXT_direct_state_access");
+    /** Returns the buffer of OpenGL ES function pointers. */
+    public PointerBuffer getAddressBuffer() {
+        return addresses;
     }
+""")
 
-    private static boolean checkExtension(String extension, boolean supported) {
-        if (supported) {
-            return true;
+        for (extension in classes) {
+            if (!extension.hasNativeFunctions) {
+                continue
+            }
+
+            checkExtensionFunctions(extension)
         }
 
-        apiLog("[GLES] " + extension + " was reported as available but an entry point is missing.");
-        return false;
+        println("""
+    private static boolean hasDSA(Set<String> ext) {
+        return ext.contains("GL_ARB_direct_state_access") || ext.contains("GL_EXT_direct_state_access");
     }
 
 }""")
@@ -182,7 +260,7 @@ fun String.nativeClassGLES(
     templateName: String,
     nativeSubPath: String = "",
     prefix: String = "GL",
-    prefixMethod: String = prefix.toLowerCase(),
+    prefixMethod: String = prefix.lowercase(),
     postfix: String = "",
     init: NativeClass.() -> Unit
 ) = nativeClass(

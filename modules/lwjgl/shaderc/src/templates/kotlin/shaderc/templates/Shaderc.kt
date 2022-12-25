@@ -22,7 +22,7 @@ val Shaderc = "Shaderc".nativeClass(Module.SHADERC, prefix = "shaderc_", prefixM
         "target_env_vulkan".enum("SPIR-V under Vulkan semantics", "0"),
         "target_env_opengl".enum("SPIR-V under OpenGL semantics. SPIR-V code generation is not supported for shaders under OpenGL compatibility profile."),
         "target_env_opengl_compat".enum("SPIR-V under OpenGL semantics, including compatibility profile functions"),
-        "target_env_webgpu".enum("SPIR-V under WebGPU semantics"),
+        "target_env_webgpu".enum("deprecated, SPIR-V under WebGPU semantics"),
         "target_env_default".enum("", "shaderc_target_env_vulkan")
     )
 
@@ -32,8 +32,9 @@ val Shaderc = "Shaderc".nativeClass(Module.SHADERC, prefix = "shaderc_", prefixM
         "env_version_vulkan_1_0".enum("", "((1 << 22))"),
         "env_version_vulkan_1_1".enum("", "((1 << 22) | (1 << 12))"),
         "env_version_vulkan_1_2".enum("", "((1 << 22) | (2 << 12))"),
+        "env_version_vulkan_1_3".enum("", "((1 << 22) | (3 << 12))"),
         "env_version_opengl_4_5".enum("", "450"),
-        "env_version_webgpu".enum
+        "env_version_webgpu".enum("deprecated, WebGPU env never defined versions")
     )
 
     EnumConstant(
@@ -44,7 +45,8 @@ val Shaderc = "Shaderc".nativeClass(Module.SHADERC, prefix = "shaderc_", prefixM
         "spirv_version_1_2".enum("", 0x010200),
         "spirv_version_1_3".enum("", 0x010300),
         "spirv_version_1_4".enum("", 0x010400),
-        "spirv_version_1_5".enum("", 0x010500)
+        "spirv_version_1_5".enum("", 0x010500),
+        "spirv_version_1_6".enum("", 0x010600)
     )
 
     EnumConstant(
@@ -166,7 +168,7 @@ val Shaderc = "Shaderc".nativeClass(Module.SHADERC, prefix = "shaderc_", prefixM
 
         "profile_none".enum("Used if and only if GLSL version did not specify profiles.", "0"),
         "profile_core".enum,
-        "profile_compatibility".enum,
+        "profile_compatibility".enum("Disabled. This generates an error."),
         "profile_es".enum
     )
 
@@ -494,6 +496,14 @@ val Shaderc = "Shaderc".nativeClass(Module.SHADERC, prefix = "shaderc_", prefixM
 
         shaderc_compile_options_t("options", ""),
         bool("auto_bind", "")
+    )
+
+    void(
+        "compile_options_set_auto_combined_image_sampler",
+        "Sets whether the compiler should automatically remove sampler variables and convert image variables to combined image-sampler variables.",
+
+        shaderc_compile_options_t("options", ""),
+        bool("upgrade", "")
     )
 
     void(

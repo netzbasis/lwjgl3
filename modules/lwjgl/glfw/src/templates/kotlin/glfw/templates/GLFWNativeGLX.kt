@@ -26,7 +26,13 @@ val GLFWNativeGLX = "GLFWNativeGLX".nativeClass(Module.GLFW, nativeSubPath = "li
         """,
 
         GLFWwindow.p("window", "a GLFW window"),
-        returnDoc = "the {@code GLXContext} of the specified window, or #NULL if an error occurred.",
+
+        returnDoc =
+        """
+        the {@code GLXContext} of the specified window, or #NULL if an error occurred.
+
+        Possible errors include #NO_WINDOW_CONTEXT and #NOT_INITIALIZED.
+        """,
         since = "version 3.0"
     )
 
@@ -39,23 +45,52 @@ val GLFWNativeGLX = "GLFWNativeGLX".nativeClass(Module.GLFW, nativeSubPath = "li
         """,
 
         GLFWwindow.p("window", "a GLFW window"),
-        returnDoc = "the {@code GLXWindow} of the specified window, or {@code None} if an error occurred.",
+
+        returnDoc =
+        """
+        the {@code GLXWindow} of the specified window, or {@code None} if an error occurred.
+
+        Possible errors include #NO_WINDOW_CONTEXT and #NOT_INITIALIZED.
+        """,
         since = "version 3.2"
     )
 
-    customMethod("""
-    /** Calls {@link #setPath(String)} with the path of the OpenGL shared library loaded by LWJGL. */
-    public static void setPathLWJGL() {
-        FunctionProvider fp = GL.getFunctionProvider();
-        if (!(fp instanceof SharedLibrary)) {
-            apiLog("GLFW OpenGL path override not set: OpenGL function provider is not a shared library.");
-            return;
+    GLXWindow(
+        "GetGLXFBConfig",
+        """
+        Returns the {@code GLXFBConfig} that was chosen to create the specified window.
 
+        This function may be called from any thread. Access is not synchronized.
+        """,
+
+        GLFWwindow.p("window", "a GLFW window"),
+
+        returnDoc =
+        """
+        the {@code GLXFBConfig} that was chosen to create the specified window, or #NULL if an error occurred.
+
+        Possible errors include #NO_WINDOW_CONTEXT and #NOT_INITIALIZED.
+        """,
+        since = "version 3.4"
+    )
+
+    customMethod("""
+    /**
+     * Calls {@link #setPath(String)} with the path of the specified {@link SharedLibrary}.
+     *
+     * <p>Example usage: <code>GLFWNativeGLX.setPath(GL.getFunctionProvider());</code></p>
+     *
+     * @param sharedLibrary a {@code FunctionProvider} instance that will be cast to {@code SharedLibrary}
+     */
+    public static void setPath(FunctionProvider sharedLibrary) {
+        if (!(sharedLibrary instanceof SharedLibrary)) {
+            apiLog("GLFW OpenGL path override not set: Function provider is not a shared library.");
+            return;
         }
 
-        String path = ((SharedLibrary)fp).getPath();
+        String path = ((SharedLibrary)sharedLibrary).getPath();
         if (path == null) {
-            apiLog("GLFW OpenGL path override not set: Could not resolve the OpenGL shared library path.");
+            apiLog("GLFW OpenGL path override not set: Could not resolve the shared library path.");
             return;
 
         }

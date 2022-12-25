@@ -18,21 +18,14 @@ import static org.lwjgl.system.MemoryStack.*;
 /**
  * Description used to create a mirror texture.
  * 
- * <h3>Member documentation</h3>
- * 
- * <ul>
- * <li>{@code Format} &ndash; one of:<br><table><tr><td>{@link OVR#OVR_FORMAT_UNKNOWN}</td><td>{@link OVR#OVR_FORMAT_B5G6R5_UNORM}</td><td>{@link OVR#OVR_FORMAT_B5G5R5A1_UNORM}</td></tr><tr><td>{@link OVR#OVR_FORMAT_B4G4R4A4_UNORM}</td><td>{@link OVR#OVR_FORMAT_R8G8B8A8_UNORM}</td><td>{@link OVR#OVR_FORMAT_R8G8B8A8_UNORM_SRGB}</td></tr><tr><td>{@link OVR#OVR_FORMAT_B8G8R8A8_UNORM}</td><td>{@link OVR#OVR_FORMAT_B8G8R8_UNORM}</td><td>{@link OVR#OVR_FORMAT_B8G8R8A8_UNORM_SRGB}</td></tr><tr><td>{@link OVR#OVR_FORMAT_B8G8R8X8_UNORM}</td><td>{@link OVR#OVR_FORMAT_B8G8R8X8_UNORM_SRGB}</td><td>{@link OVR#OVR_FORMAT_R16G16B16A16_FLOAT}</td></tr><tr><td>{@link OVR#OVR_FORMAT_R11G11B10_FLOAT}</td><td>{@link OVR#OVR_FORMAT_D16_UNORM}</td><td>{@link OVR#OVR_FORMAT_D24_UNORM_S8_UINT}</td></tr><tr><td>{@link OVR#OVR_FORMAT_D32_FLOAT}</td><td>{@link OVR#OVR_FORMAT_D32_FLOAT_S8X24_UINT}</td><td>{@link OVR#OVR_FORMAT_BC1_UNORM}</td></tr><tr><td>{@link OVR#OVR_FORMAT_BC1_UNORM_SRGB}</td><td>{@link OVR#OVR_FORMAT_BC2_UNORM}</td><td>{@link OVR#OVR_FORMAT_BC2_UNORM_SRGB}</td></tr><tr><td>{@link OVR#OVR_FORMAT_BC3_UNORM}</td><td>{@link OVR#OVR_FORMAT_BC3_UNORM_SRGB}</td><td>{@link OVR#OVR_FORMAT_BC6H_UF16}</td></tr><tr><td>{@link OVR#OVR_FORMAT_BC6H_SF16}</td><td>{@link OVR#OVR_FORMAT_BC7_UNORM}</td><td>{@link OVR#OVR_FORMAT_BC7_UNORM_SRGB}</td></tr></table></li>
- * <li>{@code MiscFlags} &ndash; {@code ovrTextureFlags}. One or more of:<br><table><tr><td>{@link OVR#ovrTextureMisc_None TextureMisc_None}</td><td>{@link OVR#ovrTextureMisc_DX_Typeless TextureMisc_DX_Typeless}</td><td>{@link OVR#ovrTextureMisc_AllowGenerateMips TextureMisc_AllowGenerateMips}</td></tr><tr><td>{@link OVR#ovrTextureMisc_ProtectedContent TextureMisc_ProtectedContent}</td><td>{@link OVR#ovrTextureMisc_AutoGenerateMips TextureMisc_AutoGenerateMips}</td></tr></table></li>
- * </ul>
- * 
  * <h3>Layout</h3>
  * 
  * <pre><code>
  * struct ovrMirrorTextureDesc {
- *     ovrTextureFormat Format;
+ *     ovrTextureFormat {@link #Format};
  *     int Width;
  *     int Height;
- *     unsigned int MiscFlags;
+ *     unsigned int {@link #MiscFlags};
  * }</code></pre>
  */
 @NativeType("struct ovrMirrorTextureDesc")
@@ -81,24 +74,24 @@ public class OVRMirrorTextureDesc extends Struct implements NativeResource {
     @Override
     public int sizeof() { return SIZEOF; }
 
-    /** Returns the value of the {@code Format} field. */
+    /** one of:<br><table><tr><td>{@link OVR#OVR_FORMAT_UNKNOWN}</td><td>{@link OVR#OVR_FORMAT_B5G6R5_UNORM}</td><td>{@link OVR#OVR_FORMAT_B5G5R5A1_UNORM}</td></tr><tr><td>{@link OVR#OVR_FORMAT_B4G4R4A4_UNORM}</td><td>{@link OVR#OVR_FORMAT_R8G8B8A8_UNORM}</td><td>{@link OVR#OVR_FORMAT_R8G8B8A8_UNORM_SRGB}</td></tr><tr><td>{@link OVR#OVR_FORMAT_B8G8R8A8_UNORM}</td><td>{@link OVR#OVR_FORMAT_B8G8R8_UNORM}</td><td>{@link OVR#OVR_FORMAT_B8G8R8A8_UNORM_SRGB}</td></tr><tr><td>{@link OVR#OVR_FORMAT_B8G8R8X8_UNORM}</td><td>{@link OVR#OVR_FORMAT_B8G8R8X8_UNORM_SRGB}</td><td>{@link OVR#OVR_FORMAT_R16G16B16A16_FLOAT}</td></tr><tr><td>{@link OVR#OVR_FORMAT_R11G11B10_FLOAT}</td><td>{@link OVR#OVR_FORMAT_D16_UNORM}</td><td>{@link OVR#OVR_FORMAT_D24_UNORM_S8_UINT}</td></tr><tr><td>{@link OVR#OVR_FORMAT_D32_FLOAT}</td><td>{@link OVR#OVR_FORMAT_D32_FLOAT_S8X24_UINT}</td><td>{@link OVR#OVR_FORMAT_BC1_UNORM}</td></tr><tr><td>{@link OVR#OVR_FORMAT_BC1_UNORM_SRGB}</td><td>{@link OVR#OVR_FORMAT_BC2_UNORM}</td><td>{@link OVR#OVR_FORMAT_BC2_UNORM_SRGB}</td></tr><tr><td>{@link OVR#OVR_FORMAT_BC3_UNORM}</td><td>{@link OVR#OVR_FORMAT_BC3_UNORM_SRGB}</td><td>{@link OVR#OVR_FORMAT_BC6H_UF16}</td></tr><tr><td>{@link OVR#OVR_FORMAT_BC6H_SF16}</td><td>{@link OVR#OVR_FORMAT_BC7_UNORM}</td><td>{@link OVR#OVR_FORMAT_BC7_UNORM_SRGB}</td></tr></table> */
     @NativeType("ovrTextureFormat")
     public int Format() { return nFormat(address()); }
-    /** Returns the value of the {@code Width} field. */
+    /** @return the value of the {@code Width} field. */
     public int Width() { return nWidth(address()); }
-    /** Returns the value of the {@code Height} field. */
+    /** @return the value of the {@code Height} field. */
     public int Height() { return nHeight(address()); }
-    /** Returns the value of the {@code MiscFlags} field. */
+    /** {@code ovrTextureFlags}. One or more of:<br><table><tr><td>{@link OVR#ovrTextureMisc_None TextureMisc_None}</td><td>{@link OVR#ovrTextureMisc_DX_Typeless TextureMisc_DX_Typeless}</td><td>{@link OVR#ovrTextureMisc_AllowGenerateMips TextureMisc_AllowGenerateMips}</td></tr><tr><td>{@link OVR#ovrTextureMisc_ProtectedContent TextureMisc_ProtectedContent}</td><td>{@link OVR#ovrTextureMisc_AutoGenerateMips TextureMisc_AutoGenerateMips}</td></tr></table> */
     @NativeType("unsigned int")
     public int MiscFlags() { return nMiscFlags(address()); }
 
-    /** Sets the specified value to the {@code Format} field. */
+    /** Sets the specified value to the {@link #Format} field. */
     public OVRMirrorTextureDesc Format(@NativeType("ovrTextureFormat") int value) { nFormat(address(), value); return this; }
     /** Sets the specified value to the {@code Width} field. */
     public OVRMirrorTextureDesc Width(int value) { nWidth(address(), value); return this; }
     /** Sets the specified value to the {@code Height} field. */
     public OVRMirrorTextureDesc Height(int value) { nHeight(address(), value); return this; }
-    /** Sets the specified value to the {@code MiscFlags} field. */
+    /** Sets the specified value to the {@link #MiscFlags} field. */
     public OVRMirrorTextureDesc MiscFlags(@NativeType("unsigned int") int value) { nMiscFlags(address(), value); return this; }
 
     /** Initializes this struct with the specified values. */
@@ -203,22 +196,29 @@ public class OVRMirrorTextureDesc extends Struct implements NativeResource {
 
     // -----------------------------------
 
-    /** Returns a new {@code OVRMirrorTextureDesc} instance allocated on the thread-local {@link MemoryStack}. */
-    public static OVRMirrorTextureDesc mallocStack() {
-        return mallocStack(stackGet());
-    }
-
-    /** Returns a new {@code OVRMirrorTextureDesc} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero. */
-    public static OVRMirrorTextureDesc callocStack() {
-        return callocStack(stackGet());
-    }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRMirrorTextureDesc mallocStack() { return malloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRMirrorTextureDesc callocStack() { return calloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRMirrorTextureDesc mallocStack(MemoryStack stack) { return malloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRMirrorTextureDesc callocStack(MemoryStack stack) { return calloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRMirrorTextureDesc.Buffer mallocStack(int capacity) { return malloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRMirrorTextureDesc.Buffer callocStack(int capacity) { return calloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRMirrorTextureDesc.Buffer mallocStack(int capacity, MemoryStack stack) { return malloc(capacity, stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRMirrorTextureDesc.Buffer callocStack(int capacity, MemoryStack stack) { return calloc(capacity, stack); }
 
     /**
      * Returns a new {@code OVRMirrorTextureDesc} instance allocated on the specified {@link MemoryStack}.
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRMirrorTextureDesc mallocStack(MemoryStack stack) {
+    public static OVRMirrorTextureDesc malloc(MemoryStack stack) {
         return wrap(OVRMirrorTextureDesc.class, stack.nmalloc(ALIGNOF, SIZEOF));
     }
 
@@ -227,45 +227,27 @@ public class OVRMirrorTextureDesc extends Struct implements NativeResource {
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRMirrorTextureDesc callocStack(MemoryStack stack) {
+    public static OVRMirrorTextureDesc calloc(MemoryStack stack) {
         return wrap(OVRMirrorTextureDesc.class, stack.ncalloc(ALIGNOF, 1, SIZEOF));
-    }
-
-    /**
-     * Returns a new {@link OVRMirrorTextureDesc.Buffer} instance allocated on the thread-local {@link MemoryStack}.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRMirrorTextureDesc.Buffer mallocStack(int capacity) {
-        return mallocStack(capacity, stackGet());
-    }
-
-    /**
-     * Returns a new {@link OVRMirrorTextureDesc.Buffer} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRMirrorTextureDesc.Buffer callocStack(int capacity) {
-        return callocStack(capacity, stackGet());
     }
 
     /**
      * Returns a new {@link OVRMirrorTextureDesc.Buffer} instance allocated on the specified {@link MemoryStack}.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRMirrorTextureDesc.Buffer mallocStack(int capacity, MemoryStack stack) {
+    public static OVRMirrorTextureDesc.Buffer malloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.nmalloc(ALIGNOF, capacity * SIZEOF), capacity);
     }
 
     /**
      * Returns a new {@link OVRMirrorTextureDesc.Buffer} instance allocated on the specified {@link MemoryStack} and initializes all its bits to zero.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRMirrorTextureDesc.Buffer callocStack(int capacity, MemoryStack stack) {
+    public static OVRMirrorTextureDesc.Buffer calloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.ncalloc(ALIGNOF, capacity, SIZEOF), capacity);
     }
 
@@ -327,24 +309,24 @@ public class OVRMirrorTextureDesc extends Struct implements NativeResource {
             return ELEMENT_FACTORY;
         }
 
-        /** Returns the value of the {@code Format} field. */
+        /** @return the value of the {@link OVRMirrorTextureDesc#Format} field. */
         @NativeType("ovrTextureFormat")
         public int Format() { return OVRMirrorTextureDesc.nFormat(address()); }
-        /** Returns the value of the {@code Width} field. */
+        /** @return the value of the {@code Width} field. */
         public int Width() { return OVRMirrorTextureDesc.nWidth(address()); }
-        /** Returns the value of the {@code Height} field. */
+        /** @return the value of the {@code Height} field. */
         public int Height() { return OVRMirrorTextureDesc.nHeight(address()); }
-        /** Returns the value of the {@code MiscFlags} field. */
+        /** @return the value of the {@link OVRMirrorTextureDesc#MiscFlags} field. */
         @NativeType("unsigned int")
         public int MiscFlags() { return OVRMirrorTextureDesc.nMiscFlags(address()); }
 
-        /** Sets the specified value to the {@code Format} field. */
+        /** Sets the specified value to the {@link OVRMirrorTextureDesc#Format} field. */
         public OVRMirrorTextureDesc.Buffer Format(@NativeType("ovrTextureFormat") int value) { OVRMirrorTextureDesc.nFormat(address(), value); return this; }
         /** Sets the specified value to the {@code Width} field. */
         public OVRMirrorTextureDesc.Buffer Width(int value) { OVRMirrorTextureDesc.nWidth(address(), value); return this; }
         /** Sets the specified value to the {@code Height} field. */
         public OVRMirrorTextureDesc.Buffer Height(int value) { OVRMirrorTextureDesc.nHeight(address(), value); return this; }
-        /** Sets the specified value to the {@code MiscFlags} field. */
+        /** Sets the specified value to the {@link OVRMirrorTextureDesc#MiscFlags} field. */
         public OVRMirrorTextureDesc.Buffer MiscFlags(@NativeType("unsigned int") int value) { OVRMirrorTextureDesc.nMiscFlags(address(), value); return this; }
 
     }

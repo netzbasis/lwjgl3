@@ -1,9 +1,9 @@
 //-------------------------------------------------------------------------------------
 // DirectXMeshVBReader.cpp
-//  
+//
 // DirectX Mesh Geometry Library - Vertex Buffer Reader
 //
-// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkID=324981
@@ -14,10 +14,14 @@
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 
+#ifndef WIN32
+#define _stricmp strcasecmp
+#endif
+
 namespace
 {
-    const size_t c_MaxSlot = 32;
-    const size_t c_MaxStride = 2048;
+    constexpr size_t c_MaxSlot = 32;
+    constexpr size_t c_MaxStride = 2048;
 
     enum INPUT_CLASSIFICATION
     {
@@ -44,7 +48,7 @@ namespace
     static_assert(c_MaxStride == D3D11_REQ_MULTI_ELEMENT_STRUCTURE_SIZE_IN_BYTES, "D3D11 mismatch");
 #endif
 
-#if defined(__d3d12_h__) || defined(__d3d12_x_h__)
+#if defined(__d3d12_h__) || defined(__d3d12_x_h__) || defined(__XBOX_D3D12_X__)
     static_assert(sizeof(InputElementDesc) == sizeof(D3D12_INPUT_ELEMENT_DESC), "D3D12 mismatch");
     static_assert(static_cast<int>(PER_VERTEX_DATA) == static_cast<int>(D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA), "D3D12 mismatch");
     static_assert(static_cast<int>(PER_INSTANCE_DATA) == static_cast<int>(D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA), "D3D12 mismatch");
@@ -64,10 +68,10 @@ public:
         mTempSize(0) {}
 
     HRESULT Initialize(_In_reads_(nDecl) const InputElementDesc* vbDecl, size_t nDecl);
-    HRESULT AddStream(_In_reads_bytes_(stride*nVerts) const void* vb, size_t nVerts, size_t inputSlot, size_t stride);
+    HRESULT AddStream(_In_reads_bytes_(stride*nVerts) const void* vb, size_t nVerts, size_t inputSlot, size_t stride) noexcept;
     HRESULT Read(_Out_writes_(count) XMVECTOR* buffer, _In_z_ const char* semanticName, unsigned int semanticIndex, size_t count, bool x2bias) const;
 
-    void Release()
+    void Release() noexcept
     {
         mInputDesc.clear();
         mSemantics.clear();
@@ -95,7 +99,7 @@ public:
         return &mInputDesc[it->second];
     }
 
-    XMVECTOR* GetTemporaryBuffer(size_t count) const
+    XMVECTOR* GetTemporaryBuffer(size_t count) const noexcept
     {
         if (!mTempBuffer || (mTempSize < count))
         {
@@ -107,16 +111,18 @@ public:
                     mTempSize = mVerts[j];
             }
 
-            mTempBuffer.reset(static_cast<XMVECTOR*>(_aligned_malloc(sizeof(XMVECTOR) * mTempSize, 16)));
-            if (!mTempBuffer)
+            auto temp = make_AlignedArrayXMVECTOR(mTempSize);
+            if (!temp)
                 mTempSize = 0;
+
+            mTempBuffer.swap(temp);
         }
 
         return mTempBuffer.get();
     }
 
 private:
-    typedef std::multimap<std::string, uint32_t> SemanticMap;
+    using SemanticMap = std::multimap<std::string, uint32_t>;
 
     std::vector<InputElementDesc>           mInputDesc;
     SemanticMap                             mSemantics;
@@ -137,7 +143,7 @@ HRESULT VBReader::Impl::Initialize(const InputElementDesc* vbDecl, size_t nDecl)
 
     uint32_t offsets[c_MaxSlot] = {};
 
-#if defined(__d3d12_h__) || defined(__d3d12_x_h__)
+#if defined(__d3d12_h__) || defined(__d3d12_x_h__) || defined(__XBOX_D3D12_X__)
     {
         if (nDecl > D3D12_IA_VERTEX_INPUT_STRUCTURE_ELEMENT_COUNT)
             return E_INVALIDARG;
@@ -164,7 +170,7 @@ HRESULT VBReader::Impl::Initialize(const InputElementDesc* vbDecl, size_t nDecl)
         {
             // Does not currently support instance data layouts
             Release();
-            return HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
+            return HRESULT_E_NOT_SUPPORTED;
         }
 
         mInputDesc.push_back(vbDecl[j]);
@@ -193,7 +199,7 @@ HRESULT VBReader::Impl::Initialize(const InputElementDesc* vbDecl, size_t nDecl)
 
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-HRESULT VBReader::Impl::AddStream(const void* vb, size_t nVerts, size_t inputSlot, size_t stride)
+HRESULT VBReader::Impl::AddStream(const void* vb, size_t nVerts, size_t inputSlot, size_t stride) noexcept
 {
     if (!vb || !nVerts)
         return E_INVALIDARG;
@@ -289,7 +295,7 @@ HRESULT VBReader::Impl::Read(XMVECTOR* buffer, const char* semanticName, unsigne
     }
 
     if (it == range.second)
-        return HRESULT_FROM_WIN32(ERROR_INVALID_NAME);
+        return HRESULT_E_INVALID_NAME;
 
     uint32_t inputSlot = mInputDesc[it->second].InputSlot;
 
@@ -648,27 +654,9 @@ VBReader::VBReader() noexcept(false)
 {
 }
 
-
-// Move constructor.
-VBReader::VBReader(VBReader&& moveFrom) noexcept
-    : pImpl(std::move(moveFrom.pImpl))
-{
-}
-
-
-// Move assignment.
-VBReader& VBReader::operator= (VBReader&& moveFrom) noexcept
-{
-    pImpl = std::move(moveFrom.pImpl);
-    return *this;
-}
-
-
-// Public destructor.
-VBReader::~VBReader()
-{
-}
-
+VBReader::VBReader(VBReader&&) noexcept = default;
+VBReader& VBReader::operator= (VBReader&&) noexcept = default;
+VBReader::~VBReader() = default;
 
 //-------------------------------------------------------------------------------------
 #if defined(__d3d11_h__) || defined(__d3d11_x_h__)
@@ -679,7 +667,7 @@ HRESULT VBReader::Initialize(const D3D11_INPUT_ELEMENT_DESC* vbDecl, size_t nDec
 }
 #endif
 
-#if defined(__d3d12_h__) || defined(__d3d12_x_h__)
+#if defined(__d3d12_h__) || defined(__d3d12_x_h__) || defined(__XBOX_D3D12_X__)
 HRESULT VBReader::Initialize(const D3D12_INPUT_LAYOUT_DESC& vbDecl)
 {
     return pImpl->Initialize(reinterpret_cast<const InputElementDesc*>(vbDecl.pInputElementDescs), vbDecl.NumElements);
@@ -689,7 +677,7 @@ HRESULT VBReader::Initialize(const D3D12_INPUT_LAYOUT_DESC& vbDecl)
 
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-HRESULT VBReader::AddStream(const void* vb, size_t nVerts, size_t inputSlot, size_t stride)
+HRESULT VBReader::AddStream(const void* vb, size_t nVerts, size_t inputSlot, size_t stride) noexcept
 {
     return pImpl->AddStream(vb, nVerts, inputSlot, stride);
 }
@@ -790,7 +778,7 @@ HRESULT VBReader::Read(XMFLOAT4* buffer, const char* semanticName, unsigned int 
 
 
 //-------------------------------------------------------------------------------------
-void VBReader::Release()
+void VBReader::Release() noexcept
 {
     pImpl->Release();
 }
@@ -805,7 +793,7 @@ const D3D11_INPUT_ELEMENT_DESC* VBReader::GetElement11(const char* semanticName,
 }
 #endif
 
-#if defined(__d3d12_h__) || defined(__d3d12_x_h__)
+#if defined(__d3d12_h__) || defined(__d3d12_x_h__) || defined(__XBOX_D3D12_X__)
 _Use_decl_annotations_
 const D3D12_INPUT_ELEMENT_DESC* VBReader::GetElement12(const char* semanticName, unsigned int semanticIndex) const
 {

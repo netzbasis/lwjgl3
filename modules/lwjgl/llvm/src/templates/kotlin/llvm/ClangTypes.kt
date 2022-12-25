@@ -27,6 +27,7 @@ val CXIdxClientEntity = "CXIdxClientEntity".handle
 val CXIdxClientContainer = "CXIdxClientContainer".handle
 val CXIdxClientASTFile = "CXIdxClientASTFile".handle
 val CXIndexAction = "CXIndexAction".handle
+val CXRewriter = "CXRewriter".handle
 
 val time_t = IntegerType("time_t", PrimitiveMapping.LONG, unsigned = true) // TODO:
 
@@ -253,17 +254,16 @@ val CXCodeCompleteResults = struct(Module.LLVM, "CXCodeCompleteResults", mutable
 }
 
 val CXCursorAndRangeVisitor = struct(Module.LLVM, "CXCursorAndRangeVisitor") {
-    UserDataMember("visit")..opaque_p("context", "")
+    opaque_p("context", "")
     Module.LLVM.callback {
         CXVisitorResult(
             "CXCursorAndRangeVisit",
             "",
 
-            UserData()..opaque_p("context", ""),
+            opaque_p("context", ""),
             CXCursor("cursor", ""),
             CXSourceRange("range", "")
         ) {
-            nativeImport("clang-c/Index.h")
             documentation = "Instances of this interface may be set to the {@code visit} field of the ##CXCursorAndRangeVisitor struct."
         }
     }("visit", "")
@@ -530,9 +530,8 @@ val CXCursorVisitor = Module.LLVM.callback {
 
         CXCursor("cursor", ""),
         CXCursor("parent", ""),
-        UserData()..nullable..CXClientData("client_data", "")
+        nullable..CXClientData("client_data", "")
     ) {
-        nativeImport("clang-c/Index.h")
         documentation = "Instances of this interface may be passed to the #visitChildren() method."
     }
 }
@@ -570,9 +569,8 @@ val CXFieldVisitor = Module.LLVM.callback {
         """,
 
         CXCursor("C", ""),
-        UserData()..nullable..CXClientData("client_data", "")
+        nullable..CXClientData("client_data", "")
     ) {
-        nativeImport("clang-c/Index.h")
         documentation = "Instances of this interface may be passed to the #Type_visitFields() method."
     }
 }

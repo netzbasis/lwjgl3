@@ -19,21 +19,13 @@ import static org.lwjgl.system.MemoryStack.*;
 /**
  * Haptics buffer descriptor, contains amplitude samples used for Touch vibration.
  * 
- * <h3>Member documentation</h3>
- * 
- * <ul>
- * <li>{@code Samples} &ndash; samples stored in opaque format</li>
- * <li>{@code SamplesCount} &ndash; number of samples (up to {@link OVR#OVR_HAPTICS_BUFFER_SAMPLES_MAX})</li>
- * <li>{@code SubmitMode} &ndash; how samples are submitted to the hardware. Must be:<br><table><tr><td>{@link OVR#ovrHapticsBufferSubmit_Enqueue HapticsBufferSubmit_Enqueue}</td></tr></table></li>
- * </ul>
- * 
  * <h3>Layout</h3>
  * 
  * <pre><code>
  * struct ovrHapticsBuffer {
- *     void * Samples;
- *     int SamplesCount;
- *     ovrHapticsBufferSubmitMode SubmitMode;
+ *     void * {@link #Samples};
+ *     int {@link #SamplesCount};
+ *     ovrHapticsBufferSubmitMode {@link #SubmitMode};
  * }</code></pre>
  */
 @NativeType("struct ovrHapticsBuffer")
@@ -80,23 +72,23 @@ public class OVRHapticsBuffer extends Struct implements NativeResource {
     public int sizeof() { return SIZEOF; }
 
     /**
-     * Returns a {@link ByteBuffer} view of the data pointed to by the {@code Samples} field.
-     *
      * @param capacity the number of elements in the returned buffer
+     *
+     * @return samples stored in opaque format
      */
     @NativeType("void *")
     public ByteBuffer Samples(int capacity) { return nSamples(address(), capacity); }
-    /** Returns the value of the {@code SamplesCount} field. */
+    /** number of samples (up to {@link OVR#OVR_HAPTICS_BUFFER_SAMPLES_MAX}) */
     public int SamplesCount() { return nSamplesCount(address()); }
-    /** Returns the value of the {@code SubmitMode} field. */
+    /** how samples are submitted to the hardware. Must be:<br><table><tr><td>{@link OVR#ovrHapticsBufferSubmit_Enqueue HapticsBufferSubmit_Enqueue}</td></tr></table> */
     @NativeType("ovrHapticsBufferSubmitMode")
     public int SubmitMode() { return nSubmitMode(address()); }
 
-    /** Sets the address of the specified {@link ByteBuffer} to the {@code Samples} field. */
+    /** Sets the address of the specified {@link ByteBuffer} to the {@link #Samples} field. */
     public OVRHapticsBuffer Samples(@NativeType("void *") ByteBuffer value) { nSamples(address(), value); return this; }
-    /** Sets the specified value to the {@code SamplesCount} field. */
+    /** Sets the specified value to the {@link #SamplesCount} field. */
     public OVRHapticsBuffer SamplesCount(int value) { nSamplesCount(address(), value); return this; }
-    /** Sets the specified value to the {@code SubmitMode} field. */
+    /** Sets the specified value to the {@link #SubmitMode} field. */
     public OVRHapticsBuffer SubmitMode(@NativeType("ovrHapticsBufferSubmitMode") int value) { nSubmitMode(address(), value); return this; }
 
     /** Initializes this struct with the specified values. */
@@ -199,22 +191,29 @@ public class OVRHapticsBuffer extends Struct implements NativeResource {
 
     // -----------------------------------
 
-    /** Returns a new {@code OVRHapticsBuffer} instance allocated on the thread-local {@link MemoryStack}. */
-    public static OVRHapticsBuffer mallocStack() {
-        return mallocStack(stackGet());
-    }
-
-    /** Returns a new {@code OVRHapticsBuffer} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero. */
-    public static OVRHapticsBuffer callocStack() {
-        return callocStack(stackGet());
-    }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRHapticsBuffer mallocStack() { return malloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRHapticsBuffer callocStack() { return calloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRHapticsBuffer mallocStack(MemoryStack stack) { return malloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRHapticsBuffer callocStack(MemoryStack stack) { return calloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRHapticsBuffer.Buffer mallocStack(int capacity) { return malloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRHapticsBuffer.Buffer callocStack(int capacity) { return calloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRHapticsBuffer.Buffer mallocStack(int capacity, MemoryStack stack) { return malloc(capacity, stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRHapticsBuffer.Buffer callocStack(int capacity, MemoryStack stack) { return calloc(capacity, stack); }
 
     /**
      * Returns a new {@code OVRHapticsBuffer} instance allocated on the specified {@link MemoryStack}.
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRHapticsBuffer mallocStack(MemoryStack stack) {
+    public static OVRHapticsBuffer malloc(MemoryStack stack) {
         return wrap(OVRHapticsBuffer.class, stack.nmalloc(ALIGNOF, SIZEOF));
     }
 
@@ -223,45 +222,27 @@ public class OVRHapticsBuffer extends Struct implements NativeResource {
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRHapticsBuffer callocStack(MemoryStack stack) {
+    public static OVRHapticsBuffer calloc(MemoryStack stack) {
         return wrap(OVRHapticsBuffer.class, stack.ncalloc(ALIGNOF, 1, SIZEOF));
-    }
-
-    /**
-     * Returns a new {@link OVRHapticsBuffer.Buffer} instance allocated on the thread-local {@link MemoryStack}.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRHapticsBuffer.Buffer mallocStack(int capacity) {
-        return mallocStack(capacity, stackGet());
-    }
-
-    /**
-     * Returns a new {@link OVRHapticsBuffer.Buffer} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRHapticsBuffer.Buffer callocStack(int capacity) {
-        return callocStack(capacity, stackGet());
     }
 
     /**
      * Returns a new {@link OVRHapticsBuffer.Buffer} instance allocated on the specified {@link MemoryStack}.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRHapticsBuffer.Buffer mallocStack(int capacity, MemoryStack stack) {
+    public static OVRHapticsBuffer.Buffer malloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.nmalloc(ALIGNOF, capacity * SIZEOF), capacity);
     }
 
     /**
      * Returns a new {@link OVRHapticsBuffer.Buffer} instance allocated on the specified {@link MemoryStack} and initializes all its bits to zero.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRHapticsBuffer.Buffer callocStack(int capacity, MemoryStack stack) {
+    public static OVRHapticsBuffer.Buffer calloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.ncalloc(ALIGNOF, capacity, SIZEOF), capacity);
     }
 
@@ -288,18 +269,6 @@ public class OVRHapticsBuffer extends Struct implements NativeResource {
      */
     public static void validate(long struct) {
         check(memGetAddress(struct + OVRHapticsBuffer.SAMPLES));
-    }
-
-    /**
-     * Calls {@link #validate(long)} for each struct contained in the specified struct array.
-     *
-     * @param array the struct array to validate
-     * @param count the number of structs in {@code array}
-     */
-    public static void validate(long array, int count) {
-        for (int i = 0; i < count; i++) {
-            validate(array + Integer.toUnsignedLong(i) * SIZEOF);
-        }
     }
 
     // -----------------------------------
@@ -341,23 +310,23 @@ public class OVRHapticsBuffer extends Struct implements NativeResource {
         }
 
         /**
-         * Returns a {@link ByteBuffer} view of the data pointed to by the {@code Samples} field.
+         * @return a {@link ByteBuffer} view of the data pointed to by the {@link OVRHapticsBuffer#Samples} field.
          *
          * @param capacity the number of elements in the returned buffer
          */
         @NativeType("void *")
         public ByteBuffer Samples(int capacity) { return OVRHapticsBuffer.nSamples(address(), capacity); }
-        /** Returns the value of the {@code SamplesCount} field. */
+        /** @return the value of the {@link OVRHapticsBuffer#SamplesCount} field. */
         public int SamplesCount() { return OVRHapticsBuffer.nSamplesCount(address()); }
-        /** Returns the value of the {@code SubmitMode} field. */
+        /** @return the value of the {@link OVRHapticsBuffer#SubmitMode} field. */
         @NativeType("ovrHapticsBufferSubmitMode")
         public int SubmitMode() { return OVRHapticsBuffer.nSubmitMode(address()); }
 
-        /** Sets the address of the specified {@link ByteBuffer} to the {@code Samples} field. */
+        /** Sets the address of the specified {@link ByteBuffer} to the {@link OVRHapticsBuffer#Samples} field. */
         public OVRHapticsBuffer.Buffer Samples(@NativeType("void *") ByteBuffer value) { OVRHapticsBuffer.nSamples(address(), value); return this; }
-        /** Sets the specified value to the {@code SamplesCount} field. */
+        /** Sets the specified value to the {@link OVRHapticsBuffer#SamplesCount} field. */
         public OVRHapticsBuffer.Buffer SamplesCount(int value) { OVRHapticsBuffer.nSamplesCount(address(), value); return this; }
-        /** Sets the specified value to the {@code SubmitMode} field. */
+        /** Sets the specified value to the {@link OVRHapticsBuffer#SubmitMode} field. */
         public OVRHapticsBuffer.Buffer SubmitMode(@NativeType("ovrHapticsBufferSubmitMode") int value) { OVRHapticsBuffer.nSubmitMode(address(), value); return this; }
 
     }

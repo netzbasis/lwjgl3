@@ -18,19 +18,12 @@ import static org.lwjgl.system.MemoryStack.*;
 /**
  * Provides information about the last error.
  * 
- * <h3>Member documentation</h3>
- * 
- * <ul>
- * <li>{@code Result} &ndash; the result from the last API call that generated an error {@code ovrResult}</li>
- * <li>{@code ErrorString[512]} &ndash; a UTF8-encoded null-terminated English string describing the problem. The format of this string is subject to change in future versions</li>
- * </ul>
- * 
  * <h3>Layout</h3>
  * 
  * <pre><code>
  * struct ovrErrorInfo {
- *     ovrResult Result;
- *     char ErrorString[512];
+ *     ovrResult {@link #Result};
+ *     char {@link #ErrorString}[512];
  * }</code></pre>
  */
 @NativeType("struct ovrErrorInfo")
@@ -73,13 +66,13 @@ public class OVRErrorInfo extends Struct implements NativeResource {
     @Override
     public int sizeof() { return SIZEOF; }
 
-    /** Returns the value of the {@code Result} field. */
+    /** the result from the last API call that generated an error {@code ovrResult} */
     @NativeType("ovrResult")
     public int Result() { return nResult(address()); }
-    /** Returns a {@link ByteBuffer} view of the {@code ErrorString} field. */
+    /** a UTF8-encoded null-terminated English string describing the problem. The format of this string is subject to change in future versions */
     @NativeType("char[512]")
     public ByteBuffer ErrorString() { return nErrorString(address()); }
-    /** Decodes the null-terminated string stored in the {@code ErrorString} field. */
+    /** a UTF8-encoded null-terminated English string describing the problem. The format of this string is subject to change in future versions */
     @NativeType("char[512]")
     public String ErrorStringString() { return nErrorStringString(address()); }
 
@@ -158,22 +151,29 @@ public class OVRErrorInfo extends Struct implements NativeResource {
 
     // -----------------------------------
 
-    /** Returns a new {@code OVRErrorInfo} instance allocated on the thread-local {@link MemoryStack}. */
-    public static OVRErrorInfo mallocStack() {
-        return mallocStack(stackGet());
-    }
-
-    /** Returns a new {@code OVRErrorInfo} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero. */
-    public static OVRErrorInfo callocStack() {
-        return callocStack(stackGet());
-    }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRErrorInfo mallocStack() { return malloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRErrorInfo callocStack() { return calloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRErrorInfo mallocStack(MemoryStack stack) { return malloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRErrorInfo callocStack(MemoryStack stack) { return calloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRErrorInfo.Buffer mallocStack(int capacity) { return malloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRErrorInfo.Buffer callocStack(int capacity) { return calloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRErrorInfo.Buffer mallocStack(int capacity, MemoryStack stack) { return malloc(capacity, stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRErrorInfo.Buffer callocStack(int capacity, MemoryStack stack) { return calloc(capacity, stack); }
 
     /**
      * Returns a new {@code OVRErrorInfo} instance allocated on the specified {@link MemoryStack}.
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRErrorInfo mallocStack(MemoryStack stack) {
+    public static OVRErrorInfo malloc(MemoryStack stack) {
         return wrap(OVRErrorInfo.class, stack.nmalloc(ALIGNOF, SIZEOF));
     }
 
@@ -182,45 +182,27 @@ public class OVRErrorInfo extends Struct implements NativeResource {
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRErrorInfo callocStack(MemoryStack stack) {
+    public static OVRErrorInfo calloc(MemoryStack stack) {
         return wrap(OVRErrorInfo.class, stack.ncalloc(ALIGNOF, 1, SIZEOF));
-    }
-
-    /**
-     * Returns a new {@link OVRErrorInfo.Buffer} instance allocated on the thread-local {@link MemoryStack}.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRErrorInfo.Buffer mallocStack(int capacity) {
-        return mallocStack(capacity, stackGet());
-    }
-
-    /**
-     * Returns a new {@link OVRErrorInfo.Buffer} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRErrorInfo.Buffer callocStack(int capacity) {
-        return callocStack(capacity, stackGet());
     }
 
     /**
      * Returns a new {@link OVRErrorInfo.Buffer} instance allocated on the specified {@link MemoryStack}.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRErrorInfo.Buffer mallocStack(int capacity, MemoryStack stack) {
+    public static OVRErrorInfo.Buffer malloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.nmalloc(ALIGNOF, capacity * SIZEOF), capacity);
     }
 
     /**
      * Returns a new {@link OVRErrorInfo.Buffer} instance allocated on the specified {@link MemoryStack} and initializes all its bits to zero.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRErrorInfo.Buffer callocStack(int capacity, MemoryStack stack) {
+    public static OVRErrorInfo.Buffer calloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.ncalloc(ALIGNOF, capacity, SIZEOF), capacity);
     }
 
@@ -271,13 +253,13 @@ public class OVRErrorInfo extends Struct implements NativeResource {
             return ELEMENT_FACTORY;
         }
 
-        /** Returns the value of the {@code Result} field. */
+        /** @return the value of the {@link OVRErrorInfo#Result} field. */
         @NativeType("ovrResult")
         public int Result() { return OVRErrorInfo.nResult(address()); }
-        /** Returns a {@link ByteBuffer} view of the {@code ErrorString} field. */
+        /** @return a {@link ByteBuffer} view of the {@link OVRErrorInfo#ErrorString} field. */
         @NativeType("char[512]")
         public ByteBuffer ErrorString() { return OVRErrorInfo.nErrorString(address()); }
-        /** Decodes the null-terminated string stored in the {@code ErrorString} field. */
+        /** @return the null-terminated string stored in the {@link OVRErrorInfo#ErrorString} field. */
         @NativeType("char[512]")
         public String ErrorStringString() { return OVRErrorInfo.nErrorStringString(address()); }
 

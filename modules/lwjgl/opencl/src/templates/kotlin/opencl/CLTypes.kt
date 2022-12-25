@@ -36,6 +36,7 @@ val cl_sampler = "cl_sampler".handle
 
 val cl_bool = typedef(intb, "cl_bool")
 val cl_bitfield = typedef(cl_ulong, "cl_bitfield")
+val cl_properties = typedef(cl_ulong, "cl_properties")
 val cl_device_type = typedef(cl_bitfield, "cl_device_type")
 val cl_platform_info = typedef(cl_uint, "cl_platform_info")
 val cl_device_info = typedef(cl_uint, "cl_device_info")
@@ -43,16 +44,19 @@ val cl_device_fp_config = typedef(cl_bitfield, "cl_device_fp_config")
 val cl_device_mem_cache_type = typedef(cl_uint, "cl_device_mem_cache_type")
 val cl_device_local_mem_type = typedef(cl_uint, "cl_device_local_mem_type")
 val cl_device_exec_capabilities = typedef(cl_bitfield, "cl_device_exec_capabilities")
+val cl_device_svm_capabilities = typedef(cl_bitfield, "cl_device_svm_capabilities")
 val cl_command_queue_properties = typedef(cl_bitfield, "cl_command_queue_properties")
 val cl_device_partition_property = typedef(intptr_t, "cl_device_partition_property")
 val cl_device_affinity_domain = typedef(cl_bitfield, "cl_device_affinity_domain")
 
-val cl_context_properties = PrimitiveType("cl_context_properties", PrimitiveMapping.POINTER)
+val cl_context_properties = typedef(intptr_t, "cl_context_properties")
 val cl_context_info = typedef(cl_uint, "cl_context_info")
+val cl_queue_properties = typedef(cl_properties, "cl_queue_properties")
 val cl_command_queue_info = typedef(cl_uint, "cl_command_queue_info")
 val cl_channel_order = typedef(cl_uint, "cl_channel_order")
 val cl_channel_type = typedef(cl_uint, "cl_channel_type")
 val cl_mem_flags = typedef(cl_bitfield, "cl_mem_flags")
+val cl_svm_mem_flags = typedef(cl_bitfield, "cl_svm_mem_flags")
 val cl_mem_object_type = typedef(cl_uint, "cl_mem_object_type")
 val cl_mem_info = typedef(cl_uint, "cl_mem_info")
 val cl_mem_migration_flags = typedef(cl_bitfield, "cl_mem_migration_flags")
@@ -62,6 +66,8 @@ val cl_addressing_mode = typedef(cl_uint, "cl_addressing_mode")
 val cl_filter_mode = typedef(cl_uint, "cl_filter_mode")
 val cl_sampler_info = typedef(cl_uint, "cl_sampler_info")
 val cl_map_flags = typedef(cl_bitfield, "cl_map_flags")
+val cl_pipe_properties = typedef(intptr_t, "cl_pipe_properties")
+val cl_pipe_info = typedef(cl_uint, "cl_pipe_info")
 val cl_program_info = typedef(cl_uint, "cl_program_info")
 val cl_program_build_info = typedef(cl_uint, "cl_program_build_info")
 val cl_program_binary_type = typedef(cl_uint, "cl_program_binary_type")
@@ -76,13 +82,13 @@ val cl_kernel_sub_group_info = typedef(cl_uint, "cl_kernel_sub_group_info")
 val cl_event_info = typedef(cl_uint, "cl_event_info")
 val cl_command_type = typedef(cl_uint, "cl_command_type")
 val cl_profiling_info = typedef(cl_uint, "cl_profiling_info")
-
-// OpenCL 2.0
-val cl_sampler_properties = typedef(cl_uint, "cl_sampler_properties")
-val cl_pipe_properties = typedef(cl_uint, "cl_pipe_properties")
-val cl_pipe_info = typedef(cl_uint, "cl_pipe_info")
+val cl_sampler_properties = typedef(cl_properties, "cl_sampler_properties")
 val cl_kernel_exec_info = typedef(cl_uint, "cl_kernel_exec_info")
-val cl_svm_mem_flags = typedef(cl_bitfield, "cl_svm_mem_flags")
+val cl_device_atomic_capabilities = typedef(cl_bitfield, "cl_device_atomic_capabilities")
+val cl_device_device_enqueue_capabilities = typedef(cl_bitfield, "cl_device_device_enqueue_capabilities")
+val cl_khronos_vendor_id = typedef(cl_uint, "cl_khronos_vendor_id")
+val cl_mem_properties = typedef(cl_properties, "cl_mem_properties")
+val cl_version = typedef(cl_uint, "cl_version")
 
 // strings
 
@@ -159,15 +165,23 @@ val cl_image_desc = struct(Module.OPENCL, "CLImageDesc", nativeName = "cl_image_
     )
     cl_uint("num_mip_levels", "must be 0")
     cl_uint("num_samples", "must be 0")
-    nullable..cl_mem(
-        "buffer",
-        """
-        refers to a valid buffer memory object if {@code image_type} is #MEM_OBJECT_IMAGE1D_BUFFER. Otherwise it must be #NULL. For a 1D image buffer
-        object, the image pixels are taken from the buffer object's data store. When the contents of a buffer object's data store are modified, those changes
-        are reflected in the contents of the 1D image buffer object and vice-versa at corresponding sychronization points. The {@code image_width * size} of
-        element in bytes must be &le; size of buffer object data store.
-        """
-    )
+    union {
+        nullable..cl_mem("buffer", "alias for {@code mem_object}")
+        nullable..cl_mem(
+            "mem_object",
+            """
+            refers to a valid buffer or image memory object.
+
+            {@code mem_object} can be a buffer memory object if {@code image_type} is #MEM_OBJECT_IMAGE1D_BUFFER or #MEM_OBJECT_IMAGE2D. {@code mem_object} can
+            be an image object if {@code image_type} is #MEM_OBJECT_IMAGE2D. Otherwise it must be #NULL. The image pixels are taken from the memory object’s
+            data store. When the contents of the specified memory object’s data store are modified, those changes are reflected in the contents of the image
+            object and vice-versa at corresponding sychronization points. For a 1D image buffer object, the {@code image_width * size} of element in bytes must
+            be &le; size of buffer object data store. For a 2D image created from a buffer, the {@code image_row_pitch * image_height} must be &le; size of
+            buffer object data store. For an image object created from another image object, the values specified in the image descriptor except for
+            {@code mem_object} must match the image descriptor information associated with {@code mem_object}.
+            """
+        )
+    }
 }
 
 val cl_bus_address_amd = struct(Module.OPENCL, "CLBusAddressAMD", nativeName = "cl_bus_address_amd") {
@@ -189,6 +203,12 @@ fun config() {
 
         size_t("origin", "the region offset, in bytes")
         size_t("size", "the region size, in bytes")
+    }
+
+    val CL_NAME_VERSION_MAX_NAME_SIZE = 64
+    struct(Module.OPENCL, "CLNameVersion", nativeName = "cl_name_version", mutable = false) {
+        cl_version("version", "")
+        charASCII("name", "")[CL_NAME_VERSION_MAX_NAME_SIZE]
     }.definition.hasUsageOutput()
 
     union(Module.OPENCL, "CLDeviceTopologyAMD", nativeName = "cl_device_topology_amd", mutable = false) {
@@ -222,6 +242,57 @@ fun config() {
             radius from the current source pixel block location (optionally offset by the predicted motion vector)
             """
         )
+    }.definition.hasUsageInput()
+
+    val CL_QUEUE_FAMILY_MAX_NAME_SIZE_INTEL = 64
+    struct(Module.OPENCL, "CLQueueFamilyPropertiesINTEL", nativeName = "cl_queue_family_properties_intel", mutable = false) {
+        cl_command_queue_properties("properties", "")
+        cl_command_queue_capabilities_intel("capabilities", "")
+        cl_uint("count", "")
+        charASCII("name", "")[CL_QUEUE_FAMILY_MAX_NAME_SIZE_INTEL]
+    }.definition.hasUsageOutput()
+
+    struct(Module.OPENCL, "CLDevicePCIBusInfoKHR", nativeName = "cl_device_pci_bus_info_khr", mutable = false) {
+        cl_uint("pci_domain", "")
+        cl_uint("pci_bus", "")
+        cl_uint("pci_device", "")
+        cl_uint("pci_function", "")
+    }.definition.hasUsageOutput()
+
+    struct(Module.OPENCL, "CLDeviceIntegerDotProductAccelerationPropertiesKHR", nativeName = "cl_device_integer_dot_product_acceleration_properties_khr", mutable = false) {
+        documentation =
+            """
+            Describes the exact dot product operations that are accelerated on the device.
+            
+            A dot product operation is deemed accelerated if its implementation provides a performance advantage over application-provided code composed from
+            elementary instructions and/or other dot product instructions, either because the implementation uses optimized machine code sequences whose
+            generation from application-provided code cannot be guaranteed or because it uses hardware features that cannot otherwise be targeted from
+            application-provided code.
+            """
+
+        cl_bool("signed_accelerated", "is #TRUE when signed dot product operations are accelerated, #FALSE otherwise")
+        cl_bool("unsigned_accelerated", "is #TRUE when unsigned dot product operations are accelerated, #FALSE otherwise")
+        cl_bool("mixed_signedness_accelerated", "is #TRUE when mixed signedness dot product operations are accelerated, #FALSE otherwise")
+        cl_bool(
+            "accumulating_saturating_signed_accelerated",
+            "is #TRUE when accumulating saturating signed dot product operations are accelerated, #FALSE otherwise"
+        )
+        cl_bool(
+            "accumulating_saturating_unsigned_accelerated",
+            "is #TRUE when accumulating saturating unsigned dot product operations are accelerated, #FALSE otherwise"
+        )
+        cl_bool(
+            "accumulating_saturating_mixed_signedness_accelerated",
+            "is #TRUE when accumulating saturating mixed signedness dot product operations are accelerated, #FALSE otherwise"
+        )
+    }.definition.hasUsageOutput()
+
+    val CL_NAME_VERSION_MAX_NAME_SIZE_KHR = 64
+    struct(Module.OPENCL, "CLNameVersionKHR", nativeName = "cl_name_version_khr", mutable = false) {
+        documentation = "Describes a combination of a name alongside a version number."
+
+        cl_version_khr("version", "")
+        charASCII("name", "")[CL_NAME_VERSION_MAX_NAME_SIZE_KHR]
     }.definition.hasUsageOutput()
 }
 
@@ -332,6 +403,25 @@ val cl_program_release_callback = Module.OPENCL.callback {
     }
 }
 
+val cl_context_destructor_callback = Module.OPENCL.callback {
+    void(
+        "CLContextDestructorCallback",
+        "Will be called when a context is destroyed.",
+
+        cl_context(
+            "context",
+            """
+            the OpenCL context being deleted.
+
+            When the callback function is called by the implementation, this context is no longer valid. {@code context} is only provided for reference purposes.
+            """
+        ),
+        void.p("user_data", "the user-specified value that was passed when calling #SetContextDestructorCallback()")
+    ) {
+        documentation = "Instances of this interface may be passed to the #SetContextDestructorCallback() method."
+    }
+}
+
 // OpenGL interop
 
 val GLint = IntegerType("GLint", PrimitiveMapping.INT)
@@ -355,6 +445,10 @@ val cl_egl_image_properties_khr = typedef(intptr_t, "cl_egl_image_properties_khr
 // APPLE
 
 val cl_queue_properties_APPLE = typedef(intptr_t, "cl_queue_properties_APPLE")
+
+// ARM
+
+val cl_import_properties_arm = typedef(intptr_t, "cl_import_properties_arm")
 
 // EXT
 
@@ -385,12 +479,43 @@ val cl_mem_ext_host_ptr = struct(Module.OPENCL, "CLMemEXTHostPtr", nativeName = 
     cl_uint("host_cache_policy", "host cache policy for this external memory allocation")
 }.p
 
+// IMG
+
+val cl_mipmap_filter_mode_img = typedef(cl_uint, "cl_mipmap_filter_mode_img")
+
 // INTEL
 
 val cl_accelerator_intel = "cl_accelerator_intel".handle
 val cl_accelerator_type_intel = typedef(cl_uint, "cl_accelerator_type_intel")
 val cl_accelerator_info_intel = typedef(cl_uint, "cl_accelerator_info_intel")
+val cl_mem_info_intel = typedef(cl_uint, "cl_mem_info_intel")
+
+val cl_mem_advice_intel = typedef(cl_bitfield, "cl_mem_advice_intel")
+val cl_mem_properties_intel = typedef(cl_bitfield, "cl_mem_properties_intel")
 
 val cl_va_api_device_source_intel = typedef(cl_uint, "cl_va_api_device_source_intel")
 val cl_va_api_device_set_intel = typedef(cl_uint, "cl_va_api_device_set_intel")
 val VASurfaceID = typedef(unsigned_int, "VASurfaceID")
+val VAImageFormat = "VAImageFormat".handle // struct
+val cl_command_queue_capabilities_intel = typedef(cl_bitfield, "cl_command_queue_capabilities_intel")
+
+// KHR
+
+val cl_command_buffer_khr = "cl_command_buffer_khr".handle
+val cl_mutable_command_khr = "cl_mutable_command_khr".handle
+val cl_semaphore_khr = "cl_semaphore_khr".handle
+
+val cl_command_buffer_info_khr = typedef(cl_uint, "cl_command_buffer_info_khr")
+val cl_command_buffer_properties_khr = typedef(cl_properties, "cl_command_buffer_properties_khr")
+val cl_ndrange_kernel_command_properties_khr = typedef(cl_properties, "cl_ndrange_kernel_command_properties_khr")
+val cl_queue_properties_khr = typedef(cl_properties, "cl_queue_properties_khr")
+val cl_semaphore_properties_khr = typedef(cl_properties, "cl_semaphore_properties_khr")
+val cl_semaphore_info_khr = typedef(cl_uint, "cl_semaphore_info_khr")
+val cl_semaphore_type_khr = typedef(cl_uint, "cl_semaphore_type_khr")
+val cl_semaphore_payload_khr = typedef(cl_ulong, "cl_semaphore_payload_khr")
+val cl_sync_point_khr = typedef(cl_uint, "cl_sync_point_khr")
+val cl_version_khr = typedef(cl_uint, "cl_version_khr")
+
+// NV
+
+val cl_mem_flags_NV = typedef(cl_bitfield, "cl_mem_flags_NV")

@@ -1,12 +1,11 @@
 [![Maven Central](https://img.shields.io/maven-central/v/org.lwjgl/lwjgl.svg?label=maven%20central)](https://search.maven.org/search?q=g:org.lwjgl)
 [![API Javadoc](https://img.shields.io/badge/API-docs-blue.svg)](https://javadoc.lwjgl.org/)
 [![License](https://img.shields.io/badge/license-BSD-blue.svg?colorB=lightgray)](https://github.com/LWJGL/lwjgl3/blob/master/LICENSE.md)
-[![Slack Status](https://slackin-bfxneqmzsp.now.sh/badge.svg)](http://slack.lwjgl.org/)
 
 [![Backers on Open Collective](https://opencollective.com/lwjgl/backers/badge.svg)](#backers)
 [![Sponsors on Open Collective](https://opencollective.com/lwjgl/sponsors/badge.svg)](#sponsors)
 ![Size](https://img.shields.io/github/repo-size/LWJGL/lwjgl3.svg?label=size&colorB=lightgray)
-[![Build Status](https://travis-ci.org/LWJGL-CI/lwjgl3.svg?branch=master-linux64)](https://travis-ci.org/LWJGL-CI/lwjgl3)
+[![Build Status](https://img.shields.io/github/workflow/status/LWJGL-CI/glfw/LWJGL%20Build?logo=github)](https://github.com/LWJGL-CI/lwjgl3/actions/workflows/CI.yml)
 
 ## LWJGL - Lightweight Java Game Library 3
 
@@ -34,8 +33,9 @@ Useful links:
 Contact:
 
 - [Forum](http://forum.lwjgl.org)
-- [Slack](https://lwjgl.slack.com/) (invitations [here](http://slack.lwjgl.org/))
-- [Twitter](https://twitter.com/LWJGL)
+- [Slack](https://lwjgl.slack.com/) (click [this](http://slack.lwjgl.org/) to join)
+- [Discord](https://discord.gg/6CywMCs)
+- [![Twitter Follow](https://img.shields.io/twitter/follow/LWJGL?style=social)](https://twitter.com/LWJGL)
 
 If you'd like to contribute, see [doc/README](https://github.com/LWJGL/lwjgl3/tree/master/doc)
 for a quick overview of the project structure, installation instructions and
@@ -75,8 +75,10 @@ following platforms/architectures:
 - Linux arm64 (ARMv8/AArch64)
 - Linux arm32 (ARMv7/armhf)
 - macOS x64
+- macOS arm64
 - Windows x64
 - Windows x86
+- Windows arm64
 
 Example code:
 
@@ -138,21 +140,27 @@ improve the chances of a quick and useful response.
 |-------|-----------|
 |[Assimp](http://www.assimp.org/)|A portable Open Source library to import various well-known 3D model formats in a uniform manner.|
 |[bgfx](https://bkaradzic.github.io/bgfx/)|Cross-platform, graphics API agnostic, “Bring Your Own Engine/Framework” style rendering library, licensed under permissive BSD-2 clause open source license.|
-|[DriftFX](https://github.com/eclipse-efx/efxclipse-drift)|A library that allows you to render any OpenGL content directly into JavaFX nodes.|
-|[LibOVR](https://developer.oculus.com/documentation/)|The API of the Oculus SDK.|
 |[meshoptimizer](https://github.com/zeux/meshoptimizer)|A mesh optimization library that makes meshes smaller and faster to render.|
 |[NanoSVG](https://github.com/memononen/nanosvg)|A simple stupid SVG parser.|
 |[NanoVG](https://github.com/memononen/nanovg)|A small antialiased vector graphics rendering library for OpenGL.|
 |[Nuklear](https://github.com/vurtun/nuklear)|A minimal state immediate mode graphical user interface toolkit written in ANSI C and licensed under public domain.|
+|[par_octasphere](https://prideout.net/blog/octasphere)|Generates triangle meshes for spheres, rounded boxes, and capsules.|
 |[par_shapes](https://prideout.net/shapes)|Generate parametric surfaces and other simple shapes.|
 |[par_streamlines](https://prideout.net/blog/par_streamlines/)|Triangulate wide lines and curves.|
-|[OpenVR](https://github.com/ValveSoftware/openvr)|An API and runtime that allows access to VR hardware from multiple vendors without requiring that applications have specific knowledge of the hardware they are targeting.|
 |[Shaderc](https://github.com/google/shaderc)|A collection of libraries for shader compilation.|
 |[SPIRV-Cross](https://github.com/KhronosGroup/SPIRV-Cross)|A library for performing reflection on SPIR-V and disassembling SPIR-V back to high level languages.|
 |[Tiny OpenEXR](https://github.com/syoyo/tinyexr)|A small, single header-only library to load and save OpenEXR(.exr) images.|
 |[Tootle (AMD)](https://github.com/GPUOpen-Tools/amd-tootle)|A 3D triangle mesh optimization library that improves on existing mesh preprocessing techniques.|
 |[Vulkan Memory Allocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator)|An easy to integrate Vulkan memory allocation library.|
 |[Yoga](https://facebook.github.io/yoga/)|An open-source, cross-platform layout library that implements Flexbox.|
+
+#### AR/VR
+
+|Library|Description|
+|-------|-----------|
+|[LibOVR](https://developer.oculus.com/documentation/)|The API of the Oculus SDK.|
+|[OpenVR](https://github.com/ValveSoftware/openvr)|An API and runtime that allows access to VR hardware from multiple vendors without requiring that applications have specific knowledge of the hardware they are targeting.|
+|[OpenXR](https://www.khronos.org/openxr/)|A royalty-free, open standard that provides high-performance access to Augmented Reality (AR) and Virtual Reality (VR)—collectively known as XR—platforms and devices.|
 
 #### [stb](https://github.com/nothings/stb) - single-file public domain libraries for C/C++
 
@@ -171,10 +179,9 @@ improve the chances of a quick and useful response.
 
 |Library|Description|
 |-------|-----------|
-|[Bullet Physics](http://bulletphysics.org/)|Real-time collision detection and multi-physics simulation for VR, games, visual effects, robotics, machine learning etc.|
 |[CUDA](https://developer.nvidia.com/cuda-zone/)|A parallel computing platform and programming model developed by NVIDIA for general computing on GPUs.|
-|[dyncall](http://www.dyncall.org/)|Encapsulates architecture-, OS- and compiler-specific function call semantics in a virtual bind argument parameters from left to right and then call interface allowing programmers to call C functions in a completely dynamic manner.|
 |[jemalloc](http://jemalloc.net/)|A general purpose malloc implementation that emphasizes fragmentation avoidance and scalable concurrency support.|
+|[libffi](https://sourceware.org)|A portable, high level programming interface to various calling conventions.|
 |[libdivide](https://libdivide.com/)|A library that replaces expensive integer divides with comparatively cheap multiplication and bitshifts.|
 |[LLVM](https://llvm.org/)|A collection of modular and reusable compiler and toolchain technologies.|
 |[LMDB](https://symas.com/products/lightning-memory-mapped-database/)|An extraordinarily fast, memory-efficient database. With memory-mapped files, it has the read performance of a pure in-memory database while retaining the persistence of standard disk-based databases.|

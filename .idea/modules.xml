@@ -5,16 +5,17 @@
       <!-- Exposes the repository root -->
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/root.iml" filepath="$PROJECT_DIR$/.idea/modules/root.iml" />
 
+      <!-- Custom Ant tasks -->
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ant.iml" filepath="$PROJECT_DIR$/.idea/modules/ant.iml" />
+
       <!-- The code generator -->
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/generator.iml" filepath="$PROJECT_DIR$/.idea/modules/generator.iml" />
 
       <!-- The generator templates for each binding -->
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/templates/templates.assimp.iml" filepath="$PROJECT_DIR$/.idea/modules/templates/templates.assimp.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/templates/templates.bgfx.iml" filepath="$PROJECT_DIR$/.idea/modules/templates/templates.bgfx.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/templates/templates.bullet.iml" filepath="$PROJECT_DIR$/.idea/modules/templates/templates.bullet.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/templates/templates.core.iml" filepath="$PROJECT_DIR$/.idea/modules/templates/templates.core.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/templates/templates.cuda.iml" filepath="$PROJECT_DIR$/.idea/modules/templates/templates.cuda.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/templates/templates.driftfx.iml" filepath="$PROJECT_DIR$/.idea/modules/templates/templates.driftfx.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/templates/templates.egl.iml" filepath="$PROJECT_DIR$/.idea/modules/templates/templates.egl.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/templates/templates.glfw.iml" filepath="$PROJECT_DIR$/.idea/modules/templates/templates.glfw.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/templates/templates.jawt.iml" filepath="$PROJECT_DIR$/.idea/modules/templates/templates.jawt.iml" />
@@ -34,6 +35,7 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/templates/templates.opengl.iml" filepath="$PROJECT_DIR$/.idea/modules/templates/templates.opengl.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/templates/templates.opengles.iml" filepath="$PROJECT_DIR$/.idea/modules/templates/templates.opengles.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/templates/templates.openvr.iml" filepath="$PROJECT_DIR$/.idea/modules/templates/templates.openvr.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/templates/templates.openxr.iml" filepath="$PROJECT_DIR$/.idea/modules/templates/templates.openxr.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/templates/templates.opus.iml" filepath="$PROJECT_DIR$/.idea/modules/templates/templates.opus.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/templates/templates.ovr.iml" filepath="$PROJECT_DIR$/.idea/modules/templates/templates.ovr.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/templates/templates.par.iml" filepath="$PROJECT_DIR$/.idea/modules/templates/templates.par.iml" />
@@ -58,12 +60,10 @@
       <!-- The LWJGL library (includes generated code) -->
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.assimp.iml" filepath="$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.assimp.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.bgfx.iml" filepath="$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.bgfx.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.bullet.iml" filepath="$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.bullet.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.core.iml" filepath="$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.core.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.core10.iml" filepath="$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.core10.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.core9.iml" filepath="$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.core9.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.cuda.iml" filepath="$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.cuda.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.driftfx.iml" filepath="$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.driftfx.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.egl.iml" filepath="$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.egl.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.glfw.iml" filepath="$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.glfw.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.jawt.iml" filepath="$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.jawt.iml" />
@@ -83,6 +83,7 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.opengl.iml" filepath="$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.opengl.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.opengles.iml" filepath="$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.opengles.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.openvr.iml" filepath="$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.openvr.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.openxr.iml" filepath="$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.openxr.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.opus.iml" filepath="$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.opus.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.ovr.iml" filepath="$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.ovr.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.par.iml" filepath="$PROJECT_DIR$/.idea/modules/lwjgl/lwjgl.par.iml" />

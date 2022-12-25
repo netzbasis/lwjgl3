@@ -8,14 +8,15 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val AMD_draw_indirect_count = "AMDDrawIndirectCount".nativeClassVK("AMD_draw_indirect_count", type = "device", postfix = AMD) {
+val AMD_draw_indirect_count = "AMDDrawIndirectCount".nativeClassVK("AMD_draw_indirect_count", type = "device", postfix = "AMD") {
     documentation =
         """
-        This extension allows an application to source the number of draw calls for indirect draw calls from a buffer. This enables applications to generate arbitrary amounts of draw commands and execute them without host intervention.
+        This extension allows an application to source the number of draws for indirect drawing commands from a buffer. This enables applications to generate an arbitrary number of drawing commands and execute them without host intervention.
 
-        <h5>Promotion to VK_KHR_draw_indirect_count</h5>
+        <h5>Promotion to {@code VK_KHR_draw_indirect_count}</h5>
         All functionality in this extension is included in {@link KHRDrawIndirectCount VK_KHR_draw_indirect_count}, with the suffix changed to KHR. The original type, enum and command names are still available as aliases of the core functionality.
 
+        <h5>VK_AMD_draw_indirect_count</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_AMD_draw_indirect_count}</dd>
@@ -39,22 +40,25 @@ val AMD_draw_indirect_count = "AMDDrawIndirectCount".nativeClassVK("AMD_draw_ind
                 <li>
                     <em>Promoted</em> to {@link KHRDrawIndirectCount VK_KHR_draw_indirect_count} extension
                     <ul>
-                        <li>Which in turn was <em>promoted</em> to <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#versions-1.2-promotions">Vulkan 1.2</a></li>
+                        <li>Which in turn was <em>promoted</em> to <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#versions-1.2-promotions">Vulkan 1.2</a></li>
                     </ul>
                 </li>
             </ul></dd>
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Daniel Rakos <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_AMD_draw_indirect_count:%20&amp;body=@drakos-amd%20">drakos-amd</a></li>
+                <li>Daniel Rakos <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_AMD_draw_indirect_count]%20@drakos-amd%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_AMD_draw_indirect_count%20extension%3E%3E">drakos-amd</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2016-08-23</dd>
 
             <dt><b>Interactions and External Dependencies</b></dt>
             <dd><ul>
-                <li>Promoted to <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#VK_KHR_draw_indirect_count">VK_KHR_draw_indirect_count</a></li>
+                <li>Promoted to {@link KHRDrawIndirectCount VK_KHR_draw_indirect_count}</li>
             </ul></dd>
 
             <dt><b>IP Status</b></dt>
@@ -98,7 +102,7 @@ val AMD_draw_indirect_count = "AMDDrawIndirectCount".nativeClassVK("AMD_draw_ind
 
     void(
         "CmdDrawIndexedIndirectCountAMD",
-        "See #CmdDrawIndexedIndirectCountKHR().",
+        "See #CmdDrawIndexedIndirectCount().",
 
         VkCommandBuffer("commandBuffer", "the command buffer into which the command is recorded."),
         VkBuffer("buffer", "the buffer containing draw parameters."),

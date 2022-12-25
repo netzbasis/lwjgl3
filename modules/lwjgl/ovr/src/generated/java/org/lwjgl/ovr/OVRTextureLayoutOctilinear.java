@@ -23,8 +23,8 @@ import static org.lwjgl.system.MemoryStack.*;
  * <p>Size of W quadrants:</p>
  * 
  * <pre><code>
- * SizeLeft + SizeRight &lt;= Viewport.Size.w
- * SizeUp   + sizeDown  &lt;= Viewport.Size.h
+ * SizeLeft + SizeRight &le; Viewport.Size.w
+ * SizeUp   + sizeDown  &le; Viewport.Size.h
  * 
  * Clip space (0,0) is located at Viewport.Pos + (SizeLeft,SizeUp) where
  * Viewport is given in the layer description.
@@ -63,31 +63,18 @@ import static org.lwjgl.system.MemoryStack.*;
  *  Right  = SizeLeft + SizeRight
  *  Bottom = SizeUp</code></pre>
  * 
- * <h3>Member documentation</h3>
- * 
- * <ul>
- * <li>{@code WarpLeft} &ndash; left W warping</li>
- * <li>{@code WarpRight} &ndash; right W warping</li>
- * <li>{@code WarpUp} &ndash; up W warping</li>
- * <li>{@code WarpDown} &ndash; down W warping</li>
- * <li>{@code SizeLeft} &ndash; left W quadrant size</li>
- * <li>{@code SizeRight} &ndash; right W quadrant size</li>
- * <li>{@code SizeUp} &ndash; up W quadrant size</li>
- * <li>{@code SizeDown} &ndash; down W quadrant size</li>
- * </ul>
- * 
  * <h3>Layout</h3>
  * 
  * <pre><code>
  * struct ovrTextureLayoutOctilinear {
- *     float WarpLeft;
- *     float WarpRight;
- *     float WarpUp;
- *     float WarpDown;
- *     float SizeLeft;
- *     float SizeRight;
- *     float SizeUp;
- *     float SizeDown;
+ *     float {@link #WarpLeft};
+ *     float {@link #WarpRight};
+ *     float {@link #WarpUp};
+ *     float {@link #WarpDown};
+ *     float {@link #SizeLeft};
+ *     float {@link #SizeRight};
+ *     float {@link #SizeUp};
+ *     float {@link #SizeDown};
  * }</code></pre>
  */
 @NativeType("struct ovrTextureLayoutOctilinear")
@@ -149,38 +136,38 @@ public class OVRTextureLayoutOctilinear extends Struct implements NativeResource
     @Override
     public int sizeof() { return SIZEOF; }
 
-    /** Returns the value of the {@code WarpLeft} field. */
+    /** left W warping */
     public float WarpLeft() { return nWarpLeft(address()); }
-    /** Returns the value of the {@code WarpRight} field. */
+    /** right W warping */
     public float WarpRight() { return nWarpRight(address()); }
-    /** Returns the value of the {@code WarpUp} field. */
+    /** up W warping */
     public float WarpUp() { return nWarpUp(address()); }
-    /** Returns the value of the {@code WarpDown} field. */
+    /** down W warping */
     public float WarpDown() { return nWarpDown(address()); }
-    /** Returns the value of the {@code SizeLeft} field. */
+    /** left W quadrant size */
     public float SizeLeft() { return nSizeLeft(address()); }
-    /** Returns the value of the {@code SizeRight} field. */
+    /** right W quadrant size */
     public float SizeRight() { return nSizeRight(address()); }
-    /** Returns the value of the {@code SizeUp} field. */
+    /** up W quadrant size */
     public float SizeUp() { return nSizeUp(address()); }
-    /** Returns the value of the {@code SizeDown} field. */
+    /** down W quadrant size */
     public float SizeDown() { return nSizeDown(address()); }
 
-    /** Sets the specified value to the {@code WarpLeft} field. */
+    /** Sets the specified value to the {@link #WarpLeft} field. */
     public OVRTextureLayoutOctilinear WarpLeft(float value) { nWarpLeft(address(), value); return this; }
-    /** Sets the specified value to the {@code WarpRight} field. */
+    /** Sets the specified value to the {@link #WarpRight} field. */
     public OVRTextureLayoutOctilinear WarpRight(float value) { nWarpRight(address(), value); return this; }
-    /** Sets the specified value to the {@code WarpUp} field. */
+    /** Sets the specified value to the {@link #WarpUp} field. */
     public OVRTextureLayoutOctilinear WarpUp(float value) { nWarpUp(address(), value); return this; }
-    /** Sets the specified value to the {@code WarpDown} field. */
+    /** Sets the specified value to the {@link #WarpDown} field. */
     public OVRTextureLayoutOctilinear WarpDown(float value) { nWarpDown(address(), value); return this; }
-    /** Sets the specified value to the {@code SizeLeft} field. */
+    /** Sets the specified value to the {@link #SizeLeft} field. */
     public OVRTextureLayoutOctilinear SizeLeft(float value) { nSizeLeft(address(), value); return this; }
-    /** Sets the specified value to the {@code SizeRight} field. */
+    /** Sets the specified value to the {@link #SizeRight} field. */
     public OVRTextureLayoutOctilinear SizeRight(float value) { nSizeRight(address(), value); return this; }
-    /** Sets the specified value to the {@code SizeUp} field. */
+    /** Sets the specified value to the {@link #SizeUp} field. */
     public OVRTextureLayoutOctilinear SizeUp(float value) { nSizeUp(address(), value); return this; }
-    /** Sets the specified value to the {@code SizeDown} field. */
+    /** Sets the specified value to the {@link #SizeDown} field. */
     public OVRTextureLayoutOctilinear SizeDown(float value) { nSizeDown(address(), value); return this; }
 
     /** Initializes this struct with the specified values. */
@@ -293,22 +280,29 @@ public class OVRTextureLayoutOctilinear extends Struct implements NativeResource
 
     // -----------------------------------
 
-    /** Returns a new {@code OVRTextureLayoutOctilinear} instance allocated on the thread-local {@link MemoryStack}. */
-    public static OVRTextureLayoutOctilinear mallocStack() {
-        return mallocStack(stackGet());
-    }
-
-    /** Returns a new {@code OVRTextureLayoutOctilinear} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero. */
-    public static OVRTextureLayoutOctilinear callocStack() {
-        return callocStack(stackGet());
-    }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRTextureLayoutOctilinear mallocStack() { return malloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRTextureLayoutOctilinear callocStack() { return calloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRTextureLayoutOctilinear mallocStack(MemoryStack stack) { return malloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRTextureLayoutOctilinear callocStack(MemoryStack stack) { return calloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRTextureLayoutOctilinear.Buffer mallocStack(int capacity) { return malloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRTextureLayoutOctilinear.Buffer callocStack(int capacity) { return calloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRTextureLayoutOctilinear.Buffer mallocStack(int capacity, MemoryStack stack) { return malloc(capacity, stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRTextureLayoutOctilinear.Buffer callocStack(int capacity, MemoryStack stack) { return calloc(capacity, stack); }
 
     /**
      * Returns a new {@code OVRTextureLayoutOctilinear} instance allocated on the specified {@link MemoryStack}.
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRTextureLayoutOctilinear mallocStack(MemoryStack stack) {
+    public static OVRTextureLayoutOctilinear malloc(MemoryStack stack) {
         return wrap(OVRTextureLayoutOctilinear.class, stack.nmalloc(ALIGNOF, SIZEOF));
     }
 
@@ -317,45 +311,27 @@ public class OVRTextureLayoutOctilinear extends Struct implements NativeResource
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRTextureLayoutOctilinear callocStack(MemoryStack stack) {
+    public static OVRTextureLayoutOctilinear calloc(MemoryStack stack) {
         return wrap(OVRTextureLayoutOctilinear.class, stack.ncalloc(ALIGNOF, 1, SIZEOF));
-    }
-
-    /**
-     * Returns a new {@link OVRTextureLayoutOctilinear.Buffer} instance allocated on the thread-local {@link MemoryStack}.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRTextureLayoutOctilinear.Buffer mallocStack(int capacity) {
-        return mallocStack(capacity, stackGet());
-    }
-
-    /**
-     * Returns a new {@link OVRTextureLayoutOctilinear.Buffer} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRTextureLayoutOctilinear.Buffer callocStack(int capacity) {
-        return callocStack(capacity, stackGet());
     }
 
     /**
      * Returns a new {@link OVRTextureLayoutOctilinear.Buffer} instance allocated on the specified {@link MemoryStack}.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRTextureLayoutOctilinear.Buffer mallocStack(int capacity, MemoryStack stack) {
+    public static OVRTextureLayoutOctilinear.Buffer malloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.nmalloc(ALIGNOF, capacity * SIZEOF), capacity);
     }
 
     /**
      * Returns a new {@link OVRTextureLayoutOctilinear.Buffer} instance allocated on the specified {@link MemoryStack} and initializes all its bits to zero.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRTextureLayoutOctilinear.Buffer callocStack(int capacity, MemoryStack stack) {
+    public static OVRTextureLayoutOctilinear.Buffer calloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.ncalloc(ALIGNOF, capacity, SIZEOF), capacity);
     }
 
@@ -433,38 +409,38 @@ public class OVRTextureLayoutOctilinear extends Struct implements NativeResource
             return ELEMENT_FACTORY;
         }
 
-        /** Returns the value of the {@code WarpLeft} field. */
+        /** @return the value of the {@link OVRTextureLayoutOctilinear#WarpLeft} field. */
         public float WarpLeft() { return OVRTextureLayoutOctilinear.nWarpLeft(address()); }
-        /** Returns the value of the {@code WarpRight} field. */
+        /** @return the value of the {@link OVRTextureLayoutOctilinear#WarpRight} field. */
         public float WarpRight() { return OVRTextureLayoutOctilinear.nWarpRight(address()); }
-        /** Returns the value of the {@code WarpUp} field. */
+        /** @return the value of the {@link OVRTextureLayoutOctilinear#WarpUp} field. */
         public float WarpUp() { return OVRTextureLayoutOctilinear.nWarpUp(address()); }
-        /** Returns the value of the {@code WarpDown} field. */
+        /** @return the value of the {@link OVRTextureLayoutOctilinear#WarpDown} field. */
         public float WarpDown() { return OVRTextureLayoutOctilinear.nWarpDown(address()); }
-        /** Returns the value of the {@code SizeLeft} field. */
+        /** @return the value of the {@link OVRTextureLayoutOctilinear#SizeLeft} field. */
         public float SizeLeft() { return OVRTextureLayoutOctilinear.nSizeLeft(address()); }
-        /** Returns the value of the {@code SizeRight} field. */
+        /** @return the value of the {@link OVRTextureLayoutOctilinear#SizeRight} field. */
         public float SizeRight() { return OVRTextureLayoutOctilinear.nSizeRight(address()); }
-        /** Returns the value of the {@code SizeUp} field. */
+        /** @return the value of the {@link OVRTextureLayoutOctilinear#SizeUp} field. */
         public float SizeUp() { return OVRTextureLayoutOctilinear.nSizeUp(address()); }
-        /** Returns the value of the {@code SizeDown} field. */
+        /** @return the value of the {@link OVRTextureLayoutOctilinear#SizeDown} field. */
         public float SizeDown() { return OVRTextureLayoutOctilinear.nSizeDown(address()); }
 
-        /** Sets the specified value to the {@code WarpLeft} field. */
+        /** Sets the specified value to the {@link OVRTextureLayoutOctilinear#WarpLeft} field. */
         public OVRTextureLayoutOctilinear.Buffer WarpLeft(float value) { OVRTextureLayoutOctilinear.nWarpLeft(address(), value); return this; }
-        /** Sets the specified value to the {@code WarpRight} field. */
+        /** Sets the specified value to the {@link OVRTextureLayoutOctilinear#WarpRight} field. */
         public OVRTextureLayoutOctilinear.Buffer WarpRight(float value) { OVRTextureLayoutOctilinear.nWarpRight(address(), value); return this; }
-        /** Sets the specified value to the {@code WarpUp} field. */
+        /** Sets the specified value to the {@link OVRTextureLayoutOctilinear#WarpUp} field. */
         public OVRTextureLayoutOctilinear.Buffer WarpUp(float value) { OVRTextureLayoutOctilinear.nWarpUp(address(), value); return this; }
-        /** Sets the specified value to the {@code WarpDown} field. */
+        /** Sets the specified value to the {@link OVRTextureLayoutOctilinear#WarpDown} field. */
         public OVRTextureLayoutOctilinear.Buffer WarpDown(float value) { OVRTextureLayoutOctilinear.nWarpDown(address(), value); return this; }
-        /** Sets the specified value to the {@code SizeLeft} field. */
+        /** Sets the specified value to the {@link OVRTextureLayoutOctilinear#SizeLeft} field. */
         public OVRTextureLayoutOctilinear.Buffer SizeLeft(float value) { OVRTextureLayoutOctilinear.nSizeLeft(address(), value); return this; }
-        /** Sets the specified value to the {@code SizeRight} field. */
+        /** Sets the specified value to the {@link OVRTextureLayoutOctilinear#SizeRight} field. */
         public OVRTextureLayoutOctilinear.Buffer SizeRight(float value) { OVRTextureLayoutOctilinear.nSizeRight(address(), value); return this; }
-        /** Sets the specified value to the {@code SizeUp} field. */
+        /** Sets the specified value to the {@link OVRTextureLayoutOctilinear#SizeUp} field. */
         public OVRTextureLayoutOctilinear.Buffer SizeUp(float value) { OVRTextureLayoutOctilinear.nSizeUp(address(), value); return this; }
-        /** Sets the specified value to the {@code SizeDown} field. */
+        /** Sets the specified value to the {@link OVRTextureLayoutOctilinear#SizeDown} field. */
         public OVRTextureLayoutOctilinear.Buffer SizeDown(float value) { OVRTextureLayoutOctilinear.nSizeDown(address(), value); return this; }
 
     }

@@ -8,7 +8,7 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val EXT_conditional_rendering = "EXTConditionalRendering".nativeClassVK("EXT_conditional_rendering", type = "device", postfix = EXT) {
+val EXT_conditional_rendering = "EXTConditionalRendering".nativeClassVK("EXT_conditional_rendering", type = "device", postfix = "EXT") {
     documentation =
         """
         This extension allows the execution of one or more rendering commands to be conditional on a value in buffer memory. This may help an application reduce the latency by conditionally discarding rendering commands without application intervention. The conditional rendering commands are limited to draws, compute dispatches and clearing attachments within a conditional rendering block.
@@ -16,6 +16,7 @@ val EXT_conditional_rendering = "EXTConditionalRendering".nativeClassVK("EXT_con
         <h5>Examples</h5>
         None.
 
+        <h5>VK_EXT_conditional_rendering</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_EXT_conditional_rendering}</dd>
@@ -36,9 +37,12 @@ val EXT_conditional_rendering = "EXTConditionalRendering".nativeClassVK("EXT_con
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Vikram Kushwaha <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_EXT_conditional_rendering:%20&amp;body=@vkushwaha%20">vkushwaha</a></li>
+                <li>Vikram Kushwaha <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_EXT_conditional_rendering]%20@vkushwaha%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_EXT_conditional_rendering%20extension%3E%3E">vkushwaha</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2018-05-21</dd>
 
@@ -103,9 +107,6 @@ val EXT_conditional_rendering = "EXTConditionalRendering".nativeClassVK("EXT_con
         <ul>
             <li>#CONDITIONAL_RENDERING_INVERTED_BIT_EXT specifies the condition used to determine whether to discard rendering commands or not. That is, if the 32-bit predicate read from {@code buffer} memory at {@code offset} is zero, the rendering commands are not discarded, and if non zero, then they are discarded.</li>
         </ul>
-
-        <h5>See Also</h5>
-        {@code VkConditionalRenderingFlagsEXT}
         """,
 
         "CONDITIONAL_RENDERING_INVERTED_BIT_EXT".enum(0x00000001)
@@ -126,14 +127,14 @@ val EXT_conditional_rendering = "EXTConditionalRendering".nativeClassVK("EXT_con
 
         <h5>Valid Usage</h5>
         <ul>
-            <li>Conditional rendering <b>must</b> not already be <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#active-conditional-rendering">active</a></li>
+            <li>Conditional rendering <b>must</b> not already be <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#active-conditional-rendering">active</a></li>
         </ul>
 
         <h5>Valid Usage (Implicit)</h5>
         <ul>
             <li>{@code commandBuffer} <b>must</b> be a valid {@code VkCommandBuffer} handle</li>
             <li>{@code pConditionalRenderingBegin} <b>must</b> be a valid pointer to a valid ##VkConditionalRenderingBeginInfoEXT structure</li>
-            <li>{@code commandBuffer} <b>must</b> be in the <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#commandbuffers-lifecycle">recording state</a></li>
+            <li>{@code commandBuffer} <b>must</b> be in the <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#commandbuffers-lifecycle">recording state</a></li>
             <li>The {@code VkCommandPool} that {@code commandBuffer} was allocated from <b>must</b> support graphics, or compute operations</li>
         </ul>
 
@@ -145,8 +146,8 @@ val EXT_conditional_rendering = "EXTConditionalRendering".nativeClassVK("EXT_con
 
         <h5>Command Properties</h5>
         <table class="lwjgl">
-            <thead><tr><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#VkCommandBufferLevel">Command Buffer Levels</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#vkCmdBeginRenderPass">Render Pass Scope</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#VkQueueFlagBits">Supported Queue Types</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#synchronization-pipeline-stages-types">Pipeline Type</a></th></tr></thead>
-            <tbody><tr><td>Primary Secondary</td><td>Both</td><td>Graphics Compute</td><td></td></tr></tbody>
+            <thead><tr><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#VkCommandBufferLevel">Command Buffer Levels</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#vkCmdBeginRenderPass">Render Pass Scope</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#VkQueueFlagBits">Supported Queue Types</a></th></tr></thead>
+            <tbody><tr><td>Primary Secondary</td><td>Both</td><td>Graphics Compute</td></tr></tbody>
         </table>
 
         <h5>See Also</h5>
@@ -174,15 +175,15 @@ val EXT_conditional_rendering = "EXTConditionalRendering".nativeClassVK("EXT_con
 
         <h5>Valid Usage</h5>
         <ul>
-            <li>Conditional rendering <b>must</b> be <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#active-conditional-rendering">active</a></li>
-            <li>If conditional rendering was made <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#active-conditional-rendering">active</a> outside of a render pass instance, it must not be ended inside a render pass instance</li>
-            <li>If conditional rendering was made <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#active-conditional-rendering">active</a> within a subpass it must be ended in the same subpass</li>
+            <li>Conditional rendering <b>must</b> be <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#active-conditional-rendering">active</a></li>
+            <li>If conditional rendering was made <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#active-conditional-rendering">active</a> outside of a render pass instance, it <b>must</b> not be ended inside a render pass instance</li>
+            <li>If conditional rendering was made <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#active-conditional-rendering">active</a> within a subpass it <b>must</b> be ended in the same subpass</li>
         </ul>
 
         <h5>Valid Usage (Implicit)</h5>
         <ul>
             <li>{@code commandBuffer} <b>must</b> be a valid {@code VkCommandBuffer} handle</li>
-            <li>{@code commandBuffer} <b>must</b> be in the <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#commandbuffers-lifecycle">recording state</a></li>
+            <li>{@code commandBuffer} <b>must</b> be in the <a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#commandbuffers-lifecycle">recording state</a></li>
             <li>The {@code VkCommandPool} that {@code commandBuffer} was allocated from <b>must</b> support graphics, or compute operations</li>
         </ul>
 
@@ -194,8 +195,8 @@ val EXT_conditional_rendering = "EXTConditionalRendering".nativeClassVK("EXT_con
 
         <h5>Command Properties</h5>
         <table class="lwjgl">
-            <thead><tr><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#VkCommandBufferLevel">Command Buffer Levels</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#vkCmdBeginRenderPass">Render Pass Scope</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#VkQueueFlagBits">Supported Queue Types</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\#synchronization-pipeline-stages-types">Pipeline Type</a></th></tr></thead>
-            <tbody><tr><td>Primary Secondary</td><td>Both</td><td>Graphics Compute</td><td></td></tr></tbody>
+            <thead><tr><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#VkCommandBufferLevel">Command Buffer Levels</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#vkCmdBeginRenderPass">Render Pass Scope</a></th><th><a target="_blank" href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\#VkQueueFlagBits">Supported Queue Types</a></th></tr></thead>
+            <tbody><tr><td>Primary Secondary</td><td>Both</td><td>Graphics Compute</td></tr></tbody>
         </table>
         """,
 

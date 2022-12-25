@@ -84,9 +84,9 @@ public class Configuration<T> {
      *
      * <ul>
      * <li>{@code System.getProperty("java.io.tmpdir")}/extractDir/version/</li>
+     * <li>&lt;working directory&gt;/.extractDir/version/</li>
      * <li>{@code System.getProperty("user.home")}/.extractDir/version/</li>
-     * <li>.extractDir/version/</li>
-     * <li>{@code Files.createTempFile("lwjgl", "")}</li>
+     * <li>{@code Files.createTempDirectory("lwjgl", "")}</li>
      * </ul>
      *
      * where:
@@ -131,7 +131,7 @@ public class Configuration<T> {
      * ({@link MemoryUtil#memAlloc memAlloc}/{@link MemoryUtil#memFree memFree}/etc). Supported values:
      *
      * <ul>
-     * <li><em>jemalloc</em> - The allocator provided by the jemalloc library</li>
+     * <li><em>jemalloc</em> - The allocator provided by the jemalloc library.</li>
      * <li><em>rpmalloc</em> - The allocator provided by the rpmalloc library.<br>
      * <div style="margin-left: 26px; border-left: 1px solid gray; padding-left: 14px;"><p>LWJGL calls {@code rpmalloc_initialize} once, when the allocator is
      * created. It never calls {@code rpmalloc_finalize}. The user is responsible for calling {@code rpmalloc_thread_initialize} and
@@ -348,6 +348,9 @@ public class Configuration<T> {
     /** Similar to {@link #LIBRARY_NAME} for the EGL library (<b>org.lwjgl.egl.libname</b>). */
     public static final Configuration<String> EGL_LIBRARY_NAME = new Configuration<>("org.lwjgl.egl.libname", StateInit.STRING);
 
+    /** Similar to {@link #OPENGL_EXTENSION_FILTER} for the EGL library (<b>org.lwjgl.egl.extensionFilter</b>). */
+    public static final Configuration<Object> EGL_EXTENSION_FILTER = new Configuration<>("org.lwjgl.egl.extensionFilter", StateInit.STRING);
+
     // -- GLFW
 
     /** Similar to {@link #LIBRARY_NAME} for the GLFW library (<b>org.lwjgl.glfw.libname</b>). */
@@ -397,6 +400,9 @@ public class Configuration<T> {
     /** Similar to {@link #LIBRARY_NAME} for the OpenAL library (<b>org.lwjgl.openal.libname</b>). */
     public static final Configuration<String> OPENAL_LIBRARY_NAME = new Configuration<>("org.lwjgl.openal.libname", StateInit.STRING);
 
+    /** Similar to {@link #OPENGL_EXTENSION_FILTER} for the OpenAL library (<b>org.lwjgl.openal.extensionFilter</b>). */
+    public static final Configuration<Object> OPENAL_EXTENSION_FILTER = new Configuration<>("org.lwjgl.openal.extensionFilter", StateInit.STRING);
+
     // -- OPENCL
 
     /** Similar to {@link #EGL_EXPLICIT_INIT} for the OpenCL library (<b>org.lwjgl.opencl.explicitInit</b>). */
@@ -404,6 +410,9 @@ public class Configuration<T> {
 
     /** Similar to {@link #LIBRARY_NAME} for the OpenCL library (<b>org.lwjgl.opencl.libname</b>). */
     public static final Configuration<String> OPENCL_LIBRARY_NAME = new Configuration<>("org.lwjgl.opencl.libname", StateInit.STRING);
+
+    /** Similar to {@link #OPENGL_EXTENSION_FILTER} for the OpenCL library (<b>org.lwjgl.opencl.extensionFilter</b>). */
+    public static final Configuration<Object> OPENCL_EXTENSION_FILTER = new Configuration<>("org.lwjgl.opencl.extensionFilter", StateInit.STRING);
 
     // -- OPENGL
 
@@ -426,6 +435,23 @@ public class Configuration<T> {
      */
     public static final Configuration<Object> OPENGL_MAXVERSION = new Configuration<>("org.lwjgl.opengl.maxVersion", StateInit.STRING);
 
+    /**
+     * Can be used to disable specific extensions. This can be useful to ensure that an application behaves correctly with or without an extension. Supported
+     * values:
+     *
+     * <ul>
+     * <li><em>comma-delimited string</em> - A list of extension names to disable.</li>
+     * <li><em>&lt;classpath&gt;</em> - A class that implements the {@link Predicate Predicate&lt;String&gt;} interface. It will be instantiated using reflection.</li>
+     * </ul>
+     *
+     * <p>When set programmatically, it can also be:</p>
+     * <ul>
+     * <li><em>a {@link java.util.List List&lt;String&gt;} instance</em> - A list of extension names to disable.</li>
+     * <li><em>a {@link Predicate}&lt;String&gt; instance</em> - A predicate that accepts an extension name and returns true if it should be disabled.</li>
+     * </ul>
+     */
+    public static final Configuration<Object> OPENGL_EXTENSION_FILTER = new Configuration<>("org.lwjgl.opengl.extensionFilter", StateInit.STRING);
+
     // -- OPENGL ES
 
     /** Similar to {@link #EGL_EXPLICIT_INIT} for the OpenGL ES library (<b>org.lwjgl.opengles.explicitInit</b>). */
@@ -437,10 +463,38 @@ public class Configuration<T> {
     /** Similar to {@link #OPENGL_MAXVERSION} for the OpenGL ES library (<b>org.lwjgl.opengles.maxVersion</b>). */
     public static final Configuration<Object> OPENGLES_MAXVERSION = new Configuration<>("org.lwjgl.opengles.maxVersion", StateInit.STRING);
 
+    /** Similar to {@link #OPENGL_EXTENSION_FILTER} for the OpenGL ES library (<b>org.lwjgl.opengles.extensionFilter</b>). */
+    public static final Configuration<Object> OPENGLES_EXTENSION_FILTER = new Configuration<>("org.lwjgl.opengles.extensionFilter", StateInit.STRING);
+
+    /**
+     * Defines the API that manages OpenGL ES contexts. Supported values:
+     *
+     * <ul>
+     * <li><em>EGL</em> - context management is provided by EGL.</li>
+     * <li><em>native</em> - context management is provided by the native platform.<br>
+     * </ul>
+     *
+     * <p>If this option is not set, LWJGL will first attempt to use EGL. If EGL is not available, it will attempt to use the native platform API.</p>
+     *
+     * <p style="font-family: monospace">
+     * Property: <b>org.lwjgl.opengl.contextAPI</b><br>
+     * &nbsp; &nbsp; Type: String<br>
+     * &nbsp; &nbsp;Usage: Dynamic</p>
+     */
+    public static final Configuration<String> OPENGLES_CONTEXT_API = new Configuration<>("org.lwjgl.opengles.contextAPI", StateInit.STRING);
+
     // -- OPENVR
 
     /** Similar to {@link #LIBRARY_NAME} for the OpenVR library (<b>org.lwjgl.openvr.libname</b>). */
     public static final Configuration<String> OPENVR_LIBRARY_NAME = new Configuration<>("org.lwjgl.openvr.libname", StateInit.STRING);
+
+    // -- OpenXR
+
+    /** Similar to {@link #EGL_EXPLICIT_INIT} for the OpenXR library (<b>org.lwjgl.openxr.explicitInit</b>). */
+    public static final Configuration<Boolean> OPENXR_EXPLICIT_INIT = new Configuration<>("org.lwjgl.openxr.explicitInit", StateInit.BOOLEAN);
+
+    /** Similar to {@link #LIBRARY_NAME} for the OpenXR library (<b>org.lwjgl.openxr.libname</b>). */
+    public static final Configuration<String> OPENXR_LIBRARY_NAME = new Configuration<>("org.lwjgl.openxr.libname", StateInit.STRING);
 
     // -- OPUS
 

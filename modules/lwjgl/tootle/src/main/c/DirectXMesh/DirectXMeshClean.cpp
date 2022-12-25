@@ -1,9 +1,9 @@
 //-------------------------------------------------------------------------------------
 // DirectXMeshClean.cpp
-//  
+//
 // DirectX Mesh Geometry Library - Mesh clean-up
 //
-// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 //
 // http://go.microsoft.com/fwlink/?LinkID=324981
@@ -27,7 +27,7 @@ namespace
             return E_INVALIDARG;
 
         if ((uint64_t(nFaces) * 3) >= UINT32_MAX)
-            return HRESULT_FROM_WIN32(ERROR_ARITHMETIC_OVERFLOW);
+            return HRESULT_E_ARITHMETIC_OVERFLOW;
 
         dupVerts.clear();
         size_t curNewVert = nVerts;
@@ -382,15 +382,15 @@ namespace
             assert((nVerts + dupVerts.size()) == curNewVert);
 
 #ifndef NDEBUG
-            for (auto it = dupVerts.begin(); it != dupVerts.end(); ++it)
+            for (const auto it : dupVerts)
             {
-                assert(*it < nVerts);
+                assert(it < nVerts);
             }
 #endif
         }
 
         if ((uint64_t(nVerts) + uint64_t(dupVerts.size())) >= index_t(-1))
-            return HRESULT_FROM_WIN32(ERROR_ARITHMETIC_OVERFLOW);
+            return HRESULT_E_ARITHMETIC_OVERFLOW;
 
         if (!dupVerts.empty())
         {
@@ -408,10 +408,13 @@ namespace
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
 HRESULT DirectX::Clean(
-    uint16_t* indices, size_t nFaces,
+    uint16_t* indices,
+    size_t nFaces,
     size_t nVerts,
-    uint32_t* adjacency, const uint32_t* attributes,
-    std::vector<uint32_t>& dupVerts, bool breakBowties)
+    uint32_t* adjacency,
+    const uint32_t* attributes,
+    std::vector<uint32_t>& dupVerts,
+    bool breakBowties)
 {
     HRESULT hr = Validate(indices, nFaces, nVerts, adjacency, VALIDATE_DEFAULT);
     if (FAILED(hr))
@@ -424,10 +427,13 @@ HRESULT DirectX::Clean(
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
 HRESULT DirectX::Clean(
-    uint32_t* indices, size_t nFaces,
+    uint32_t* indices,
+    size_t nFaces,
     size_t nVerts,
-    uint32_t* adjacency, const uint32_t* attributes,
-    std::vector<uint32_t>& dupVerts, bool breakBowties)
+    uint32_t* adjacency,
+    const uint32_t* attributes,
+    std::vector<uint32_t>& dupVerts,
+    bool breakBowties)
 {
     HRESULT hr = Validate(indices, nFaces, nVerts, adjacency, VALIDATE_DEFAULT);
     if (FAILED(hr))

@@ -9,11 +9,13 @@ import org.lwjgl.generator.*
 import core.linux.*
 import vulkan.*
 
-val KHR_wayland_surface = "KHRWaylandSurface".nativeClassVK("KHR_wayland_surface", type = "instance", postfix = KHR) {
+val KHR_wayland_surface = "KHRWaylandSurface".nativeClassVK("KHR_wayland_surface", type = "instance", postfix = "KHR") {
+    javaImport("org.lwjgl.system.linux.*")
     documentation =
         """
         The {@code VK_KHR_wayland_surface} extension is an instance extension. It provides a mechanism to create a {@code VkSurfaceKHR} object (defined by the {@link KHRSurface VK_KHR_surface} extension) that refers to a Wayland {@code wl_surface}, as well as a query to determine support for rendering to a Wayland compositor.
 
+        <h5>VK_KHR_wayland_surface</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_KHR_wayland_surface}</dd>
@@ -35,10 +37,13 @@ val KHR_wayland_surface = "KHRWaylandSurface".nativeClassVK("KHR_wayland_surface
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Jesse Hall <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_KHR_wayland_surface:%20&amp;body=@critsec%20">critsec</a></li>
-                <li>Ian Elliott <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_KHR_wayland_surface:%20&amp;body=@ianelliottus%20">ianelliottus</a></li>
+                <li>Jesse Hall <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_KHR_wayland_surface]%20@critsec%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_KHR_wayland_surface%20extension%3E%3E">critsec</a></li>
+                <li>Ian Elliott <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_KHR_wayland_surface]%20@ianelliottus%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_KHR_wayland_surface%20extension%3E%3E">ianelliottus</a></li>
             </ul></dd>
+        </dl>
 
+        <h5>Other Extension Metadata</h5>
+        <dl>
             <dt><b>Last Modified Date</b></dt>
             <dd>2015-11-28</dd>
 
@@ -128,7 +133,7 @@ val KHR_wayland_surface = "KHRWaylandSurface".nativeClassVK("KHR_wayland_surface
 
         VkInstance("instance", "the instance to associate the surface with."),
         VkWaylandSurfaceCreateInfoKHR.const.p("pCreateInfo", "a pointer to a ##VkWaylandSurfaceCreateInfoKHR structure containing parameters affecting the creation of the surface object."),
-        nullable..VkAllocationCallbacks.const.p("pAllocator", "the allocator used for host memory allocated for the surface object when there is no more specific allocator available (see <a target=\"_blank\" href=\"https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html\\#memory-allocation\">Memory Allocation</a>)."),
+        nullable..VkAllocationCallbacks.const.p("pAllocator", "the allocator used for host memory allocated for the surface object when there is no more specific allocator available (see <a target=\"_blank\" href=\"https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html\\#memory-allocation\">Memory Allocation</a>)."),
         Check(1)..VkSurfaceKHR.p("pSurface", "a pointer to a {@code VkSurfaceKHR} handle in which the created surface object is returned.")
     )
 

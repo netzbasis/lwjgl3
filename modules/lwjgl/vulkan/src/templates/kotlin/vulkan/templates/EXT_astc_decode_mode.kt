@@ -8,7 +8,7 @@ package vulkan.templates
 import org.lwjgl.generator.*
 import vulkan.*
 
-val EXT_astc_decode_mode = "EXTAstcDecodeMode".nativeClassVK("EXT_astc_decode_mode", type = "device", postfix = EXT) {
+val EXT_astc_decode_mode = "EXTAstcDecodeMode".nativeClassVK("EXT_astc_decode_mode", type = "device", postfix = "EXT") {
     documentation =
         """
         The existing specification requires that low dynamic range (LDR) ASTC textures are decompressed to FP16 values per component. In many cases, decompressing LDR textures to a lower precision intermediate result gives acceptable image quality. Source material for LDR textures is typically authored as 8-bit UNORM values, so decoding to FP16 values adds little value. On the other hand, reducing precision of the decoded result reduces the size of the decompressed data, potentially improving texture cache performance and saving power.
@@ -50,6 +50,7 @@ val EXT_astc_decode_mode = "EXTAstcDecodeMode".nativeClassVK("EXT_astc_decode_mo
 ￿        NULL,
 ￿        &amp;imageView);</code></pre>
 
+        <h5>VK_EXT_astc_decode_mode</h5>
         <dl>
             <dt><b>Name String</b></dt>
             <dd>{@code VK_EXT_astc_decode_mode}</dd>
@@ -71,13 +72,16 @@ val EXT_astc_decode_mode = "EXTAstcDecodeMode".nativeClassVK("EXT_astc_decode_mo
 
             <dt><b>Contact</b></dt>
             <dd><ul>
-                <li>Jan-Harald Fredriksen <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_EXT_astc_decode_mode:%20&amp;body=@janharaldfredriksen-arm%20">janharaldfredriksen-arm</a></li>
+                <li>Jan-Harald Fredriksen <a target="_blank" href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_EXT_astc_decode_mode]%20@janharaldfredriksen-arm%250A%3C%3CHere%20describe%20the%20issue%20or%20question%20you%20have%20about%20the%20VK_EXT_astc_decode_mode%20extension%3E%3E">janharaldfredriksen-arm</a></li>
             </ul></dd>
+        </dl>
 
-            <dt>Last Modified Date</dt>
+        <h5>Other Extension Metadata</h5>
+        <dl>
+            <dt><b>Last Modified Date</b></dt>
             <dd>2018-08-07</dd>
 
-            <dt>Contributors</dt>
+            <dt><b>Contributors</b></dt>
             <dd><ul>
                 <li>Jan-Harald Fredriksen, Arm</li>
             </ul></dd>

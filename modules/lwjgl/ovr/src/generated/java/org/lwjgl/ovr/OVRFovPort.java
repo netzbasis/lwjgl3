@@ -21,23 +21,14 @@ import static org.lwjgl.system.MemoryStack.*;
  * <pre><code>
  * { UpTan = tan(90 degrees / 2), DownTan = tan(90 degrees / 2) }</code></pre>
  * 
- * <h3>Member documentation</h3>
- * 
- * <ul>
- * <li>{@code UpTan} &ndash; tangent of the angle between the viewing vector and top edge of the FOV</li>
- * <li>{@code DownTan} &ndash; tangent of the angle between the viewing vector and bottom edge of the FOV</li>
- * <li>{@code LeftTan} &ndash; tangent of the angle between the viewing vector and left edge of the FOV</li>
- * <li>{@code RightTan} &ndash; tangent of the angle between the viewing vector and right edge of the FOV</li>
- * </ul>
- * 
  * <h3>Layout</h3>
  * 
  * <pre><code>
  * struct ovrFovPort {
- *     float UpTan;
- *     float DownTan;
- *     float LeftTan;
- *     float RightTan;
+ *     float {@link #UpTan};
+ *     float {@link #DownTan};
+ *     float {@link #LeftTan};
+ *     float {@link #RightTan};
  * }</code></pre>
  */
 @NativeType("struct ovrFovPort")
@@ -86,22 +77,22 @@ public class OVRFovPort extends Struct implements NativeResource {
     @Override
     public int sizeof() { return SIZEOF; }
 
-    /** Returns the value of the {@code UpTan} field. */
+    /** tangent of the angle between the viewing vector and top edge of the FOV */
     public float UpTan() { return nUpTan(address()); }
-    /** Returns the value of the {@code DownTan} field. */
+    /** tangent of the angle between the viewing vector and bottom edge of the FOV */
     public float DownTan() { return nDownTan(address()); }
-    /** Returns the value of the {@code LeftTan} field. */
+    /** tangent of the angle between the viewing vector and left edge of the FOV */
     public float LeftTan() { return nLeftTan(address()); }
-    /** Returns the value of the {@code RightTan} field. */
+    /** tangent of the angle between the viewing vector and right edge of the FOV */
     public float RightTan() { return nRightTan(address()); }
 
-    /** Sets the specified value to the {@code UpTan} field. */
+    /** Sets the specified value to the {@link #UpTan} field. */
     public OVRFovPort UpTan(float value) { nUpTan(address(), value); return this; }
-    /** Sets the specified value to the {@code DownTan} field. */
+    /** Sets the specified value to the {@link #DownTan} field. */
     public OVRFovPort DownTan(float value) { nDownTan(address(), value); return this; }
-    /** Sets the specified value to the {@code LeftTan} field. */
+    /** Sets the specified value to the {@link #LeftTan} field. */
     public OVRFovPort LeftTan(float value) { nLeftTan(address(), value); return this; }
-    /** Sets the specified value to the {@code RightTan} field. */
+    /** Sets the specified value to the {@link #RightTan} field. */
     public OVRFovPort RightTan(float value) { nRightTan(address(), value); return this; }
 
     /** Initializes this struct with the specified values. */
@@ -206,22 +197,29 @@ public class OVRFovPort extends Struct implements NativeResource {
 
     // -----------------------------------
 
-    /** Returns a new {@code OVRFovPort} instance allocated on the thread-local {@link MemoryStack}. */
-    public static OVRFovPort mallocStack() {
-        return mallocStack(stackGet());
-    }
-
-    /** Returns a new {@code OVRFovPort} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero. */
-    public static OVRFovPort callocStack() {
-        return callocStack(stackGet());
-    }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRFovPort mallocStack() { return malloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRFovPort callocStack() { return calloc(stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(MemoryStack)} instead. */
+    @Deprecated public static OVRFovPort mallocStack(MemoryStack stack) { return malloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(MemoryStack)} instead. */
+    @Deprecated public static OVRFovPort callocStack(MemoryStack stack) { return calloc(stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRFovPort.Buffer mallocStack(int capacity) { return malloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRFovPort.Buffer callocStack(int capacity) { return calloc(capacity, stackGet()); }
+    /** Deprecated for removal in 3.4.0. Use {@link #malloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRFovPort.Buffer mallocStack(int capacity, MemoryStack stack) { return malloc(capacity, stack); }
+    /** Deprecated for removal in 3.4.0. Use {@link #calloc(int, MemoryStack)} instead. */
+    @Deprecated public static OVRFovPort.Buffer callocStack(int capacity, MemoryStack stack) { return calloc(capacity, stack); }
 
     /**
      * Returns a new {@code OVRFovPort} instance allocated on the specified {@link MemoryStack}.
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRFovPort mallocStack(MemoryStack stack) {
+    public static OVRFovPort malloc(MemoryStack stack) {
         return wrap(OVRFovPort.class, stack.nmalloc(ALIGNOF, SIZEOF));
     }
 
@@ -230,45 +228,27 @@ public class OVRFovPort extends Struct implements NativeResource {
      *
      * @param stack the stack from which to allocate
      */
-    public static OVRFovPort callocStack(MemoryStack stack) {
+    public static OVRFovPort calloc(MemoryStack stack) {
         return wrap(OVRFovPort.class, stack.ncalloc(ALIGNOF, 1, SIZEOF));
-    }
-
-    /**
-     * Returns a new {@link OVRFovPort.Buffer} instance allocated on the thread-local {@link MemoryStack}.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRFovPort.Buffer mallocStack(int capacity) {
-        return mallocStack(capacity, stackGet());
-    }
-
-    /**
-     * Returns a new {@link OVRFovPort.Buffer} instance allocated on the thread-local {@link MemoryStack} and initializes all its bits to zero.
-     *
-     * @param capacity the buffer capacity
-     */
-    public static OVRFovPort.Buffer callocStack(int capacity) {
-        return callocStack(capacity, stackGet());
     }
 
     /**
      * Returns a new {@link OVRFovPort.Buffer} instance allocated on the specified {@link MemoryStack}.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRFovPort.Buffer mallocStack(int capacity, MemoryStack stack) {
+    public static OVRFovPort.Buffer malloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.nmalloc(ALIGNOF, capacity * SIZEOF), capacity);
     }
 
     /**
      * Returns a new {@link OVRFovPort.Buffer} instance allocated on the specified {@link MemoryStack} and initializes all its bits to zero.
      *
-     * @param stack the stack from which to allocate
+     * @param stack    the stack from which to allocate
      * @param capacity the buffer capacity
      */
-    public static OVRFovPort.Buffer callocStack(int capacity, MemoryStack stack) {
+    public static OVRFovPort.Buffer calloc(int capacity, MemoryStack stack) {
         return wrap(Buffer.class, stack.ncalloc(ALIGNOF, capacity, SIZEOF), capacity);
     }
 
@@ -330,22 +310,22 @@ public class OVRFovPort extends Struct implements NativeResource {
             return ELEMENT_FACTORY;
         }
 
-        /** Returns the value of the {@code UpTan} field. */
+        /** @return the value of the {@link OVRFovPort#UpTan} field. */
         public float UpTan() { return OVRFovPort.nUpTan(address()); }
-        /** Returns the value of the {@code DownTan} field. */
+        /** @return the value of the {@link OVRFovPort#DownTan} field. */
         public float DownTan() { return OVRFovPort.nDownTan(address()); }
-        /** Returns the value of the {@code LeftTan} field. */
+        /** @return the value of the {@link OVRFovPort#LeftTan} field. */
         public float LeftTan() { return OVRFovPort.nLeftTan(address()); }
-        /** Returns the value of the {@code RightTan} field. */
+        /** @return the value of the {@link OVRFovPort#RightTan} field. */
         public float RightTan() { return OVRFovPort.nRightTan(address()); }
 
-        /** Sets the specified value to the {@code UpTan} field. */
+        /** Sets the specified value to the {@link OVRFovPort#UpTan} field. */
         public OVRFovPort.Buffer UpTan(float value) { OVRFovPort.nUpTan(address(), value); return this; }
-        /** Sets the specified value to the {@code DownTan} field. */
+        /** Sets the specified value to the {@link OVRFovPort#DownTan} field. */
         public OVRFovPort.Buffer DownTan(float value) { OVRFovPort.nDownTan(address(), value); return this; }
-        /** Sets the specified value to the {@code LeftTan} field. */
+        /** Sets the specified value to the {@link OVRFovPort#LeftTan} field. */
         public OVRFovPort.Buffer LeftTan(float value) { OVRFovPort.nLeftTan(address(), value); return this; }
-        /** Sets the specified value to the {@code RightTan} field. */
+        /** Sets the specified value to the {@link OVRFovPort#RightTan} field. */
         public OVRFovPort.Buffer RightTan(float value) { OVRFovPort.nRightTan(address(), value); return this; }
 
     }
