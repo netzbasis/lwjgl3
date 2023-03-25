@@ -169,7 +169,7 @@
             </source>
             <link>
                 <fileset dir="/usr/local/lib">
-                    <include name="libdyn*.a"/>
+                    <include name="libffi.a"/>
                 </fileset>
                 <arg value="-L/usr/local/lib"/>
                 <arg value="-lc"/>
@@ -338,7 +338,11 @@
         </build>
 
         <!-- OpenGL -->
-        <build simple="true" module="opengl">
+        <build module="opengl">
+            <source>
+                <arg value="-I${src.main.rel}"/>
+                <fileset dir="." includes="${src.generated}/*" excludes="${src.generated}/org_lwjgl_opengl_WGL.c"/>
+            </source>
             <link>
                 <arg value="-lc"/>
             </link>
