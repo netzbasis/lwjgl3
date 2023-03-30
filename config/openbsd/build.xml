@@ -28,7 +28,8 @@
                 <arg line="-c -std=gnu++14" if:set="cpp"/>
                 <arg line="-m64" if:set="build.arch.x64"/>
                 <arg line="-m32 -mfpmath=sse -msse -msse2" if:set="build.arch.x86"/>
-                <arg line="-O3 -flto -fPIC @{flags} -pthread -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0 -D_GNU_SOURCE -DNDEBUG -DLWJGL_OPENBSD -DLWJGL_${build.arch}"/>
+                <arg linel="-O3 -flto -fPIC @{flags} -pthread -DNDEBUG -DLWJGL_OPENBSD -DLWJGL_${build.arch}"/>
+                <arg linel="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0 -D_GNU_SOURCE"/>
 
                 <arg value="-I/usr/include"/>
                 <arg value="-I/usr/local/include"/>
@@ -176,26 +177,6 @@
             </link>
         </build>
 
-        <!-- BULLET -->
-	<!--
-        <build module="bullet" simple="true" linker="c++" if:true="${binding.bullet}">
-            <link>
-                <arg value="-L${lib.native}/org/lwjgl/bullet"/>
-                <arg value="-L/usr/local/lib"/>
-                <arg value="-lBulletWorldImporter"/>
-                <arg value="-lBulletSoftBody"/>
-                <arg value="-lBulletDynamics"/>
-                <arg value="-lBulletCollision"/>
-                <arg value="-lBulletFileLoader"/>
-                <arg value="-lBulletInverseDynamics"/>
-                <arg value="-lBulletInverseDynamicsUtils"/>
-                <arg value="-lBullet3Common"/>
-                <arg value="-lLinearMath"/>
-                <arg value="-lBulletRobotics"/>
-            </link>
-        </build>
-	-->
-
 	<!-- GLFW -->
 	<build module="glfw" simple="true">
             <link>
@@ -206,7 +187,6 @@
 	</build>
 
         <!-- LIBDIVIDE -->
-        <!--
         <build module="libdivide" simple="true" if:true="${binding.libdivide}">
             <beforeCompile>
                 <compile>
@@ -221,7 +201,6 @@
 		<arg value="-lc"/>
 	    </link>
         </build>
-        -->
 
         <!-- LLVM -->
         <build_simple module="llvm"/>
@@ -377,6 +356,7 @@
             </link>
         </build>
 
+	<!-- rpmalloc -->
         <build simple="true" module="rpmalloc">
 	    <link>
 		<arg value="-lc"/>
@@ -406,6 +386,7 @@
         </build>
 
         <!-- tinyexr -->
+	<!-- FIXME
         <build module="tinyexr" simple="true" linker="c++" if:true="${binding.tinyexr}">
             <beforeCompile>
                 <compile lang="c++">
@@ -421,6 +402,7 @@
 		<arg value="-lc"/>
 	    </link>
         </build>
+	-->
 
         <!-- tiny file dialogs -->
         <build module="tinyfd" simple="true" if:true="${binding.tinyfd}">
@@ -484,6 +466,7 @@
 	-->
 
         <!-- Vulkan Memory Allocator -->
+	<!-- FIXME
         <build module="vma" lang="c++" if:true="${binding.vma}">
             <source>
                 <arg value="-I/usr/include"/>
@@ -498,13 +481,16 @@
 		<arg value="-lc"/>
 	    </link>
         </build>
+	-->
 
         <!-- xxHash -->
+	<!-- FIXME
         <build simple="true" module="xxhash">
 	    <link>
 		<arg value="-lc"/>
 	    </link>
 	</build>
+	-->
 
         <!-- yoga -->
         <build module="yoga" simple="true" lang="c++" if:true="${binding.yoga}">
@@ -519,6 +505,8 @@
                 </compile>
             </beforeCompile>
 	    <link>
+		<arg value="-L/usr/local/lib"/>
+		<arg value="-L/usr/X11R6/lib"/>
 		<arg value="-lc"/>
 		<arg value="-lm"/>
 	    </link>
