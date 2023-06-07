@@ -156,11 +156,15 @@
         <!-- CORE -->
         <build module="core" flags="-Wall -Wextra -pedantic">
             <source>
+                <arg value="-I${src.main.rel}/libffi"/>
+                <arg value="-I${src.main.rel}/libffi/aarch64" if:set="build.arch.arm64"/>
+                <arg value="-I${src.main.rel}/libffi/arm" if:set="build.arch.arm32"/>
+                <arg value="-I${src.main.rel}/libffi/x86" unless:set="build.arch.arm"/>
+                <arg value="-DX86_64" if:set="build.arch.x64"/> <!-- for libffi/x86/ffitarget.h -->
                 <arg value="-I/usr/include"/>
                 <arg value="-I/usr/local/include"/>
                 <arg value="-I/usr/X11R6/include"/>
 
-                <arg value="-I${src.main.rel}/libffi"/>
                 <fileset dir=".">
                     <include name="${src.main}/*.c"/>
                     <include name="${src.generated}/*.c"/>
