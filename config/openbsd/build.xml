@@ -23,7 +23,7 @@
             <local name="gcc"/>
             <condition property="gcc" value="@{gcc.exec}" else="@{gpp.exec}"><equals arg1="@{lang}" arg2="c"/></condition>
             <mkdir dir="@{dest}"/>
-            <apply dir="@{dest}" executable="${gcc}" dest="@{dest}" skipemptyfilesets="true" failonerror="true" parallel="true" taskname="Compiler">
+            <apply dir="@{dest}" executable="${gcc}" dest="@{dest}" skipemptyfilesets="true" failonerror="true" parallel="false" taskname="Compiler">
                 <arg line="-c" unless:set="cpp"/>
                 <arg line="-c -std=gnu++14" if:set="cpp"/>
                 <arg line="-m64" if:set="build.arch.x64"/>
@@ -151,7 +151,7 @@
         </exec>
         <echo message="Building with ${gcc.version} (command: cc)"/>
 
-        <parallel threadsPerProcessor="1">
+        <sequential>
 
         <!-- CORE -->
         <build module="core" flags="-Wall -Wextra -pedantic">
@@ -553,7 +553,7 @@
 	    </link>
         </build>
 
-        </parallel>
+        </sequential>
 
         <local name="native-dependencies-uptodate"/>
         <condition property="native-dependencies-uptodate" value="true">
