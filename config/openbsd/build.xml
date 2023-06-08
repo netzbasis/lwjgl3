@@ -145,11 +145,7 @@
     </macrodef>
 
     <target name="compile-native-platform">
-        <exec executable="ksh" outputproperty="gcc.version" unless:set="gcc.version">
-            <arg value="-c"/>
-            <arg value="cc --version | head -1"/>
-        </exec>
-        <echo message="Building with ${gcc.version} (command: cc)"/>
+        <echo message="Building with native compiler (command: cc)"/>
 
         <sequential>
 
