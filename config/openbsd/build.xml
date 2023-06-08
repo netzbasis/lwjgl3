@@ -16,6 +16,7 @@
         <attribute name="flags" default=""/>
         <attribute name="simple" default="false"/>
         <attribute name="relative" default="true"/>
+        <attribute name="stdincludes" default="true"/>
         <element name="source" implicit="true" optional="true"/>
         <sequential>
             <local name="cpp"/>
@@ -31,9 +32,9 @@
                 <arg line="-O3 -flto -fPIC @{flags} -pthread -DNDEBUG -DLWJGL_OPENBSD -DLWJGL_${build.arch}"/>
                 <arg line="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0 -D_GNU_SOURCE"/>
 
-                <arg value="-I/usr/include"/>
-                <arg value="-I/usr/local/include"/>
-                <arg value="-I/usr/X11R6/include"/>
+                <arg value="-I/usr/include" if:true="@{stdincludes}"/>
+                <arg value="-I/usr/local/include" if:true="@{stdincludes}"/>
+                <arg value="-I/usr/X11R6/include" if:true="@{stdincludes}"/>
 
                 <arg value="-I${jni.headers}"/>
                 <arg value="-I${jni.headers}/openbsd"/>
@@ -59,6 +60,7 @@
         <attribute name="gpp.exec" default="c++"/>
         <attribute name="flags" default=""/>
         <attribute name="simple" default="false"/>
+        <attribute name="stdincludes" default="true"/>
         <element name="beforeCompile" optional="true"/>
         <element name="source" optional="true"/>
         <element name="beforeLink" optional="true"/>
@@ -80,7 +82,7 @@
             <property name="dest" value="${bin.native}/@{module}"/>
 
             <beforeCompile/>
-            <compile lang="@{lang}" gcc.exec="@{gcc.exec}" gpp.exec="@{gpp.exec}" flags="@{flags}" simple="@{simple}">
+            <compile lang="@{lang}" gcc.exec="@{gcc.exec}" gpp.exec="@{gpp.exec}" flags="@{flags}" simple="@{simple}" stdincludes="@{stdincludes}">
                 <source/>
             </compile>
 
@@ -146,7 +148,7 @@
         <sequential>
 
         <!-- CORE -->
-        <build module="core" flags="-Wall -Wextra -pedantic">
+        <build module="core" flags="-Wall -Wextra -pedantic" stdincludes="false">
             <source>
                 <arg value="-I${src.main.rel}/libffi"/>
                 <arg value="-I${src.main.rel}/libffi/aarch64" if:set="build.arch.arm64"/>
