@@ -193,6 +193,12 @@
 		    <arg value="-I/usr/X11R6/include"/>
 
                     <arg value="-I${src.main.rel}"/>
+
+                    <fileset dir=".">
+                        <include name="${src.main}/*.c"/>
+                        <include name="${src.generated}/*.c"/>
+                        <include name="${src.generated}/${platform}/*.c"/>
+                    </fileset>
                 </compile>
             </beforeCompile>
 	    <link>
