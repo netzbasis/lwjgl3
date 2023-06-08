@@ -249,7 +249,8 @@
                 </compile>
             </beforeCompile>
 	    <link>
-		<arg value="-lc"/>
+               <arg value="-lc"/>
+               <arg value="/usr/local/lib/liblz4.a"/>
 	    </link>
         </build>
 
