@@ -228,7 +228,9 @@
                 </compile>
             </beforeCompile>
 	    <link>
+                <arg value="-L/usr/local/lib"/>
                 <arg value="-lc"/>
+                <arg value="-llmdb"/>
 	    </link>
         </build>
 
