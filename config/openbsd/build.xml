@@ -81,11 +81,7 @@
 
             <beforeCompile/>
             <compile lang="@{lang}" gcc.exec="@{gcc.exec}" gpp.exec="@{gpp.exec}" flags="@{flags}" simple="@{simple}">
-                <source>
-                    <arg value="-I/usr/include"/>
-                    <arg value="-I/usr/local/include"/>
-                    <arg value="-I/usr/X11R6/include"/>
-                </source>
+                <source/>
             </compile>
 
             <local name="lib.arch"/>
