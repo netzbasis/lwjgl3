@@ -167,11 +167,8 @@
                 </fileset>
             </source>
             <link>
-                <fileset dir="/usr/local/lib">
-                    <include name="libffi.a"/>
-                </fileset>
-                <arg value="-L/usr/local/lib"/>
                 <arg value="-lc"/>
+                <arg value="/usr/local/lib/libffi.a"/>
             </link>
         </build>
 
