@@ -531,6 +531,8 @@
 		<arg value="-L/usr/local/lib"/>
 		<arg value="-L/usr/X11R6/lib"/>
 		<arg value="-lc"/>
+		<arg value="-lc++"/>
+		<arg value="-lc++abi"/>
 		<arg value="-lm"/>
 	    </link>
         </build>
