@@ -489,7 +489,6 @@
 	-->
 
         <!-- Vulkan Memory Allocator -->
-	<!-- FIXME
         <build module="vma" lang="c++" if:true="${binding.vma}">
             <source>
                 <arg value="-I/usr/include"/>
@@ -498,13 +497,16 @@
 
                 <arg value="-I${src.main.rel}"/>
                 <arg value="-I${module.lwjgl.rel}/vulkan/src/main/c"/>
+                <arg value="-I${module.lwjgl.rel}/vma/src/main/c"/>
+                <arg value="-I${module.lwjgl.rel}/core/src/main/c"/>
                 <fileset dir="." includes="${src.generated}/*.cpp"/>
             </source>
 	    <link>
 		<arg value="-lc"/>
+		<arg value="-lc++"/>
+		<arg value="-lc++abi"/>
 	    </link>
         </build>
-	-->
 
         <!-- xxHash -->
 	<!-- FIXME
