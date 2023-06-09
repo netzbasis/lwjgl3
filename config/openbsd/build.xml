@@ -509,13 +509,25 @@
         </build>
 
         <!-- xxHash -->
-	<!-- FIXME
-        <build simple="true" module="xxhash">
+        <build module="xxhash" simple="true" if:true="${binding.xxhash}"> 
+            <beforeCompile>
+                <compile>
+                    <arg value="-I/usr/include"/>
+		    <arg value="-I/usr/local/include"/>
+		    <arg value="-I/usr/X11R6/include"/>
+
+                    <arg value="-I${src.main.rel}"/>
+
+                    <fileset dir=".">
+                        <include name="${src.generated}/*.c"/>
+                        <include name="${src.generated}/${platform}/*.c"/>
+                    </fileset>
+                </compile>
+            </beforeCompile>
 	    <link>
 		<arg value="-lc"/>
 	    </link>
-	</build>
-	-->
+        </build>
 
         <!-- yoga -->
         <build module="yoga" simple="true" lang="c++" if:true="${binding.yoga}">
