@@ -61,6 +61,7 @@
         <attribute name="flags" default=""/>
         <attribute name="simple" default="false"/>
         <attribute name="stdincludes" default="true"/>
+        <attribute name="dolink" default="true"/>
         <element name="beforeCompile" optional="true"/>
         <element name="source" optional="true"/>
         <element name="beforeLink" optional="true"/>
@@ -112,7 +113,7 @@
             <echo message="Linking ${name}" taskname="${gcc}" unless:set="lib-uptodate"/>
             <mkdir dir="${lib.arch}" unless:set="lib-uptodate"/>
             <beforeLink unless:set="lib-uptodate"/>
-            <apply executable="${gcc}" failonerror="true" parallel="true" taskname="Linker" unless:set="lib-uptodate">
+            <apply executable="${gcc}" failonerror="true" parallel="true" taskname="Linker" unless:set="lib-uptodate" if:true="@{dolink}">
                 <srcfile/>
                 <arg value="-shared"/>
                 <arg value="-m64" if:set="build.arch.x64"/>
@@ -390,7 +391,24 @@
         </build>
 
         <!-- tinyexr -->
-	<!-- FIXME
+        <!-- precompile c files, do not link in first step -->
+        <build module="tinyexr" simple="true" dolink="false" if:true="${binding.tinyexr}">
+            <beforeCompile>
+                <compile>
+                    <arg value="-I/usr/include"/>
+                    <arg value="-I/usr/local/include"/>
+                    <arg value="-I/usr/X11R6/include"/>
+
+                    <arg value="-I${src.main.rel}"/>
+
+                    <fileset dir=".">
+                        <include name="${src.main}/*.c"/>
+                        <include name="${src.generated}/*.c"/>
+                        <include name="${src.generated}/${platform}/*.c"/>
+                    </fileset>
+                </compile>
+            </beforeCompile>
+        </build>
         <build module="tinyexr" simple="true" linker="c++" if:true="${binding.tinyexr}">
             <beforeCompile>
                 <compile lang="c++">
@@ -404,9 +422,10 @@
             </beforeCompile>
 	    <link>
 		<arg value="-lc"/>
+		<arg value="-lc++"/>
+		<arg value="-lc++abi"/>
 	    </link>
         </build>
-	-->
 
         <!-- tiny file dialogs -->
         <build module="tinyfd" simple="true" if:true="${binding.tinyfd}">
