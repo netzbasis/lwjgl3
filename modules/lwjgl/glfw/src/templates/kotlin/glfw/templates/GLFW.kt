@@ -1178,28 +1178,6 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         since = "version 3.0"
     )
 
-    int(
-        "GetPlatform",
-        """
-        Returns the currently selected platform.
-
-        This function returns the platform that was selected during initialization. The returned value will be one of #PLATFORM_WIN32, #PLATFORM_COCOA,
-        #PLATFORM_WAYLAND, #PLATFORM_X11 or #PLATFORM_NULL.
-
-        This function may be called from any thread.
-        """,
-
-        void(),
-
-        returnDoc =
-        """
-        the currently selected platform, or zero if an error occurred.
-        
-        Possible errors include #NOT_INITIALIZED.
-        """,
-        since = "version 3.4"
-    )
-
     intb(
         "PlatformSupported",
         """
