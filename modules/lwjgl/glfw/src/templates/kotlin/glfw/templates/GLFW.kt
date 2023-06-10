@@ -455,8 +455,6 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
             a terminal that does not have the necessary environment variables.  Fall back to a different platform if possible or notify the user that no usable
             platform was detected.
 
-            Failure to detect a specific platform may have the same cause as above or because support for that platform was not compiled in. Call
-            #PlatformSupported() to check whether a specific platform is supported by a library binary.
             """,
             0x0001000E
         )
@@ -1114,8 +1112,6 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         <b>Do not use the version string</b> to parse the GLFW library version. The #GetVersion() function already provides the version of the library binary
         in numerical format.
         
-        <b>Do not use the version string</b> to parse what platforms are supported. The #PlatformSupported() function lets you query platform support.
-
         ${note(ul(
             "This function always succeeds.",
             "This function may be called before #Init().",
@@ -1176,29 +1172,6 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
 
         returnDoc = "the previously set callback, or #NULL if no callback was set",
         since = "version 3.0"
-    )
-
-    intb(
-        "PlatformSupported",
-        """
-        Returns whether the library includes support for the specified platform.
-
-        This function returns whether the library was compiled with support for the specified platform.
- 
-        This function may be called before #Init().
-        
-        This function may be called from any thread.
-        """,
-
-        int("platform", "the platform to query", "#PLATFORM_WIN32 #PLATFORM_COCOA #PLATFORM_WAYLAND #PLATFORM_X11 #PLATFORM_NULL"),
-
-        returnDoc =
-        """
-        #TRUE if the platform is supported, or #FALSE otherwise.
-        
-        Possible errors include #INVALID_ENUM.
-        """,
-        since = "version 3.4"
     )
 
     GLFWmonitor.p.p(
