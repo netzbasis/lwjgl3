@@ -489,7 +489,7 @@
             if:set="jdk10"
         />
 
-        <sequential>
+        <parallel threadsPerProcessor="1">
             <compileBinding binding="assimp"/>
             <compileBinding binding="bgfx"/>
             <compileBinding binding="cuda"/>
@@ -525,9 +525,9 @@
             <compileBinding binding="xxhash"/>
             <compileBinding binding="yoga"/>
             <compileBinding binding="zstd"/>
-        </sequential>
+        </parallel>
 
-        <sequential>
+        <parallel threadsPerProcessor="1">
             <compileBinding binding="opengl">
                 <classpath><pathelement path="${bin.lwjgl}/opencl"/></classpath>
             </compileBinding>
@@ -537,7 +537,7 @@
             <compileBinding binding="vma">
                 <classpath><pathelement path="${bin.lwjgl}/vulkan"/></classpath>
             </compileBinding>
-        </sequential>
+        </parallel>
 
         <compileBinding binding="glfw">
             <classpath>
@@ -1148,7 +1148,7 @@
                 </not>
             </condition>
 
-            <sequential>
+            <parallel threadsPerProcessor="4" failonany="true">
                 <get-release platform="linux" arch="x64" file="lib@{native-library}.so" if:set="auto-natives"/>
                 <get-release platform="linux" arch="x64" file="lib@{native-library}.so.git" if:set="git-revision"/>
 
@@ -1174,7 +1174,7 @@
                 <get-release platform="windows" arch="arm64" file="@{native-library}.dll.git" if:set="git-revision"/>
 
                 <content/>
-            </sequential>
+            </parallel>
 
             <local name="checksum.skip"/>
             <condition property="checksum.skip">
@@ -1213,7 +1213,7 @@
             </java>
 
             <!-- Create native jar files -->
-            <sequential>
+            <parallel threadsPerProcessor="1" failonany="true">
                 <natives-jar name="@{name}" title="@{title}" platform="linux" path="linux/x64" type="so">
                     <linux-content/>
                 </natives-jar>
@@ -1244,7 +1244,7 @@
                 <natives-jar name="@{name}" title="@{title}" platform="windows-arm64" path="windows/arm64" type="dll">
                     <windows-arm64-content/>
                 </natives-jar>
-            </sequential>
+            </parallel>
         </sequential>
     </macrodef>
 
@@ -1454,7 +1454,7 @@
             <jvmarg value="-Dmodule.version=${module.version}"/>
         </java>
 
-        <sequential>
+        <parallel threadcount="4" failonany="true">
 
         <!-- CORE -->
         <sequential>
@@ -1764,6 +1764,6 @@
         <!-- zstd -->
         <release-module name="zstd" native-library="lwjgl_zstd" title="zstd" if:true="${binding.zstd}"/>
 
-        </sequential>
+        </parallel>
     </target>
 </project>
