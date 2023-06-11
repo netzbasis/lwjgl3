@@ -455,8 +455,6 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
             a terminal that does not have the necessary environment variables.  Fall back to a different platform if possible or notify the user that no usable
             platform was detected.
 
-            Failure to detect a specific platform may have the same cause as above or because support for that platform was not compiled in. Call
-            #PlatformSupported() to check whether a specific platform is supported by a library binary.
             """,
             0x0001000E
         )
@@ -1085,27 +1083,6 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
     )
 
     void(
-        "InitAllocator",
-        """
-        Sets the init allocator to the desired value.
-
-        To use the default allocator, call this function with a #NULL argument.
-
-        If you specify an allocator struct, every member must be a valid function pointer. If any member is #NULL, this function emits #INVALID_VALUE and the
-        init allocator is unchanged.
-        
-        ${note(ul(
-            "Possible errors include #INVALID_VALUE.",
-            "The specified allocator is copied before this function returns.",
-            "This function must only be called from the main thread."
-        ))}
-        """,
-
-        nullable..GLFWallocator.const.p("allocator", "the allocator to use at the next initialization, or #NULL to use the default one"),
-        since = "version 3.4"
-    )
-
-    void(
         "GetVersion",
         """
         Retrieves the major, minor and revision numbers of the GLFW library. It is intended for when you are using GLFW as a shared library and want to ensure
@@ -1135,8 +1112,6 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         <b>Do not use the version string</b> to parse the GLFW library version. The #GetVersion() function already provides the version of the library binary
         in numerical format.
         
-        <b>Do not use the version string</b> to parse what platforms are supported. The #PlatformSupported() function lets you query platform support.
-
         ${note(ul(
             "This function always succeeds.",
             "This function may be called before #Init().",
@@ -1197,51 +1172,6 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
 
         returnDoc = "the previously set callback, or #NULL if no callback was set",
         since = "version 3.0"
-    )
-
-    int(
-        "GetPlatform",
-        """
-        Returns the currently selected platform.
-
-        This function returns the platform that was selected during initialization. The returned value will be one of #PLATFORM_WIN32, #PLATFORM_COCOA,
-        #PLATFORM_WAYLAND, #PLATFORM_X11 or #PLATFORM_NULL.
-
-        This function may be called from any thread.
-        """,
-
-        void(),
-
-        returnDoc =
-        """
-        the currently selected platform, or zero if an error occurred.
-        
-        Possible errors include #NOT_INITIALIZED.
-        """,
-        since = "version 3.4"
-    )
-
-    intb(
-        "PlatformSupported",
-        """
-        Returns whether the library includes support for the specified platform.
-
-        This function returns whether the library was compiled with support for the specified platform.
- 
-        This function may be called before #Init().
-        
-        This function may be called from any thread.
-        """,
-
-        int("platform", "the platform to query", "#PLATFORM_WIN32 #PLATFORM_COCOA #PLATFORM_WAYLAND #PLATFORM_X11 #PLATFORM_NULL"),
-
-        returnDoc =
-        """
-        #TRUE if the platform is supported, or #FALSE otherwise.
-        
-        Possible errors include #INVALID_ENUM.
-        """,
-        since = "version 3.4"
     )
 
     GLFWmonitor.p.p(

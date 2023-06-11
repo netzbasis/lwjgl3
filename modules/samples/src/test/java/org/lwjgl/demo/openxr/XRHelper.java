@@ -161,7 +161,7 @@ final class XRHelper {
         }
         switch (Platform.get()) {
             case LINUX:
-                int platform = glfwGetPlatform();
+                int platform = GLFW_PLATFORM_X11;
                 if (platform == GLFW_PLATFORM_X11) {
                     long display   = glfwGetX11Display();
                     long glxConfig = glfwGetGLXFBConfig(window);
