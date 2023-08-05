@@ -243,7 +243,7 @@
                     <arg value="-I${src.main.rel}"/>
                     <arg value="-I${module.lwjgl.rel}/xxhash/src/main/c"/>
                     <fileset dir="." includes="${src.main}/*.c"/>
-                    <fileset dir="." includes="${module.lwjgl}/xxhash/src/main/c/*.c"/>
+                    <fileset dir="." includes="${module.lwjgl}/xxhash/src/main/c/xxhash.c"/>
                 </compile>
             </beforeCompile>
 	    <link>
