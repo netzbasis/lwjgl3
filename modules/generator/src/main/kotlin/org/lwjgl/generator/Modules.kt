@@ -53,11 +53,6 @@ enum class Module(
         "org.lwjgl.system.openbsd",
         "Contains bindings to native APIs specific to the OpenBSD operating system."
     ),
-    CORE_FREEBSD(
-        "core.freebsd",
-        "org.lwjgl.system.freebsd",
-        "Contains bindings to native APIs specific to the FreeBSD operating system."
-    ),
     CORE_WINDOWS(
         "core.windows",
         "org.lwjgl.system.windows",

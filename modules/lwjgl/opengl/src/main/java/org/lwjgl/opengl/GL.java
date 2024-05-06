@@ -9,7 +9,6 @@ import org.lwjgl.system.*;
 import org.lwjgl.system.macosx.*;
 import org.lwjgl.system.windows.*;
 import org.lwjgl.system.openbsd.*;
-import org.lwjgl.system.freebsd.*;
 
 import javax.annotation.*;
 import java.nio.*;
@@ -114,9 +113,6 @@ public final class GL {
             case OPENBSD:
                 GL = Library.loadNative(GL.class, "org.lwjgl.opengl", Configuration.OPENGL_LIBRARY_NAME, "libGL.so.17.1", "libGL.so");
                 break;
-            case FREEBSD:
-                GL = Library.loadNative(GL.class, "org.lwjgl.opengl", Configuration.OPENGL_LIBRARY_NAME, "libGL.so.1", "libGL.so");
-                break;
             default:
                 throw new IllegalStateException();
         }
@@ -141,7 +137,6 @@ public final class GL {
 
                     switch (Platform.get()) {
                         case OPENBSD:
-                        case FREEBSD:
                         case LINUX:
                             GetProcAddress = library.getFunctionAddress("glXGetProcAddress");
                             if (GetProcAddress == NULL) {

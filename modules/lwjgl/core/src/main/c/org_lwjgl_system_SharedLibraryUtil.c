@@ -41,8 +41,6 @@
 #  endif
 #elif defined(__linux__) || defined(__linux) || defined(__gnu_linux__)
 #  define OS_Linux
-#elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__) /* latter is (also) used by systems using FreeBSD kernel, e.g. Debian/kFreeBSD, which could be detected specifically by also checking for __GLIBC__ */
-#  define OS_FreeBSD
 #elif defined(__OpenBSD__)
 #  define OS_OpenBSD
 #elif defined(__NetBSD__)

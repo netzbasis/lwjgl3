@@ -16,9 +16,6 @@
 #ifdef LWJGL_OPENBSD
     #include "OpenBSDConfig.h"
 #endif
-#ifdef LWJGL_FREEBSD
-    #include "FreeBSDConfig.h"
-#endif
 
 DISABLE_WARNINGS()
 #include <jni.h>

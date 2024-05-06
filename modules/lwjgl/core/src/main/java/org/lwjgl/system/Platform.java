@@ -50,18 +50,6 @@ public enum Platform {
             return System.mapLibraryName(name);
         }
     },
-    FREEBSD("FreeBSD", "freebsd") {
-        private final Pattern SO = Pattern.compile("(?:^|/)lib\\w+[.]so(?:[.]\\d+)*$");
-
-        @Override
-        String mapLibraryName(String name) {
-            if (SO.matcher(name).find()) {
-                return name;
-            }
-
-            return System.mapLibraryName(name);
-        }
-    },
     WINDOWS("Windows", "windows") {
         @Override
         String mapLibraryName(String name) {
@@ -107,14 +95,12 @@ public enum Platform {
         String osName = System.getProperty("os.name");
         if (osName.startsWith("Windows")) {
             current = WINDOWS;
-        } else if (osName.startsWith("Linux") || osName.startsWith("FreeBSD") || osName.startsWith("SunOS") || osName.startsWith("Unix")) {
+        } else if (osName.startsWith("Linux") || osName.startsWith("SunOS") || osName.startsWith("Unix")) {
             current = LINUX;
         } else if (osName.startsWith("Mac OS X") || osName.startsWith("Darwin")) {
             current = MACOSX;
         } else if (osName.startsWith("OpenBSD") || osName.startsWith("openbsd")) {
             current = OPENBSD;
-        } else if (osName.startsWith("FreeBSD") || osName.startsWith("freebsd")) {
-            current = FREEBSD;
         } else {
             throw new LinkageError("Unknown platform: " + osName);
         }

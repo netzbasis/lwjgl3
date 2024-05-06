@@ -228,7 +228,6 @@
             <src path="${core.kotlin.path}/linux"/>
             <src path="${core.kotlin.path}/macos"/>
             <src path="${core.kotlin.path}/openbsd"/>
-            <src path="${core.kotlin.path}/freebsd"/>
             <src path="${core.kotlin.path}/templates"/>
             <src path="${core.kotlin.path}/windows"/>
 
@@ -1008,7 +1007,6 @@
         <property name="revision" value="liblwjgl.so.git" if:set="platform.linux"/>
         <property name="revision" value="liblwjgl.dylib.git" if:set="platform.macos"/>
         <property name="revision" value="liblwjgl.so.git" if:set="platform.openbsd"/>
-        <property name="revision" value="liblwjgl.so.git" if:set="platform.freebsd"/>
         <property name="revision" value="lwjgl.dll.git" if:set="platform.windows"/>
 
         <exec executable="git" failonerror="true" output="${lib.native}/org/lwjgl/${revision}" taskname="Git revision">
@@ -1129,7 +1127,6 @@
         <element name="macos-content" optional="true"/>
         <element name="macos-arm64-content" optional="true"/>
         <element name="openbsd-content" optional="true"/>
-        <element name="freebsd-content" optional="true"/>
         <element name="windows-content" optional="true"/>
         <element name="windows-x86-content" optional="true"/>
         <element name="windows-arm64-content" optional="true"/>
@@ -1232,8 +1229,6 @@
                 <natives-jar name="@{name}" title="@{title}" platform="openbsd" path="openbsd/x64" type="so">
                     <openbsd-content/>
                 </natives-jar>
-                <natives-jar name="@{name}" title="@{title}" platform="freebsd" path="freebsd/x64" type="so">
-                    <freebsd-content/>
                 </natives-jar>
                 <natives-jar name="@{name}" title="@{title}" platform="windows" path="windows/x64" type="dll">
                     <windows-content/>
@@ -1259,7 +1254,6 @@
         <element name="macos" optional="true"/>
         <element name="macos-arm64" optional="true"/>
         <element name="openbsd" optional="true"/>
-        <element name="freebsd" optional="true"/>
         <element name="windows" optional="true"/>
         <element name="windows-x86" optional="true"/>
         <element name="windows-arm64" optional="true"/>
@@ -1284,7 +1278,6 @@
                 <macos-content><macos/></macos-content>
                 <macos-arm64-content><macos-arm64/></macos-arm64-content>
                 <openbsd-content><openbsd/></openbsd-content>
-                <freebsd-content><freebsd/></freebsd-content>
                 <windows-content><windows/></windows-content>
                 <windows-x86-content><windows-x86/></windows-x86-content>
                 <windows-arm64-content><windows-arm64/></windows-arm64-content>
@@ -1529,9 +1522,6 @@
                 <get-release platform="openbsd" arch="x64" file="libglfw.so"/>
                 <get-release platform="openbsd" arch="x64" file="libglfw.so.git"/>
 
-                <get-release platform="freebsd" arch="x64" file="libglfw.so"/>
-                <get-release platform="freebsd" arch="x64" file="libglfw.so.git"/>
-
                 <get-release platform="windows" arch="x64" file="glfw.dll"/>
                 <get-release platform="windows" arch="x64" file="glfw.dll.git"/>
 
@@ -1609,9 +1599,6 @@
 
                 <get-release platform="openbsd" arch="x64" file="libopenal.so"/>
                 <get-release platform="openbsd" arch="x64" file="libopenal.so.git"/>
-
-                <get-release platform="freebsd" arch="x64" file="libopenal.so"/>
-                <get-release platform="freebsd" arch="x64" file="libopenal.so.git"/>
 
                 <get-release platform="windows" arch="x64" file="OpenAL.dll"/>
                 <get-release platform="windows" arch="x64" file="OpenAL.dll.git"/>
