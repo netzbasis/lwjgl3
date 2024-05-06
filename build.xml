@@ -1229,7 +1229,6 @@
                 <natives-jar name="@{name}" title="@{title}" platform="openbsd" path="openbsd/x64" type="so">
                     <openbsd-content/>
                 </natives-jar>
-                </natives-jar>
                 <natives-jar name="@{name}" title="@{title}" platform="windows" path="windows/x64" type="dll">
                     <windows-content/>
                 </natives-jar>
