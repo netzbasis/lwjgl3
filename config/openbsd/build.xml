@@ -25,7 +25,7 @@
             <condition property="gcc" value="@{gcc.exec}" else="@{gpp.exec}"><equals arg1="@{lang}" arg2="c"/></condition>
             <mkdir dir="@{dest}"/>
             <apply dir="@{dest}" executable="${gcc}" dest="@{dest}" skipemptyfilesets="true" failonerror="true" parallel="true" taskname="Compiler">
-                <arg line="-c" unless:set="cpp"/>
+                <arg line="-c -std=gnu11" unless:set="cpp"/>
                 <arg line="-c -std=gnu++14" if:set="cpp"/>
                 <arg line="-m64" if:set="build.arch.x64"/>
                 <arg line="-m32 -mfpmath=sse -msse -msse2" if:set="build.arch.x86"/>
@@ -276,7 +276,7 @@
         </build>
 
         <!-- NativeFileDialog -->
-        <build module="nfd" simple="true" if:true="${binding.nfd}">
+        <build module="nfd" simple="true" linker="g++" if:true="${binding.nfd}">
             <beforeCompile>
                 <local name="gtk3"/>
                 <local name="stderr"/>
@@ -292,8 +292,7 @@
 
                     <arg value="-I${src.main.rel}"/>
                     <arg value="-I${src.main.rel}/include"/>
-                    <fileset dir="." includes="${src.main}/nfd_common.c"/>
-                    <fileset dir="." includes="${src.main}/nfd_gtk.c"/>
+                    <fileset dir="." includes="${src.main}/nfd_gtk.cpp"/>
                 </compile>
             </beforeCompile>
             <source>
