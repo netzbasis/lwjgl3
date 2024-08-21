@@ -26,7 +26,7 @@
             <mkdir dir="@{dest}"/>
             <apply dir="@{dest}" executable="${gcc}" dest="@{dest}" skipemptyfilesets="true" failonerror="true" parallel="true" taskname="Compiler">
                 <arg line="-c -std=gnu11" unless:set="cpp"/>
-                <arg line="-c -std=gnu++14" if:set="cpp"/>
+                <arg line="-c -std=gnu++20" if:set="cpp"/>
                 <arg line="-m64" if:set="build.arch.x64"/>
                 <arg line="-m32 -mfpmath=sse -msse -msse2" if:set="build.arch.x86"/>
                 <arg line="-O3 -flto -fPIC @{flags} -pthread -DNDEBUG -DLWJGL_OPENBSD -DLWJGL_${build.arch}"/>
