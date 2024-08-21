@@ -276,7 +276,7 @@
         </build>
 
         <!-- NativeFileDialog -->
-        <build module="nfd" simple="true" linker="g++" if:true="${binding.nfd}">
+        <build module="nfd" simple="true" linker="c++" if:true="${binding.nfd}">
             <beforeCompile>
                 <local name="gtk3"/>
                 <local name="stderr"/>
@@ -355,6 +355,7 @@
             </source>
             <link>
                 <arg value="-lc"/>
+                <arg value="-lm"/>
                 <arg value="-lGL"/>
                 <arg line="-L/usr/X11R6/lib"/>
             </link>
@@ -362,8 +363,14 @@
 
 	<!-- rpmalloc -->
         <build simple="true" module="rpmalloc">
+            <compile>
+		<arg value="-I/usr/include"/>
+		<arg value="-I/usr/local/include"/>
+		<arg value="-I/usr/X11R6/include"/>
+	    </compile>
 	    <link>
 		<arg value="-lc"/>
+		<arg value="-lm"/>
 	    </link>
 	</build>
 
@@ -379,6 +386,11 @@
 
         <!-- stb -->
         <build module="stb" if:true="${binding.stb}">
+            <compile>
+		<arg value="-I/usr/include"/>
+		<arg value="-I/usr/local/include"/>
+		<arg value="-I/usr/X11R6/include"/>
+            </compile>
             <source>
                 <arg value="-isystem${src.main.rel}"/>
                 <fileset dir="." includes="${src.generated}/*.c"/>
@@ -440,6 +452,7 @@
             </beforeCompile>
             <link>
                 <arg value="-lc"/>
+                <arg value="-lm"/>
             </link>
         </build>
 
