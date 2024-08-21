@@ -11,6 +11,7 @@ val LLVM_BINDING_DELEGATE = LLVM_BINDING.delegate("LLVMCore.getLibrary()")
 
 val LLVMAttributeRef = "LLVMAttributeRef".handle
 val LLVMBasicBlockRef = "LLVMBasicBlockRef".handle
+val LLVMBinaryRef = "LLVMBinaryRef".handle
 val LLVMBuilderRef = "LLVMBuilderRef".handle
 val LLVMComdatRef = "LLVMComdatRef".handle
 val LLVMContextRef = "LLVMContextRef".handle
@@ -29,6 +30,7 @@ val LLVMModuleProviderRef = "LLVMModuleProviderRef".handle
 val LLVMModuleRef = "LLVMModuleRef".handle
 val LLVMNamedMDNodeRef = "LLVMNamedMDNodeRef".handle
 val LLVMObjectFileRef = "LLVMObjectFileRef".handle
+val LLVMOperandBundleRef = "LLVMOperandBundleRef".handle
 val LLVMPassManagerRef = "LLVMPassManagerRef".handle
 val LLVMPassBuilderOptionsRef = "LLVMPassBuilderOptionsRef".handle
 val LLVMPassManagerBuilderRef = "LLVMPassManagerBuilderRef".handle
@@ -44,6 +46,7 @@ val LLVMSymbolIteratorRef = "LLVMSymbolIteratorRef".handle
 val LLVMTargetDataRef = "LLVMTargetDataRef".handle
 val LLVMTargetLibraryInfoRef = "LLVMTargetLibraryInfoRef".handle
 val LLVMTargetMachineRef = "LLVMTargetMachineRef".handle
+val LLVMTargetMachineOptionsRef = "LLVMTargetMachineOptionsRef".handle
 val LLVMTargetRef = "LLVMTargetRef".handle
 val LLVMTypeRef = "LLVMTypeRef".handle
 val LLVMUseRef = "LLVMUseRef".handle
@@ -54,12 +57,14 @@ val lto_input_t = "lto_input_t".handle
 val LLVMAttributeIndex = typedef(unsigned_int, "LLVMAttributeIndex")
 val LLVMBool = typedef(intb, "LLVMBool")
 val LLVMDWARFTypeEncoding = typedef(unsigned_int, "LLVMDWARFTypeEncoding")
+val LLVMFastMathFlags = typedef(unsigned, "LLVMFastMathFlags")
 val LLVMMetadataKind = typedef(unsigned_int, "LLVMMetadataKind")
 val LLVMModuleFlagEntry = "LLVMModuleFlagEntry".opaque
 val LLVMValueMetadataEntry = "LLVMValueMetadataEntry".opaque
 
 val LLVMAtomicOrdering = "LLVMAtomicOrdering".enumType
 val LLVMAtomicRMWBinOp = "LLVMAtomicRMWBinOp".enumType
+val LLVMBinaryType = "LLVMBinaryType".enumType
 val LLVMByteOrdering = "enum LLVMByteOrdering".enumType
 val LLVMCodeGenFileType = "LLVMCodeGenFileType".enumType
 val LLVMCodeGenOptLevel = "LLVMCodeGenOptLevel".enumType
@@ -71,6 +76,7 @@ val LLVMDiagnosticSeverity = "LLVMDiagnosticSeverity".enumType
 val LLVMDWARFEmissionKind = "LLVMDWARFEmissionKind".enumType
 val LLVMDWARFMacinfoRecordType = "LLVMDWARFMacinfoRecordType".enumType
 val LLVMDWARFSourceLanguage = "LLVMDWARFSourceLanguage".enumType
+val LLVMGlobalISelAbortMode = "LLVMGlobalISelAbortMode".enumType
 val LLVMInlineAsmDialect = "LLVMInlineAsmDialect".enumType
 val LLVMIntPredicate = "LLVMIntPredicate".enumType
 val LLVMLinkage = "LLVMLinkage".enumType
@@ -79,6 +85,7 @@ val LLVMOpcode = "LLVMOpcode".enumType
 val LLVMRealPredicate = "LLVMRealPredicate".enumType
 val LLVMRelocMode = "LLVMRelocMode".enumType
 val LLVMRemarkType = "enum LLVMRemarkType".enumType
+val LLVMTailCallKind = "LLVMTailCallKind".enumType
 val LLVMThreadLocalMode = "LLVMThreadLocalMode".enumType
 val LLVMTypeKind = "LLVMTypeKind".enumType
 val LLVMUnnamedAddr = "LLVMUnnamedAddr".enumType
@@ -185,16 +192,17 @@ val LLVMOpInfoCallback = Module.LLVM.callback {
         That block of information is saved when the disassembler context is created and passed to the call back in the {@code DisInfo} parameter. The
         instruction containing operand is at the {@code PC} parameter. For some instruction sets, there can be more than one operand with symbolic information.
         To determine the symbolic operand information for each operand, the bytes for the specific operand in the instruction are specified by the
-        {@code Offset} parameter and its byte width is the size parameter. For instructions sets with fixed widths and one symbolic operand per instruction,
-        the {@code Offset} parameter will be zero and {@code Size} parameter will be the instruction width. The information is returned in {@code TagBuf} and
-        is {@code Triple} specific with its specific information defined by the value of {@code TagType} for that {@code Triple}. If symbolic information is
-        returned the function returns 1, otherwise it returns 0.
+        {@code Offset} parameter and its byte width is the {@code OpSize} parameter. For instructions sets with fixed widths and one symbolic operand per
+        instruction, the {@code Offset} parameter will be zero and {@code InstSize} parameter will be the instruction width. The information is returned in
+        {@code TagBuf} and is {@code Triple} specific with its specific information defined by the value of {@code TagType} for that {@code Triple}. If
+        symbolic information is returned the function returns 1, otherwise it returns 0.
         """,
 
         opaque_p("DisInfo", ""),
         uint64_t("PC", ""),
         uint64_t("Offset", ""),
-        uint64_t("Size", ""),
+        uint64_t("OpSize", ""),
+        uint64_t("InstSize", ""),
         int("TagType", ""),
         void.p("TagBuf", "")
     ) {
@@ -281,10 +289,10 @@ val LLVMOrcLLJITBuilderObjectLinkingLayerCreatorFunction = Module.LLVM.callback 
         "LLVMOrcLLJITBuilderObjectLinkingLayerCreatorFunction",
         """
         A function for constructing an ObjectLinkingLayer instance to be used by an LLJIT instance.
-         
+
         Clients can call #OrcLLJITBuilderSetObjectLinkingLayerCreator() to set the creator function to use when constructing an {@code LLJIT} instance. This
         can be used to override the default linking layer implementation that would otherwise be chosen by {@code LLJITBuilder}.
-         
+
         Object linking layers returned by this function will become owned by the {@code LLJIT} instance. The client is not responsible for managing their
         lifetimes after the function returns.
         """,

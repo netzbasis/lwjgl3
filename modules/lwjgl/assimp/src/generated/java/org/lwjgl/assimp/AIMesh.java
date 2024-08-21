@@ -49,13 +49,13 @@ import static org.lwjgl.assimp.Assimp.*;
  *     {@link AIString struct aiString} {@link #mName};
  *     unsigned int {@link #mNumAnimMeshes};
  *     {@link AIAnimMesh struct aiAnimMesh} ** {@link #mAnimMeshes};
- *     unsigned int {@link #mMethod};
+ *     aiMorphingMethod {@link #mMethod};
  *     {@link AIAABB struct aiAABB} {@link #mAABB};
  *     {@link AIString struct aiString} ** {@link #mTextureCoordsNames};
  * }</code></pre>
  */
 @NativeType("struct aiMesh")
-public class AIMesh extends Struct implements NativeResource {
+public class AIMesh extends Struct<AIMesh> implements NativeResource {
 
     /** The struct size in bytes. */
     public static final int SIZEOF;
@@ -133,6 +133,15 @@ public class AIMesh extends Struct implements NativeResource {
         MMETHOD = layout.offsetof(17);
         MAABB = layout.offsetof(18);
         MTEXTURECOORDSNAMES = layout.offsetof(19);
+    }
+
+    protected AIMesh(long address, @Nullable ByteBuffer container) {
+        super(address, container);
+    }
+
+    @Override
+    protected AIMesh create(long address, @Nullable ByteBuffer container) {
+        return new AIMesh(address, container);
     }
 
     /**
@@ -223,31 +232,37 @@ public class AIMesh extends Struct implements NativeResource {
     @NativeType("struct aiColor4D *")
     public AIColor4D.Buffer mColors(int index) { return nmColors(address(), index); }
     /**
-     * Vertex texture coordinates, also known as UV channels. A mesh may contain 0 to {@link Assimp#AI_MAX_NUMBER_OF_TEXTURECOORDS} per vertex. {@code NULL} if not present. The
-     * array is {@code mNumVertices} in size.
+     * Vertex texture coordinates, also known as UV channels.
+     * 
+     * <p>A mesh may contain 0 to {@link Assimp#AI_MAX_NUMBER_OF_TEXTURECOORDS} channels per vertex. Used and unused ({@code nullptr}) channels may go in any order. The array is
+     * {@code mNumVertices} in size.</p>
      */
     @NativeType("struct aiVector3D *[AI_MAX_NUMBER_OF_TEXTURECOORDS]")
     public PointerBuffer mTextureCoords() { return nmTextureCoords(address()); }
     /**
-     * Vertex texture coordinates, also known as UV channels. A mesh may contain 0 to {@link Assimp#AI_MAX_NUMBER_OF_TEXTURECOORDS} per vertex. {@code NULL} if not present. The
-     * array is {@code mNumVertices} in size.
+     * Vertex texture coordinates, also known as UV channels.
+     * 
+     * <p>A mesh may contain 0 to {@link Assimp#AI_MAX_NUMBER_OF_TEXTURECOORDS} channels per vertex. Used and unused ({@code nullptr}) channels may go in any order. The array is
+     * {@code mNumVertices} in size.</p>
      */
     @Nullable
     @NativeType("struct aiVector3D *")
     public AIVector3D.Buffer mTextureCoords(int index) { return nmTextureCoords(address(), index); }
     /**
-     * Specifies the number of components for a given UV channel. Up to three channels are supported (UVW, for accessing volume or cube maps). If the value is
-     * 2 for a given channel n, the component {@code p.z} of {@code mTextureCoords[n][p]} is set to 0.0f. If the value is 1 for a given channel, {@code p.y}
-     * is set to 0.0f, too.
+     * Specifies the number of components for a given UV channel.
+     * 
+     * <p>Up to three channels are supported (UVW, for accessing volume or cube maps). If the value is 2 for a given channel n, the component {@code p.z} of
+     * {@code mTextureCoords[n][p]} is set to 0.0f. If the value is 1 for a given channel, {@code p.y} is set to 0.0f, too.</p>
      * 
      * <p>Note: 4D coordinates are not supported.</p>
      */
     @NativeType("unsigned int[AI_MAX_NUMBER_OF_TEXTURECOORDS]")
     public IntBuffer mNumUVComponents() { return nmNumUVComponents(address()); }
     /**
-     * Specifies the number of components for a given UV channel. Up to three channels are supported (UVW, for accessing volume or cube maps). If the value is
-     * 2 for a given channel n, the component {@code p.z} of {@code mTextureCoords[n][p]} is set to 0.0f. If the value is 1 for a given channel, {@code p.y}
-     * is set to 0.0f, too.
+     * Specifies the number of components for a given UV channel.
+     * 
+     * <p>Up to three channels are supported (UVW, for accessing volume or cube maps). If the value is 2 for a given channel n, the component {@code p.z} of
+     * {@code mTextureCoords[n][p]} is set to 0.0f. If the value is 1 for a given channel, {@code p.y} is set to 0.0f, too.</p>
      * 
      * <p>Note: 4D coordinates are not supported.</p>
      */
@@ -286,18 +301,34 @@ public class AIMesh extends Struct implements NativeResource {
      */
     @NativeType("struct aiString")
     public AIString mName() { return nmName(address()); }
-    /** The number of attachment meshes. Note! Currently only works with Collada loader. */
+    /**
+     * The number of attachment meshes.
+     * 
+     * <p>Currently known to work with loaders:</p>
+     * 
+     * <ul>
+     * <li>Collada</li>
+     * <li>gltf</li>
+     * </ul>
+     */
     @NativeType("unsigned int")
     public int mNumAnimMeshes() { return nmNumAnimMeshes(address()); }
     /**
      * Attachment meshes for this mesh, for vertex-based animation. Attachment meshes carry replacement data for some of the mesh'es vertex components
-     * (usually positions, normals). Note! Currently only works with Collada loader.
+     * (usually positions, normals).
+     * 
+     * <p>Currently known to work with loaders:</p>
+     * 
+     * <ul>
+     * <li>Collada</li>
+     * <li>gltf</li>
+     * </ul>
      */
     @Nullable
     @NativeType("struct aiAnimMesh **")
     public PointerBuffer mAnimMeshes() { return nmAnimMeshes(address()); }
-    /** Method of morphing when anim-meshes are specified. One of:<br><table><tr><td>{@link Assimp#aiMorphingMethod_VERTEX_BLEND MorphingMethod_VERTEX_BLEND}</td><td>{@link Assimp#aiMorphingMethod_MORPH_NORMALIZED MorphingMethod_MORPH_NORMALIZED}</td></tr><tr><td>{@link Assimp#aiMorphingMethod_MORPH_RELATIVE MorphingMethod_MORPH_RELATIVE}</td></tr></table> */
-    @NativeType("unsigned int")
+    /** Method of morphing when anim-meshes are specified. One of:<br><table><tr><td>{@link Assimp#aiMorphingMethod_UNKNOWN MorphingMethod_UNKNOWN}</td><td>{@link Assimp#aiMorphingMethod_VERTEX_BLEND MorphingMethod_VERTEX_BLEND}</td></tr><tr><td>{@link Assimp#aiMorphingMethod_MORPH_NORMALIZED MorphingMethod_MORPH_NORMALIZED}</td><td>{@link Assimp#aiMorphingMethod_MORPH_RELATIVE MorphingMethod_MORPH_RELATIVE}</td></tr></table> */
+    @NativeType("aiMorphingMethod")
     public int mMethod() { return nmMethod(address()); }
     /** the bounding box */
     @NativeType("struct aiAABB")
@@ -348,7 +379,7 @@ public class AIMesh extends Struct implements NativeResource {
     /** Sets the address of the specified {@link PointerBuffer} to the {@link #mAnimMeshes} field. */
     public AIMesh mAnimMeshes(@Nullable @NativeType("struct aiAnimMesh **") PointerBuffer value) { nmAnimMeshes(address(), value); return this; }
     /** Sets the specified value to the {@link #mMethod} field. */
-    public AIMesh mMethod(@NativeType("unsigned int") int value) { nmMethod(address(), value); return this; }
+    public AIMesh mMethod(@NativeType("aiMorphingMethod") int value) { nmMethod(address(), value); return this; }
     /** Copies the specified {@link AIAABB} to the {@link #mAABB} field. */
     public AIMesh mAABB(@NativeType("struct aiAABB") AIAABB value) { nmAABB(address(), value); return this; }
     /** Passes the {@link #mAABB} field to the specified {@link java.util.function.Consumer Consumer}. */
@@ -413,29 +444,29 @@ public class AIMesh extends Struct implements NativeResource {
 
     /** Returns a new {@code AIMesh} instance allocated with {@link MemoryUtil#memAlloc memAlloc}. The instance must be explicitly freed. */
     public static AIMesh malloc() {
-        return wrap(AIMesh.class, nmemAllocChecked(SIZEOF));
+        return new AIMesh(nmemAllocChecked(SIZEOF), null);
     }
 
     /** Returns a new {@code AIMesh} instance allocated with {@link MemoryUtil#memCalloc memCalloc}. The instance must be explicitly freed. */
     public static AIMesh calloc() {
-        return wrap(AIMesh.class, nmemCallocChecked(1, SIZEOF));
+        return new AIMesh(nmemCallocChecked(1, SIZEOF), null);
     }
 
     /** Returns a new {@code AIMesh} instance allocated with {@link BufferUtils}. */
     public static AIMesh create() {
         ByteBuffer container = BufferUtils.createByteBuffer(SIZEOF);
-        return wrap(AIMesh.class, memAddress(container), container);
+        return new AIMesh(memAddress(container), container);
     }
 
     /** Returns a new {@code AIMesh} instance for the specified memory address. */
     public static AIMesh create(long address) {
-        return wrap(AIMesh.class, address);
+        return new AIMesh(address, null);
     }
 
     /** Like {@link #create(long) create}, but returns {@code null} if {@code address} is {@code NULL}. */
     @Nullable
     public static AIMesh createSafe(long address) {
-        return address == NULL ? null : wrap(AIMesh.class, address);
+        return address == NULL ? null : new AIMesh(address, null);
     }
 
     /**
@@ -444,7 +475,7 @@ public class AIMesh extends Struct implements NativeResource {
      * @param capacity the buffer capacity
      */
     public static AIMesh.Buffer malloc(int capacity) {
-        return wrap(Buffer.class, nmemAllocChecked(__checkMalloc(capacity, SIZEOF)), capacity);
+        return new Buffer(nmemAllocChecked(__checkMalloc(capacity, SIZEOF)), capacity);
     }
 
     /**
@@ -453,7 +484,7 @@ public class AIMesh extends Struct implements NativeResource {
      * @param capacity the buffer capacity
      */
     public static AIMesh.Buffer calloc(int capacity) {
-        return wrap(Buffer.class, nmemCallocChecked(capacity, SIZEOF), capacity);
+        return new Buffer(nmemCallocChecked(capacity, SIZEOF), capacity);
     }
 
     /**
@@ -463,7 +494,7 @@ public class AIMesh extends Struct implements NativeResource {
      */
     public static AIMesh.Buffer create(int capacity) {
         ByteBuffer container = __create(capacity, SIZEOF);
-        return wrap(Buffer.class, memAddress(container), capacity, container);
+        return new Buffer(memAddress(container), container, -1, 0, capacity, capacity);
     }
 
     /**
@@ -473,13 +504,13 @@ public class AIMesh extends Struct implements NativeResource {
      * @param capacity the buffer capacity
      */
     public static AIMesh.Buffer create(long address, int capacity) {
-        return wrap(Buffer.class, address, capacity);
+        return new Buffer(address, capacity);
     }
 
     /** Like {@link #create(long, int) create}, but returns {@code null} if {@code address} is {@code NULL}. */
     @Nullable
     public static AIMesh.Buffer createSafe(long address, int capacity) {
-        return address == NULL ? null : wrap(Buffer.class, address, capacity);
+        return address == NULL ? null : new Buffer(address, capacity);
     }
 
     // -----------------------------------
@@ -507,7 +538,7 @@ public class AIMesh extends Struct implements NativeResource {
      * @param stack the stack from which to allocate
      */
     public static AIMesh malloc(MemoryStack stack) {
-        return wrap(AIMesh.class, stack.nmalloc(ALIGNOF, SIZEOF));
+        return new AIMesh(stack.nmalloc(ALIGNOF, SIZEOF), null);
     }
 
     /**
@@ -516,7 +547,7 @@ public class AIMesh extends Struct implements NativeResource {
      * @param stack the stack from which to allocate
      */
     public static AIMesh calloc(MemoryStack stack) {
-        return wrap(AIMesh.class, stack.ncalloc(ALIGNOF, 1, SIZEOF));
+        return new AIMesh(stack.ncalloc(ALIGNOF, 1, SIZEOF), null);
     }
 
     /**
@@ -526,7 +557,7 @@ public class AIMesh extends Struct implements NativeResource {
      * @param capacity the buffer capacity
      */
     public static AIMesh.Buffer malloc(int capacity, MemoryStack stack) {
-        return wrap(Buffer.class, stack.nmalloc(ALIGNOF, capacity * SIZEOF), capacity);
+        return new Buffer(stack.nmalloc(ALIGNOF, capacity * SIZEOF), capacity);
     }
 
     /**
@@ -536,7 +567,7 @@ public class AIMesh extends Struct implements NativeResource {
      * @param capacity the buffer capacity
      */
     public static AIMesh.Buffer calloc(int capacity, MemoryStack stack) {
-        return wrap(Buffer.class, stack.ncalloc(ALIGNOF, capacity, SIZEOF), capacity);
+        return new Buffer(stack.ncalloc(ALIGNOF, capacity, SIZEOF), capacity);
     }
 
     // -----------------------------------
@@ -685,9 +716,9 @@ public class AIMesh extends Struct implements NativeResource {
         /**
          * Creates a new {@code AIMesh.Buffer} instance backed by the specified container.
          *
-         * Changes to the container's content will be visible to the struct buffer instance and vice versa. The two buffers' position, limit, and mark values
+         * <p>Changes to the container's content will be visible to the struct buffer instance and vice versa. The two buffers' position, limit, and mark values
          * will be independent. The new buffer's position will be zero, its capacity and its limit will be the number of bytes remaining in this buffer divided
-         * by {@link AIMesh#SIZEOF}, and its mark will be undefined.
+         * by {@link AIMesh#SIZEOF}, and its mark will be undefined.</p>
          *
          * <p>The created buffer instance holds a strong reference to the container object.</p>
          */
@@ -781,7 +812,7 @@ public class AIMesh extends Struct implements NativeResource {
         @NativeType("struct aiAnimMesh **")
         public PointerBuffer mAnimMeshes() { return AIMesh.nmAnimMeshes(address()); }
         /** @return the value of the {@link AIMesh#mMethod} field. */
-        @NativeType("unsigned int")
+        @NativeType("aiMorphingMethod")
         public int mMethod() { return AIMesh.nmMethod(address()); }
         /** @return a {@link AIAABB} view of the {@link AIMesh#mAABB} field. */
         @NativeType("struct aiAABB")
@@ -832,7 +863,7 @@ public class AIMesh extends Struct implements NativeResource {
         /** Sets the address of the specified {@link PointerBuffer} to the {@link AIMesh#mAnimMeshes} field. */
         public AIMesh.Buffer mAnimMeshes(@Nullable @NativeType("struct aiAnimMesh **") PointerBuffer value) { AIMesh.nmAnimMeshes(address(), value); return this; }
         /** Sets the specified value to the {@link AIMesh#mMethod} field. */
-        public AIMesh.Buffer mMethod(@NativeType("unsigned int") int value) { AIMesh.nmMethod(address(), value); return this; }
+        public AIMesh.Buffer mMethod(@NativeType("aiMorphingMethod") int value) { AIMesh.nmMethod(address(), value); return this; }
         /** Copies the specified {@link AIAABB} to the {@link AIMesh#mAABB} field. */
         public AIMesh.Buffer mAABB(@NativeType("struct aiAABB") AIAABB value) { AIMesh.nmAABB(address(), value); return this; }
         /** Passes the {@link AIMesh#mAABB} field to the specified {@link java.util.function.Consumer Consumer}. */

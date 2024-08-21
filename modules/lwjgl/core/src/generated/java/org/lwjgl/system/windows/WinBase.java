@@ -29,6 +29,28 @@ public class WinBase {
         throw new UnsupportedOperationException();
     }
 
+    // --- [ LocalFree ] ---
+
+    /** Unsafe version of: {@link #LocalFree} */
+    public static native long nLocalFree(long hMem);
+
+    /**
+     * Frees the specified local memory object and invalidates its handle.
+     *
+     * @param hMem a handle to the local memory object
+     *
+     * @return if the function succeeds, the return value is {@code NULL}.
+     *         
+     *         <p>If the function fails, the return value is equal to a handle to the local memory object. To get extended error information, call {@link #GetLastError}.</p>
+     */
+    @NativeType("HLOCAL")
+    public static long LocalFree(@NativeType("HLOCAL") long hMem) {
+        if (CHECKS) {
+            check(hMem);
+        }
+        return nLocalFree(hMem);
+    }
+
     // --- [ GetLastError ] ---
 
     /**
@@ -157,7 +179,7 @@ public class WinBase {
     public static String GetModuleFileName(@NativeType("HMODULE") long hModule, @NativeType("DWORD") int nSize) {
         MemoryStack stack = stackGet(); int stackPointer = stack.getPointer();
         try {
-            ByteBuffer lpFilename = stack.malloc(nSize);
+            ByteBuffer lpFilename = stack.malloc(nSize << 1);
             int __result = nGetModuleFileName(hModule, memAddress(lpFilename), nSize);
             return memUTF16(lpFilename, __result);
         } finally {
