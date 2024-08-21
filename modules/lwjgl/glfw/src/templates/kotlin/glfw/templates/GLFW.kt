@@ -1218,13 +1218,9 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
 
         <b>Do not use the version string</b> to parse the GLFW library version. The #GetVersion() function already provides the version of the library binary
         in numerical format.
-<<<<<<< HEAD
-        
-=======
 
         <b>Do not use the version string</b> to parse what platforms are supported. The #PlatformSupported() function lets you query platform support.
 
->>>>>>> original/master
         ${note(ul(
             "This function always succeeds.",
             "This function may be called before #Init().",
@@ -1287,8 +1283,6 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         since = "version 3.0"
     )
 
-<<<<<<< HEAD
-=======
     int(
         "GetPlatform",
         """
@@ -1334,7 +1328,6 @@ val GLFW = "GLFW".nativeClass(Module.GLFW, prefix = "GLFW", binding = GLFW_BINDI
         since = "version 3.4"
     )
 
->>>>>>> original/master
     GLFWmonitor.p.p(
         "GetMonitors",
         """
