@@ -416,12 +416,11 @@
 
         <!-- stb -->
         <build module="stb" if:true="${binding.stb}">
-            <compile>
+            <source>
 		<arg value="-I/usr/include"/>
 		<arg value="-I/usr/local/include"/>
 		<arg value="-I/usr/X11R6/include"/>
-            </compile>
-            <source>
+
                 <arg value="-isystem${src.main.rel}"/>
                 <fileset dir="." includes="${src.generated}/*.c"/>
             </source>
