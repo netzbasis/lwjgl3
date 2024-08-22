@@ -393,11 +393,11 @@
 
 	<!-- rpmalloc -->
         <build simple="true" module="rpmalloc">
-            <compile>
+            <source>
 		<arg value="-I/usr/include"/>
 		<arg value="-I/usr/local/include"/>
 		<arg value="-I/usr/X11R6/include"/>
-	    </compile>
+	    </source>
 	    <link>
 		<arg value="-lc"/>
 		<arg value="-lm"/>
