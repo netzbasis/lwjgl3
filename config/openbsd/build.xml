@@ -276,7 +276,8 @@
         </build>
 
         <!-- NativeFileDialog -->
-        <build module="nfd" simple="true" linker="c++" if:true="${binding.nfd}">
+	<!-- precompile c files, do not link in first step -->
+        <build module="nfd" simple="true" dolink="false" if:true="${binding.nfd}">
             <beforeCompile>
                 <local name="gtk3"/>
                 <local name="stderr"/>
@@ -285,6 +286,33 @@
                 </exec>
 
                 <compile>
+                    <arg line="${gtk3}"/>
+                    <arg value="-I/usr/include"/>
+		    <arg value="-I/usr/local/include"/>
+		    <arg value="-I/usr/X11R6/include"/>
+
+                    <arg value="-I${src.main.rel}"/>
+                    <arg value="-I${src.main.rel}/include"/>
+                    <fileset dir="." includes="${src.generated}/*.c"/>
+                </compile>
+            </beforeCompile>
+            <source>
+                <arg value="-I/usr/include"/>
+                <arg value="-I/usr/local/include"/>
+                <arg value="-I/usr/X11R6/include"/>
+
+                <arg value="-I${src.main.rel}/include"/>
+            </source>
+        </build>
+        <build module="nfd" simple="true" linker="c++" if:true="${binding.nfd}">
+            <beforeCompile>
+                <local name="gtk3"/>
+                <local name="stderr"/>
+                <exec outputproperty="gtk3" errorproperty="stderr" executable="pkg-config" failonerror="true" taskname="gtk-3.0">
+                    <arg line="--cflags gtk+-3.0"/>
+                </exec>
+
+                <compile lang="c++">
                     <arg line="${gtk3}"/>
                     <arg value="-I/usr/include"/>
 		    <arg value="-I/usr/local/include"/>
@@ -305,6 +333,8 @@
             <link>
                 <arg value="-L/usr/local/lib"/>
                 <arg value="-lc"/>
+		<arg value="-lc++"/>
+		<arg value="-lc++abi"/>
                 <arg value="-lglib-2.0"/>
                 <arg value="-lgobject-2.0"/>
                 <arg value="-lgtk-3"/>
