@@ -432,9 +432,8 @@
 
         <!-- tinyexr -->
         <!-- precompile c files, do not link in first step -->
-        <build module="tinyexr" simple="true" dolink="false" if:true="${binding.tinyexr}">
-            <beforeCompile>
-                <compile>
+        <build module="tinyexr" dolink="false" if:true="${binding.tinyexr}">
+            <source>
                     <arg value="-I/usr/include"/>
                     <arg value="-I/usr/local/include"/>
                     <arg value="-I/usr/X11R6/include"/>
@@ -446,21 +445,20 @@
                         <include name="${src.generated}/*.c"/>
                         <include name="${src.generated}/${platform}/*.c"/>
                     </fileset>
-                </compile>
-            </beforeCompile>
+            </source>
         </build>
-        <build module="tinyexr" simple="true" linker="c++" if:true="${binding.tinyexr}">
-            <beforeCompile>
-                <compile lang="c++">
+        <build module="tinyexr" simple="true" lang="c++" if:true="${binding.tinyexr}">
+            <source>
                     <arg value="-I/usr/include"/>
                     <arg value="-I/usr/local/include"/>
                     <arg value="-I/usr/X11R6/include"/>
 
                     <arg value="-I${src.main.rel}"/>
-                    <fileset dir="." includes="${src.main}/*.cc"/>
-                    <fileset dir="." includes="${src.generated}/*.cpp"/>
-                </compile>
-            </beforeCompile>
+                    <fileset dir=".">
+                        <include name="${src.main}/*.cc"/>
+                        <include name="${src.generated}/*.cpp"/>
+                    </fileset>
+            </source>
 	    <link>
 		<arg value="-lc"/>
 		<arg value="-lc++"/>
